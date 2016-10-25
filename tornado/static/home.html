@@ -1,44 +1,47 @@
 <!-- home.html -->
-<div>
-  <br />
-  <br />
-  <div class="col-xs-2"></div>
-    <div class="jumbotron">
-      <div class="container">
-        <img src="/javascript/swegen_logo_v1_trans_400.png"
-             class="big-swegen-logo" />
-        <h2>SweGen Variant Frequency Database</h2>
-          <p>This server hosts whole-genome variant frequencies for 1000
-          Swedish individuals generated within the SweGen project. The
-          frequency data is intended to be used as a resource for the research
-          community and clinical genetics laboratories. Individual positions in
-          the genome can be viewed using the Data Beacon or ExAC Browser by
-          clicking the links above. To access the variant frequency file you
-          need to register.</p>
-          <p>Please note that the 1000 individuals included in the SweGen
-          project represent a cross-section of the Swedish population and that
-          no disease information has been used for the selection. The frequency
-          data may therefore include genetic variants that are associated with,
-          or causative of, disease.</p>
-          <p>We request that any use of data from the SweGen project cite
-          <a href="http://biorxiv.org/content/early/2016/10/17/081505">this preprint on bioRxiv</a>.</p>
-
-          <h3>IMPORTANT NOTE 20161023</h3>
-          <p>We have noticed that variant calls are missing from
-          positions where both SNPs and INDELs are found at the same
-          coordinate.  We will solve this in the next release.  Until
-          then, please be cautious when studying frequencies at such
-          positions</p>
-      </div>
+<div class="jumbotron">
+  <div class="container">
+    <img src="/javascript/swegen_logo_v1_trans_400.png" class="big-swegen-logo" />
+    <h2>SweGen Variant Frequency Database</h2>
+    <p>This server hosts whole-genome variant frequencies for 1000
+    Swedish individuals generated within the SweGen project.
+    The frequency data is intended to be used as a resource for the research
+    community and clinical genetics laboratories. Individual positions in
+    the genome can be viewed using the Data Beacon or ExAC Browser by
+    clicking the links above. To access the variant frequency file you
+    need to register.</p>
+    <p>Please note that the 1000 individuals included in the SweGen
+    project represent a cross-section of the Swedish population and that
+    no disease information has been used for the selection. The frequency
+    data may therefore include genetic variants that are associated with,
+    or causative of, disease.</p>
+    <p>We request that any use of data from the SweGen project cite
+    <a href="http://biorxiv.org/content/early/2016/10/17/081505">this preprint on bioRxiv</a>.</p>
+    
+    <div class="alert alert-danger" role="alert">
+      <h3 style="margin-top:0;">IMPORTANT NOTE <small style="margin-left:15px;">2016-10-23</small></h3>
+      We have noticed that variant calls are missing from
+      positions where both SNPs and INDELs are found at the same
+      coordinate.  We will solve this in the next release.  Until
+      then, please be cautious when studying frequencies at such
+      positions.
     </div>
-
-    <div class="col-sm-12 col-md-12 col-lg-12 logo-div">
-        <a href="https://www.scilifelab.se"><img class="logo scilife" src="javascript/SLL_logo.png" alt="SciLifeLab"></a>
-        <a href="https://ngisweden.scilifelab.se/"><img class="logo" src="javascript/ngisweden_logo.png" alt="NGI"></a>
-        <a href="https://nbis.se"><img class="logo" src="javascript/nbislogo-green.png" alt="NBIS"></a>
-        <a href="https://elixir.se"><img class="logo" src="javascript/ELIXIR_SWEDEN_white_background.png" alt="Elixir Sweden"></a>
-    </div>
-
   </div>
-  <div class="row"></div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-3 text-center">
+      <a href="https://www.scilifelab.se"><img class="logo scilife" src="javascript/SLL_logo.png" alt="SciLifeLab"></a>
+    </div>
+    <div class="col-sm-3 text-center">
+      <a href="https://ngisweden.scilifelab.se/"><img class="logo" src="javascript/ngisweden_logo.png" alt="NGI"></a>
+    </div>
+    <div class="col-sm-3 text-center">
+      <a href="https://nbis.se"><img class="logo" src="javascript/nbislogo-green.png" alt="NBIS"></a>
+    </div>
+    <div class="col-sm-3 text-center">
+      <a href="https://elixir.se"><img class="logo" src="javascript/ELIXIR_SWEDEN_white_background.png" alt="Elixir Sweden"></a>
+    </div>
+  </div>
 </div>
