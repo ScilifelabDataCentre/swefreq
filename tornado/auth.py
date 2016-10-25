@@ -63,6 +63,13 @@ class BaseHandler(tornado.web.RequestHandler):
         lAdmin = True if len(tRes) == 1 else False
         return lAdmin
 
+    def is_authorized(self):
+        email = self.get_current_email()
+        tRes = db.query("""select full_user from swefreq.users where
+                              email='%s' and full_user""" % email)
+        lAdmin = True if len(tRes) == 1 else False
+        return lAdmin
+
     def write_error(self, status_code, **kwargs):
         """ Overwrites write_error method to have custom error pages.
         http://tornado.readthedocs.org/en/latest/web.html#tornado.web.RequestHandler.write_error
@@ -112,6 +119,13 @@ class SafeHandler(BaseHandler):
         authentication in all their methods.
         """
         if not self.current_user:
+            self.redirect('/static/not_authorized.html')
+
+class AuthorizedHandler(BaseHandler):
+    def prepare(self):
+        if not self.current_user:
+            self.redirect('/static/not_authorized.html')
+        if not self.is_authorized():
             self.redirect('/static/not_authorized.html')
 
 class UnsafeHandler(BaseHandler):
@@ -198,6 +212,11 @@ class MainHandler(UnsafeHandler):
 
 
 class SafeStaticFileHandler(tornado.web.StaticFileHandler, SafeHandler):
+    """ Serve static files for logged in users
+    """
+    pass
+
+class AuthorizedStaticFileHandler(tornado.web.StaticFileHandler, AuthorizedHandler):
     """ Serve static files for authenticated users
     """
     pass

@@ -13,6 +13,7 @@ indexHead="""
     <!-- Angular -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-cookies.min.js"></script>
     <!-- Angular grid gui -->
     <link rel="stylesheet" href="/javascript/main.css" type="text/css" />
     <link rel="stylesheet" href="/javascript/local.css" type="text/css" />
@@ -25,7 +26,7 @@ indexHead="""
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-44754195-1', 'auto');
+    ga('create', 'UA-85976442-1', 'auto');
     ga('send', 'pageview');
     </script>
     <!-- End Google Analytics -->
@@ -34,11 +35,13 @@ indexHead="""
 indexHtml="""
   <!-- define angular controller -->
   <body ng-controller="mainController as mainCtrl">
+    <consent></consent>
     <nav class="navbar navbar-default">
       <div class="container">
         <a class="navbar-brand" href="/#/">SweFreq</a>
         <div class="navbar-right">
           <a href="/#/about/" role="button" class="btn btn-default navbar-btn">About</a>
+          <a href="/#/terms/" role="button" class="btn btn-default">Terms of use</a>
           <a href="/#/dataBeacon/" role="button" class="btn btn-default navbar-btn">Data Beacon</a>
           <a href="{{ExAC}}" role="button" class="btn btn-default navbar-btn">ExAC Browser</a>
           <a href="/#/downloadData/" role="button" class="btn btn-default navbar-btn">Download Data</a>
@@ -68,11 +71,13 @@ indexHtml="""
 notAuthorizedHtml="""
   <!-- define angular controller -->
   <body ng-controller="mainController as mainCtrl">
+    <consent></consent>
     <nav class="navbar navbar-default">
       <div class="container">
         <a class="navbar-brand" href="/#/">SweFreq</a>
         <div class="navbar-right">
           <a href="/#/about/" role="button" class="btn btn-default navbar-btn">About</a>
+          <a href="/#/terms/" role="button" class="btn btn-default">Terms of use</a>
           <a href="/#/dataBeacon/" role="button" class="btn btn-default navbar-btn">Data Beacon</a>
           <a href="{{ExAC}}" role="button" class="btn btn-default navbar-btn">ExAC Browser</a>
           <a href="/login" class="btn btn-text navbar-btn">Login</a>
@@ -91,11 +96,13 @@ notAuthorizedHtml="""
 indexNoAccess="""
   <!-- define angular controller -->
   <body ng-controller="mainController as mainCtrl">
+    <consent></consent>
     <nav class="navbar navbar-default">
       <div class="container">
         <a class="navbar-brand" href="/#/">SweFreq</a>
         <div class="navbar-right">
           <a href="/#/about/" role="button" class="btn btn-default navbar-btn">About</a>
+          <a href="/#/terms/" role="button" class="btn btn-default">Terms of use</a>
           <a href="/#/requestAccess/" role="button" class="btn btn-default navbar-btn">Request Access</a>
         {%if user_name != None%}
           {{user_name}}

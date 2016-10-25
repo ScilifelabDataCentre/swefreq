@@ -97,9 +97,9 @@ class info(auth.UnsafeHandler):
             #'email': u'swefreq-beacon@nbis.se',
             #'auth': 'None', # u'oauth2'
             'queries': [
-                query_uri + 'chrom=1&pos=13372&dataset=exac&allele=C',
-                query_uri + 'dataset=exac&chrom=2&pos=46199&allele=ICAG&format=text',
-                query_uri + 'dataset=exac&chrom=2&pos=45561&allele=D3'
+                query_uri + 'dataset=SweGen&ref=hg19&chrom=1&pos=55500976&dataset=exac&allele=C',
+                query_uri + 'dataset=SweGen&ref=hg19&chrom=1&pos=55505553&allele=ICTG&format=text',
+                query_uri + 'dataset=SweGen&ref=hg19&chrom=2&pos=41938&allele=D1'
                 ] #
             })
 
@@ -126,25 +126,29 @@ def lookupAllele(chrom, pos, allele, reference, dataset):
     if allele[0] == 'D' or allele[0] == 'I':
         pos -= 1
 
-    res = mdb.variants.find_one({'chrom': chrom, 'pos': pos})
+    res = mdb.variants.find({'chrom': chrom, 'pos': pos})
     if not res:
         return False
 
-    # Just a (point) mutation
-    if allele[0] != 'D' and allele[0] != 'I':
-        return res['alt'] == allele
+    for r in res:
+        # Just a (point) mutation
+        if allele[0] != 'D' and allele[0] != 'I':
+            if r['alt'] == allele:
+                return True
 
-    # Insertion. Inserted sequence is from second position and onwards and
-    # should match allele
-    if allele[0] == 'I':
-        return res['alt'][1:] == allele[1:]
+        # Insertion. Inserted sequence is from second position and onwards and
+        # should match allele
+        if allele[0] == 'I':
+            if r['alt'][1:] == allele[1:]:
+                return True
 
-    # Deletion. Just check that the length of the ref is one more than the
-    # length of the deletion.
-    if allele[0] == 'D':
-        return int(allele[1:])+1 == len(res['ref'])
+        # Deletion. Just check that the length of the ref is one more than the
+        # length of the deletion.
+        if allele[0] == 'D':
+            if int(allele[1:])+1 == len(r['ref']):
+                return True
 
-    raise Exception("Can't find the thingy") # Should probably be a 4XX response
+    return False
 
 class home(auth.UnsafeHandler):
     def get(self, *args, **kwargs):

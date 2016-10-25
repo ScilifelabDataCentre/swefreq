@@ -1,6 +1,4 @@
-<!-- downloadData.html.html ng-click="downloadDataCtrl.downloadData()" -->
-
-<div ng-controller="downloadDataController as downloadDataCtrl">
+<div>
   <br>
   <br>
   <div class="col-xs-1"></div>
@@ -80,18 +78,6 @@
         Any use of SweGen data should be cited by our preprint on bioRxiv
         [<a href="http://biorxiv.org/content/early/2016/10/17/081505">http://biorxiv.org/content/early/2016/10/17/081505</a>]
     </p>
-
-
-    <p><b>I hereby consent to the agreement:</b> <input type="checkbox"
-					      ng-model="downloadDataCtrl.checked"
-					      ng-change="downloadDataCtrl.isChecked()">
-    <br/><br>
-
-	 <a class="btn btn-primary btn-download"
-	 ng-class="{'disabled': downloadDataCtrl.lChecked}"
-	 download="swegen_20161019.tar"
-	 href="/release/swegen_20161019.tar"
-	 ng-click="downloadDataCtrl.downloadData()">Download</a>
 
   </div>
   <div class="col-xs-2"></div>
