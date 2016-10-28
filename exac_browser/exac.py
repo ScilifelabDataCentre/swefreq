@@ -126,6 +126,7 @@ def load_base_coverage():
         except pymongo.errors.InvalidOperation:
             pass  # handle error when coverage_generator is empty
 
+    db = get_db()
     db.base_coverage.drop()
     print("Dropped db.base_coverage")
     # load coverage first; variant info will depend on coverage
