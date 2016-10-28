@@ -119,29 +119,32 @@ def parse_tabix_file_subset(tabix_filenames, subset_i, subset_n, record_parser):
 
 def load_base_coverage():
     def load_coverage(coverage_files, i, n, db):
+        db = connect_db()
         coverage_generator = parse_tabix_file_subset(coverage_files, i, n, get_base_coverage_from_file)
         try:
             db.base_coverage.insert(coverage_generator, w=0)
         except pymongo.errors.InvalidOperation:
             pass  # handle error when coverage_generator is empty
 
-    db = get_db()
     db.base_coverage.drop()
     print("Dropped db.base_coverage")
     # load coverage first; variant info will depend on coverage
-    db.base_coverage.ensure_index('xpos')
 
     procs = []
     coverage_files = app.config['BASE_COVERAGE_FILES']
     num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
     random.shuffle(app.config['BASE_COVERAGE_FILES'])
+
     for i in range(num_procs):
         p = Process(target=load_coverage, args=(coverage_files, i, num_procs, db))
         p.start()
         procs.append(p)
-    return procs
 
-    #print 'Done loading coverage. Took %s seconds' % int(time.time() - start_time)
+    [p.join() for p in procs]
+
+    db.base_coverage.ensure_index('xpos')
+
+    print 'Done loading coverage. Took %s seconds' % int(time.time() - start_time)
 
 
 def load_variants_file():
