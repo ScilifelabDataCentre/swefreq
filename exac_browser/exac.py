@@ -118,7 +118,7 @@ def parse_tabix_file_subset(tabix_filenames, subset_i, subset_n, record_parser):
 
 
 def load_base_coverage():
-    def load_coverage(coverage_files, i, n, db):
+    def load_coverage(coverage_files, i, n):
         db = connect_db()
         coverage_generator = parse_tabix_file_subset(coverage_files, i, n, get_base_coverage_from_file)
         try:
@@ -137,7 +137,7 @@ def load_base_coverage():
     random.shuffle(app.config['BASE_COVERAGE_FILES'])
 
     for i in range(num_procs):
-        p = Process(target=load_coverage, args=(coverage_files, i, num_procs, db))
+        p = Process(target=load_coverage, args=(coverage_files, i, num_procs))
         p.start()
         procs.append(p)
 
