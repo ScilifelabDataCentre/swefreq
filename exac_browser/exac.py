@@ -145,7 +145,7 @@ def load_base_coverage():
 
     db.base_coverage.ensure_index('xpos')
 
-    print 'Done loading coverage. Took %s seconds' % int(time.time() - start_time)
+    #print 'Done loading coverage. Took %s seconds' % int(time.time() - start_time)
 
 
 def load_variants_file():
