@@ -136,12 +136,13 @@ def load_base_coverage():
     num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
     random.shuffle(app.config['BASE_COVERAGE_FILES'])
 
-    for i in range(num_procs):
-        p = Process(target=load_coverage, args=(coverage_files, i, num_procs))
-        p.start()
-        procs.append(p)
+    for this_file in coverage_files:
+        for i in range(num_procs):
+            p = Process(target=load_coverage, args=([this_file], i, num_procs))
+            p.start()
+            procs.append(p)
 
-    [p.join() for p in procs]
+        [p.join() for p in procs]
 
     db.base_coverage.ensure_index('xpos')
 
