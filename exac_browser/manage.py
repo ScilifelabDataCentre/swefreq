@@ -17,7 +17,7 @@ def load_db():
 
 @manager.command
 def load_base_coverage():
-    procs = exac.load_base_coverage()
+    exac.load_base_coverage()
 
 
 @manager.command
