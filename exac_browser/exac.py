@@ -133,8 +133,15 @@ def load_base_coverage():
 
     procs = []
     coverage_files = app.config['BASE_COVERAGE_FILES']
-    num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
     random.shuffle(app.config['BASE_COVERAGE_FILES'])
+
+    # The coverage data fails to load if we do it just like when we
+    # load the VCF file.  We don't know exactly why.  Here, we loop
+    # sequentially with one single thread over the input files.  Our
+    # data is at preset 31Gb (compressed), and this takes 17 hours to
+    # load in this way.
+    #num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
+    num_procs = 1;
 
     for this_file in coverage_files:
         for i in range(num_procs):
