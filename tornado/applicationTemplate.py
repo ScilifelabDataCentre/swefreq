@@ -50,14 +50,6 @@ index="""
         <div class="collapse navbar-collapse" id="navbar-things">
         <ul class="nav navbar-nav navbar-right" bs-active-link>
           <li><a href="/#/about/">About</a>
-          <li><a href="/#/terms/">Terms of use</a>
-          <li><a href="/#/dataBeacon/">Data Beacon</a>
-          <li><a href="{{ExAC}}">SweGen Browser</a>
-        {% if has_access %}
-          <li><a href="/#/downloadData/">Download Data</a>
-        {% elif user_name %}
-          <li><a href="/#/requestAccess/">Request Access</a>
-        {% end %}
         {% if is_admin %}
           <li><a href="/#/admin/">Admin</a>
         {% end %}

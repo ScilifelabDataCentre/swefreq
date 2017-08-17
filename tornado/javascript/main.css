@@ -38,3 +38,56 @@ input.ng-dirty.ng-invalid, select.ng-dirty.ng-invalid {
     border: 1px solid Red;
     background-color: #FFF5F5;
 }
+
+// Dataset box CSS
+.dataset-panel {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.dataset-links {
+    display: flex;
+}
+
+.dataset-links li {
+    display: block;
+    text-align: center;
+    font-size: 21px;
+    font-weight: 200;
+    flex-grow: 1;
+    background-color: #dddddd;
+}
+
+.dataset-links li a {
+    color: #000;
+}
+
+.dataset-links li:hover {
+    background-color: #F47D20;
+}
+
+.dataset-heading {
+    background-color: #85BE42;
+    border-radius: 5px 5px 0 0;
+    font-size: 18pt;
+    padding: 2px 0 2px 5px;
+}
+
+.dataset-body {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    padding: 5px;
+    font-size: 12pt;
+    height: 100%;
+}
+
+img.dataset-logo {
+    max-width: 100px;
+    max-height: 200px;
+    float: right;
+}
