@@ -62,24 +62,30 @@ index="""
         </div>
       </div>
     </nav>
-    <div ng-class="{'hidden-blurb': !showAbout}">
-      <div class="row blurb">
-          <div class="col-md-2"></div>
-          <div class="col-sm-12 col-md-8">
-              <p>The Swedish Frequency resource for genomics (SweFreq) is a
-              website developed to make genomic datasets more findable and
-              accessible in order to promote collaboration, new research and
-              increase public benefit. You can contact <a
-              href="mailto:swefreq@scilifelab.se">swefreq@scilifelab.se</a> if
-              you want to find out more about this resource and how it could
-              benefit you and your research.
 
-              <p>If you have questions or comments about the SweGen cohort
-              dataset please contact <a
-              href="mailto:swegen@scilifelab.se">swegen@scilifelab.se</a>.
+    <!-- About blurb -->
+    <div class="blurb" ng-class="{'hidden-blurb': !showAbout}">
+        <div class="container">
+          <div class="row">
+              <div class="col-md-2"></div>
+              <div class="col-sm-12 col-md-8">
+                  <p>The Swedish Frequency resource for genomics (SweFreq) is a
+                  website developed to make genomic datasets more findable and
+                  accessible in order to promote collaboration, new research and
+                  increase public benefit. You can contact <a
+                  href="mailto:swefreq@scilifelab.se">swefreq@scilifelab.se</a> if
+                  you want to find out more about this resource and how it could
+                  benefit you and your research.
+
+                  <p>If you have questions or comments about the SweGen cohort
+                  dataset please contact <a
+                  href="mailto:swegen@scilifelab.se">swegen@scilifelab.se</a>.
+              </div>
+              <div class="col-md-2"></div>
           </div>
       </div>
-      </div>
+    </div>
+
     <div id="main">
       <!-- angular templating -->
       <!-- this is where content will be injected by angular -->
