@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto|Encode+Sans|Lato');
+
 .navbar img { margin-top: -15px; }
 
 .hidden-blurb {
@@ -64,6 +66,10 @@ input.ng-dirty.ng-invalid, select.ng-dirty.ng-invalid {
     background-color: #FFF5F5;
 }
 
+.dataset-row {
+    padding-bottom: 40px;
+}
+
 // Dataset box CSS
 .dataset-panel {
     display: flex;
@@ -72,6 +78,25 @@ input.ng-dirty.ng-invalid, select.ng-dirty.ng-invalid {
     border-radius: 5px;
     overflow: hidden;
     margin-bottom: 20px;
+}
+
+.dataset-heading {
+    background-color: #85BE42;
+    border-radius: 5px 5px 0 0;
+    color: #fff;
+    font-size: 18pt;
+    padding: 2px 0 2px 7px;
+}
+
+.dataset-body {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    padding: 5px;
+    padding-top: 15px;
+    font-size: 14pt;
+    height: 100%;
+    background-color: #f8f8f8;
 }
 
 .dataset-links {
@@ -84,7 +109,15 @@ input.ng-dirty.ng-invalid, select.ng-dirty.ng-invalid {
     font-size: 21px;
     font-weight: 200;
     flex-grow: 1;
-    background-color: #dddddd;
+    background-color: #e8e8e8;
+}
+
+.dataset-links li:first-child {
+    border-radius: 0 0 0 5px;
+}
+
+.dataset-links li:last-child {
+    border-radius: 0 0 5px 0;
 }
 
 .dataset-links li a {
@@ -93,22 +126,6 @@ input.ng-dirty.ng-invalid, select.ng-dirty.ng-invalid {
 
 .dataset-links li:hover {
     background-color: #F47D20;
-}
-
-.dataset-heading {
-    background-color: #85BE42;
-    border-radius: 5px 5px 0 0;
-    font-size: 18pt;
-    padding: 2px 0 2px 5px;
-}
-
-.dataset-body {
-    overflow: hidden;
-    height: 100%;
-    width: 100%;
-    padding: 5px;
-    font-size: 12pt;
-    height: 100%;
 }
 
 img.dataset-logo {
