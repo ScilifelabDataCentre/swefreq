@@ -74,10 +74,6 @@ index="""
                       href="mailto:swefreq@scilifelab.se">swefreq@scilifelab.se</a> if
                       you want to find out more about this resource and how it could
                       benefit you and your research.
-
-                      <p>If you have questions or comments about the SweGen cohort
-                      dataset please contact <a
-                      href="mailto:swegen@scilifelab.se">swegen@scilifelab.se</a>.
                   </div>
                   <div class="col-md-2"></div>
               </div>
