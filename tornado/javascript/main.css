@@ -46,8 +46,21 @@ footer img.logo {
     margin-right: auto;
 }
 
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 100px;
+}
+
 .affiliate-logos {
-    margin-bottom: 10px;
+    margin-bottom: 0px;
+    position: absolute;
+    height: 100px;
+    bottom: 0px;
 }
 
 img.logo.scilife {
