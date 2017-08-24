@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto|Encode+Sans|Lato');
-
 .navbar img { margin-top: -15px; }
 
 .hidden-blurb {
@@ -106,11 +104,17 @@ input.ng-dirty.ng-invalid, select.ng-dirty.ng-invalid {
     overflow: hidden;
     height: 100%;
     width: 100%;
-    padding: 5px;
-    padding-top: 15px;
+    padding: 15px 15px 7px 15px;
     font-size: 14pt;
     height: 100%;
     background-color: #f8f8f8;
+}
+
+.dataset-body img.dataset-logo {
+    max-width: 150px;
+    max-height: 300px;
+    float: right;
+    margin: 15px;
 }
 
 .dataset-links {
@@ -140,10 +144,4 @@ input.ng-dirty.ng-invalid, select.ng-dirty.ng-invalid {
 
 .dataset-links li:hover {
     background-color: #F47D20;
-}
-
-img.dataset-logo {
-    max-width: 100px;
-    max-height: 200px;
-    float: right;
 }
