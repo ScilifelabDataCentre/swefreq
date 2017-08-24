@@ -290,10 +290,6 @@
             .when('/admin/', {
                 templateUrl : 'static/admin.html'
             })
-        // About
-            .when('/about/', {
-                templateUrl : 'static/about.html'
-            })
         // Terms
             .when('/terms/', {
                 templateUrl : 'static/terms.html'

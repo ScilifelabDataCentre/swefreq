@@ -34,7 +34,6 @@ class Application(tornado.web.Application):
             (r"/static/(dataBeacon.html)",       tornado.web.StaticFileHandler,              {"path": "static/"}),
             (r"/static/(privacyPolicy.html)",    tornado.web.StaticFileHandler,              {"path": "static/"}),
             (r"/static/(not_authorized.html)",   tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(about.html)",            tornado.web.StaticFileHandler,              {"path": "static/"}),
             (r"/static/(terms.html)",            tornado.web.StaticFileHandler,              {"path": "static/"}),
             (r"/static/(.*)",                    handlers.SafeStaticFileHandler,             {"path": "static/"}),
             (r'/(favicon.ico)',                  tornado.web.StaticFileHandler,              {"path": "static/"}),

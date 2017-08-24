@@ -1,15 +1,27 @@
 <!-- home.html -->
-<div class="jumbotron">
-  <div ng-controller="homeController as home"
-    <div class="container">
-      <div ng-if="home.has_image">
-          <img ng-src="/dataset_logo/{{ home.short_name }}" class="big-swegen-logo" alt='{{ home.short_name }} logo' />
-      </div>
-      <h2>{{ home.full_name }}</h2>
-      <div ng-bind-html="home.getDescription()"></div>
-    </div>
+  <div ng-controller="homeController as home">
+        <div class="row dataset-row">
+            <div class="col-sm-1 col-md-2"></div>
+            <div class="col-sm-10 col-md-8">
+                <div class="dataset-panel">
+                    <div class="dataset-heading">{{ home.full_name }}</div>
+                    <div class="dataset-body">
+                        <div ng-if="home.has_image">
+                            <img ng-src="/dataset_logo/{{ home.short_name }}" class="dataset-logo" alt='{{ home.short_name }} logo' />
+                        </div>
+                        <div ng-bind-html="home.getDescription()" />
+                    </div>
+                    <div class="dataset-links">
+                        <li><a href="#">More information</a></li>
+                        <li><a href="#">Beacon</a></li>
+                        <li><a href="#">Graphical Browser</a></li>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-1 col-md-2"></div>
+        </div>
   </div>
-</div>
+
 
 <div class="container affiliate-logos">
   <div class="row">

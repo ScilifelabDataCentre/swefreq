@@ -1,4 +1,32 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto|Encode+Sans|Lato');
+
 .navbar img { margin-top: -15px; }
+
+.hidden-blurb {
+    display: none;
+    transition: all 0.5s ease-in-out;
+}
+
+.blurb {
+    padding-top: 30px;
+    padding-bottom: 20px;
+    margin-top: -20px;
+    margin-bottom: 20px;
+
+    background-color: #666;
+    box-shadow: 0 5px 10px -5px #000 inset,
+                0 -5px 10px -5px #000 inset;
+    color: #fff;
+    font-size: 14pt;
+}
+
+.blurb a {
+    color: #63aae7;
+}
+
+.navbar {
+    border-radius: 0px;
+}
 
 .jumbotron {
   margin: 48px 0;
@@ -37,4 +65,72 @@ input.ng-dirty.ng-valid, select.ng-dirty.ng-valid {
 input.ng-dirty.ng-invalid, select.ng-dirty.ng-invalid {
     border: 1px solid Red;
     background-color: #FFF5F5;
+}
+
+.dataset-row {
+    padding-bottom: 40px;
+}
+
+// Dataset box CSS
+.dataset-panel {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.dataset-heading {
+    background-color: #85BE42;
+    border-radius: 5px 5px 0 0;
+    color: #fff;
+    font-size: 18pt;
+    padding: 2px 0 2px 7px;
+}
+
+.dataset-body {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    padding: 5px;
+    padding-top: 15px;
+    font-size: 14pt;
+    height: 100%;
+    background-color: #f8f8f8;
+}
+
+.dataset-links {
+    display: flex;
+}
+
+.dataset-links li {
+    display: block;
+    text-align: center;
+    font-size: 21px;
+    font-weight: 200;
+    flex-grow: 1;
+    background-color: #e8e8e8;
+}
+
+.dataset-links li:first-child {
+    border-radius: 0 0 0 5px;
+}
+
+.dataset-links li:last-child {
+    border-radius: 0 0 5px 0;
+}
+
+.dataset-links li a {
+    color: #000;
+}
+
+.dataset-links li:hover {
+    background-color: #F47D20;
+}
+
+img.dataset-logo {
+    max-width: 100px;
+    max-height: 200px;
+    float: right;
 }
