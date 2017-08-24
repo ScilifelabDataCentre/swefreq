@@ -49,15 +49,7 @@ index="""
 
         <div class="collapse navbar-collapse" id="navbar-things">
         <ul class="nav navbar-nav navbar-right" bs-active-link>
-          <li><a href="/#/about/">About</a>
-          <li><a href="/#/terms/">Terms of use</a>
-          <li><a href="/#/dataBeacon/">Data Beacon</a>
-          <li><a href="{{ExAC}}">SweGen Browser</a>
-        {% if has_access %}
-          <li><a href="/#/downloadData/">Download Data</a>
-        {% elif user_name %}
-          <li><a href="/#/requestAccess/">Request Access</a>
-        {% end %}
+          <li><a ng-click="showAbout = !showAbout" style="cursor: pointer">About</a>
         {% if is_admin %}
           <li><a href="/#/admin/">Admin</a>
         {% end %}
@@ -70,6 +62,24 @@ index="""
         </div>
       </div>
     </nav>
+    <div ng-class="{'hidden-blurb': !showAbout}">
+      <div class="row blurb">
+          <div class="col-md-2"></div>
+          <div class="col-sm-12 col-md-8">
+              <p>The Swedish Frequency resource for genomics (SweFreq) is a
+              website developed to make genomic datasets more findable and
+              accessible in order to promote collaboration, new research and
+              increase public benefit. You can contact <a
+              href="mailto:swefreq@scilifelab.se">swefreq@scilifelab.se</a> if
+              you want to find out more about this resource and how it could
+              benefit you and your research.
+
+              <p>If you have questions or comments about the SweGen cohort
+              dataset please contact <a
+              href="mailto:swegen@scilifelab.se">swegen@scilifelab.se</a>.
+          </div>
+      </div>
+      </div>
     <div id="main">
       <!-- angular templating -->
       <!-- this is where content will be injected by angular -->
