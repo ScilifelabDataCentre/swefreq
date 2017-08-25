@@ -264,38 +264,14 @@
     // configure routes
     App.config(function($routeProvider) {
         $routeProvider
-        // Read only view
-            .when('/', {
-                templateUrl : 'static/home.html'
-            })
-        // Data beacon
-            .when('/dataBeacon/', {
-                templateUrl : 'static/dataBeacon.html'
-            })
-        // Data Download
-            .when('/downloadData/', {
-                templateUrl : 'static/downloadData.html'
-            })
-        // Request Access
-            .when('/requestAccess/', {
-                templateUrl : 'static/requestAccess.html'
-            })
-        // Request Access Sent
-            .when('/addedRequest/', {
-                templateUrl : 'static/addedRequest.html'
-            })
-        // Privacy Policy
-            .when('/privacyPolicy/', {
-                templateUrl : 'static/privacyPolicy.html'
-            })
-        // Admin interface
-            .when('/admin/', {
-                templateUrl : 'static/admin.html'
-            })
-        // Terms
-            .when('/terms/', {
-                templateUrl : 'static/terms.html'
-            })
+            .when('/',               { templateUrl: 'static/home.html'          })
+            .when('/dataBeacon/',    { templateUrl: 'static/dataBeacon.html'    })
+            .when('/downloadData/',  { templateUrl: 'static/downloadData.html'  })
+            .when('/requestAccess/', { templateUrl: 'static/requestAccess.html' })
+            .when('/addedRequest/',  { templateUrl: 'static/addedRequest.html'  })
+            .when('/privacyPolicy/', { templateUrl: 'static/privacyPolicy.html' })
+            .when('/admin/',         { templateUrl: 'static/admin.html'         })
+            .when('/terms/',         { templateUrl: 'static/terms.html'         })
     });
 })();
 
