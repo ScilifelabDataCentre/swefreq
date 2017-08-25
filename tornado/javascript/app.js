@@ -88,6 +88,7 @@
             $http.get('/getDataset').success(function(data){
                 localThis.short_name  = data.short_name;
                 localThis.full_name   = data.full_name;
+                localThis.beacon_uri  = data.beacon_uri;
                 localThis.description = data.description;
                 localThis.terms       = data.terms;
                 localThis.has_image   = data.has_image;
