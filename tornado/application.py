@@ -163,6 +163,7 @@ class GetDataset(handlers.UnsafeHandler):
         ret = {
             'short_name': self.dataset.short_name,
             'full_name': self.dataset.full_name,
+            'beacon_uri': self.dataset.beacon_uri,
             'description': current_version.description,
             'terms': current_version.terms,
             'version': current_version.version,
