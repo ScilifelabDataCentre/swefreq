@@ -51,19 +51,23 @@ html {
 
 body {
     /* Margin bottom by footer height */
-    margin-bottom: 100px;
+    margin-bottom: 80px;
 }
 
 .affiliate-logos {
     margin-bottom: 0px;
     position: absolute;
-    height: 100px;
+    height: 80px;
     bottom: 0px;
 }
 
 img.logo.scilife {
     top: 8px;
     position: relative;
+}
+
+img.logo.elixir {
+    margin-top: -15px;
 }
 
 
