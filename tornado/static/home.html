@@ -1,41 +1,41 @@
 <!-- home.html -->
-  <div ng-controller="homeController as home">
-        <div class="row dataset-row">
-            <div class="col-sm-1 col-md-2"></div>
-            <div class="col-sm-10 col-md-8">
-                <div class="dataset-panel">
-                    <div class="dataset-heading">{{ home.full_name }}</div>
-                    <div class="dataset-body">
-                        <div ng-if="home.has_image">
-                            <img ng-src="/dataset_logo/{{ home.short_name }}" class="dataset-logo" alt='{{ home.short_name }} logo' />
-                        </div>
-                        <div ng-bind-html="home.getDescription()" />
-                    </div>
-                    <div class="dataset-links">
-                        <li><a href="#">More information</a></li>
-                        <li><a href="#">Beacon</a></li>
-                        <li><a href="#">Graphical Browser</a></li>
-                    </div>
-                </div>
+ <div ng-controller="homeController as home" class="container">
+    <div class="row dataset-row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <div class="dataset-panel">
+                 <div class="dataset-heading">{{ home.full_name }}</div>
+                 <div class="dataset-body">
+                     <div ng-if="home.has_image">
+                         <img ng-src="/dataset_logo/{{ home.short_name }}" class="dataset-logo" alt='{{ home.short_name }} logo' />
+                     </div>
+                     <div ng-bind-html="home.getDescription()" />
+                 </div>
+                 <div class="dataset-links">
+                     <li><a href="#">More information</a></li>
+                     <li><a href="#">Beacon</a></li>
+                     <li><a href="#">Graphical Browser</a></li>
+                 </div>
             </div>
-            <div class="col-sm-1 col-md-2"></div>
         </div>
-  </div>
+        <div class="col-md-1"></div>
+    </div>
+</div>
 
 
 <div class="container affiliate-logos">
-  <div class="row">
-    <div class="col-sm-3 text-center">
-      <a href="https://www.scilifelab.se"><img class="logo scilife" src="javascript/SLL_logo.png" alt="SciLifeLab"></a>
+    <div class="row">
+        <div class="col-sm-3 text-center">
+            <a href="https://www.scilifelab.se"><img class="logo scilife" src="javascript/SLL_logo.png" alt="SciLifeLab"></a>
+        </div>
+        <div class="col-sm-3 text-center">
+            <a href="https://ngisweden.scilifelab.se/"><img class="logo" src="javascript/ngisweden_logo.png" alt="NGI"></a>
+        </div>
+        <div class="col-sm-3 text-center">
+            <a href="https://nbis.se"><img class="logo" src="javascript/nbislogo-green.png" alt="NBIS"></a>
+        </div>
+        <div class="col-sm-3 text-center">
+            <a href="https://elixir.se"><img class="logo" src="javascript/ELIXIR_SWEDEN_white_background.png" alt="Elixir Sweden"></a>
+        </div>
     </div>
-    <div class="col-sm-3 text-center">
-      <a href="https://ngisweden.scilifelab.se/"><img class="logo" src="javascript/ngisweden_logo.png" alt="NGI"></a>
-    </div>
-    <div class="col-sm-3 text-center">
-      <a href="https://nbis.se"><img class="logo" src="javascript/nbislogo-green.png" alt="NBIS"></a>
-    </div>
-    <div class="col-sm-3 text-center">
-      <a href="https://elixir.se"><img class="logo" src="javascript/ELIXIR_SWEDEN_white_background.png" alt="Elixir Sweden"></a>
-    </div>
-  </div>
 </div>
