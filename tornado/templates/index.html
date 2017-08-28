@@ -52,9 +52,9 @@
                         <li><a href="/#/admin/">Admin</a>
                     {% end %}
                     {% if user_name %}
-                        <li><a href="/logout" title="Logout {{user_name}}">Logout</a>
+                        <li><a href="/logout" target="_self" title="Logout {{user_name}}">Logout</a>
                     {% else %}
-                        <li><a href="/login">Login</a>
+                        <li><a href="/login" target="_self">Login</a>
                     {% end %}
                     </ul>
                 </div>
