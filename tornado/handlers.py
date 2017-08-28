@@ -2,6 +2,7 @@ import logging
 import peewee
 import tornado.auth
 import tornado.web
+import tornado.template as template
 import os.path
 
 import db
@@ -19,6 +20,11 @@ class BaseHandler(tornado.web.RequestHandler):
         won't be overwritten in that case)
         """
         raise tornado.web.HTTPError(404, reason='Page not found')
+
+    def template_loader(self):
+        if not hasattr(self, '_loader'):
+            self._loader = template.Loader("templates/")
+        return self._loader
 
     def prepare(self):
         db.database.connect()
