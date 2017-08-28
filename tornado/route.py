@@ -28,7 +28,6 @@ settings = {"debug": False,
 class Application(tornado.web.Application):
     def __init__(self, settings):
         self.declared_handlers = [
-            (r"/",                               application.Home),
             ## Static handlers
             (r"/static/(.*)",                    tornado.web.StaticFileHandler,              {"path": "static/"}),
             (r'/(favicon.ico)',                  tornado.web.StaticFileHandler,              {"path": "static/img/"}),
@@ -40,15 +39,17 @@ class Application(tornado.web.Application):
             ("/api/logEvent/(?P<sEvent>[^\/]+)",     application.LogEvent),
             ("/api/getUser",                         application.GetUser),
             ("/api/getDataset",                      application.GetDataset),
-            ("/api/getApprovedUsers",                application.GetApprovedUsers),
-            ("/api/approveUser/(?P<sEmail>[^\/]+)",  application.ApproveUser),
-            ("/api/query",                           application.Query),
-            ("/api/info",                            application.Info),
-            ("/api/revokeUser/(?P<sEmail>[^\/]+)",   application.RevokeUser),
-            ("/api/getOutstandingRequests",          application.GetOutstandingRequests),
             ("/api/requestAccess",                   application.RequestAccess),
             ("/api/country_list",                    application.CountryList),
             ("/api/dataset_logo/(?P<dataset>[^\/]+)", application.ServeLogo),
+            ### Beacon API
+            ("/api/query",                           application.Query),
+            ("/api/info",                            application.Info),
+            ### Admin API
+            ("/api/getApprovedUsers",                application.GetApprovedUsers),
+            ("/api/approveUser/(?P<sEmail>[^\/]+)",  application.ApproveUser),
+            ("/api/revokeUser/(?P<sEmail>[^\/]+)",   application.RevokeUser),
+            ("/api/getOutstandingRequests",          application.GetOutstandingRequests),
             ## Catch all
             (r'.*',                              application.Home),
         ]
