@@ -45,6 +45,7 @@ class Application(tornado.web.Application):
             ### Beacon API
             ("/api/query",                            application.Query),
             ("/api/info",                             application.Info),
+            # # # # # Legacy beacon URIs # # # # #
             ("/query",                                application.Query),
             ("/info",                                 tornado.web.RedirectHandler, {"url": "/api/info"}),
             ### Admin API
