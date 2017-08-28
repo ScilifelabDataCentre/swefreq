@@ -56,7 +56,7 @@ class Application(tornado.web.Application):
             ("/country_list",                    application.CountryList),
             ("/dataset_logo/(?P<dataset>[^\/]+)", application.ServeLogo),
             ## Catch all
-            (r'.*',                              handlers.BaseHandler),
+            (r'.*',                              application.Home),
         ]
 
         # google oauth key
