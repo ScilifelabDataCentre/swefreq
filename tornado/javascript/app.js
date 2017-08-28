@@ -271,7 +271,8 @@
             .when('/addedRequest/',  { templateUrl: 'static/addedRequest.html'  })
             .when('/privacyPolicy/', { templateUrl: 'static/privacyPolicy.html' })
             .when('/admin/',         { templateUrl: 'static/admin.html'         })
-            .when('/terms/',         { templateUrl: 'static/terms.html'         });
+            .when('/terms/',         { templateUrl: 'static/terms.html'         })
+            .otherwise(              { templateUrl: 'static/404.html'           });
 
         // Use the HTML5 History API
         $locationProvider.html5Mode(true);
