@@ -30,14 +30,8 @@ class Application(tornado.web.Application):
         self.declared_handlers = [
             (r"/",                               application.Home),
             ## Static handlers
-            (r"/static/(home.html)",             tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(dataBeacon.html)",       tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(privacyPolicy.html)",    tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(not_authorized.html)",   tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(terms.html)",            tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(.*)",                    handlers.SafeStaticFileHandler,             {"path": "static/"}),
-            (r'/(favicon.ico)',                  tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/javascript/(.*)",                tornado.web.StaticFileHandler,              {"path": "javascript/"}),
+            (r"/static/(.*)",                    tornado.web.StaticFileHandler,              {"path": "static/"}),
+            (r'/(favicon.ico)',                  tornado.web.StaticFileHandler,              {"path": "static/img/"}),
             (r"/release/(.*)",                   handlers.AuthorizedStaticNginxFileHanlder,  {"path": "/release-files/"}),
             ## Authentication
             ("/login",                           handlers.LoginHandler),
