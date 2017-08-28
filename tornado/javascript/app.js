@@ -262,7 +262,7 @@
 
     ////////////////////////////////////////////////////////////////////////////
     // configure routes
-    App.config(function($routeProvider) {
+    App.config(function($routeProvider, $locationProvider) {
         $routeProvider
             .when('/',               { templateUrl: 'static/home.html'          })
             .when('/dataBeacon/',    { templateUrl: 'static/dataBeacon.html'    })
@@ -271,7 +271,10 @@
             .when('/addedRequest/',  { templateUrl: 'static/addedRequest.html'  })
             .when('/privacyPolicy/', { templateUrl: 'static/privacyPolicy.html' })
             .when('/admin/',         { templateUrl: 'static/admin.html'         })
-            .when('/terms/',         { templateUrl: 'static/terms.html'         })
+            .when('/terms/',         { templateUrl: 'static/terms.html'         });
+
+        // Use the HTML5 History API
+        $locationProvider.html5Mode(true);
     });
 })();
 
