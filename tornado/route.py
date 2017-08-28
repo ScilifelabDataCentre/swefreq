@@ -29,31 +29,31 @@ class Application(tornado.web.Application):
     def __init__(self, settings):
         self.declared_handlers = [
             ## Static handlers
-            (r"/static/(.*)",                    tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r'/(favicon.ico)',                  tornado.web.StaticFileHandler,              {"path": "static/img/"}),
-            (r"/release/(.*)",                   handlers.AuthorizedStaticNginxFileHanlder,  {"path": "/release-files/"}),
+            (r"/static/(.*)",                         tornado.web.StaticFileHandler,              {"path": "static/"}),
+            (r'/(favicon.ico)',                       tornado.web.StaticFileHandler,              {"path": "static/img/"}),
+            (r"/release/(.*)",                        handlers.AuthorizedStaticNginxFileHanlder,  {"path": "/release-files/"}),
             ## Authentication
-            ("/login",                           handlers.LoginHandler),
-            ("/logout",                          handlers.LogoutHandler),
+            ("/login",                                handlers.LoginHandler),
+            ("/logout",                               handlers.LogoutHandler),
             ## API Methods
-            ("/api/logEvent/(?P<sEvent>[^\/]+)",     application.LogEvent),
-            ("/api/getUser",                         application.GetUser),
-            ("/api/getDataset",                      application.GetDataset),
-            ("/api/requestAccess",                   application.RequestAccess),
-            ("/api/country_list",                    application.CountryList),
+            ("/api/logEvent/(?P<sEvent>[^\/]+)",      application.LogEvent),
+            ("/api/getUser",                          application.GetUser),
+            ("/api/getDataset",                       application.GetDataset),
+            ("/api/requestAccess",                    application.RequestAccess),
+            ("/api/country_list",                     application.CountryList),
             ("/api/dataset_logo/(?P<dataset>[^\/]+)", application.ServeLogo),
             ### Beacon API
-            ("/api/query",                           application.Query),
-            ("/api/info",                            application.Info),
-            ("/query",                               tornado.web.RedirectHandler, {"url": "/api/query"}),
-            ("/info",                                tornado.web.RedirectHandler, {"url": "/api/info"}),
+            ("/api/query",                            application.Query),
+            ("/api/info",                             application.Info),
+            ("/query",                                tornado.web.RedirectHandler, {"url": "/api/query"}),
+            ("/info",                                 tornado.web.RedirectHandler, {"url": "/api/info"}),
             ### Admin API
-            ("/api/getApprovedUsers",                application.GetApprovedUsers),
-            ("/api/approveUser/(?P<sEmail>[^\/]+)",  application.ApproveUser),
-            ("/api/revokeUser/(?P<sEmail>[^\/]+)",   application.RevokeUser),
-            ("/api/getOutstandingRequests",          application.GetOutstandingRequests),
+            ("/api/getApprovedUsers",                 application.GetApprovedUsers),
+            ("/api/approveUser/(?P<sEmail>[^\/]+)",   application.ApproveUser),
+            ("/api/revokeUser/(?P<sEmail>[^\/]+)",    application.RevokeUser),
+            ("/api/getOutstandingRequests",           application.GetOutstandingRequests),
             ## Catch all
-            (r'.*',                              application.Home),
+            (r'.*',                                   application.Home),
         ]
 
         # google oauth key
