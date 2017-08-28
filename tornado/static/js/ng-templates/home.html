@@ -7,7 +7,7 @@
                  <div class="dataset-heading">{{ home.full_name }}</div>
                  <div class="dataset-body">
                      <div ng-if="home.has_image">
-                         <img ng-src="/dataset_logo/{{ home.short_name }}" class="dataset-logo" alt='{{ home.short_name }} logo' />
+                         <img ng-src="/api/dataset_logo/{{ home.short_name }}" class="dataset-logo" alt='{{ home.short_name }} logo' />
                      </div>
                      <div ng-bind-html="home.getDescription()" />
                  </div>

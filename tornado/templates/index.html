@@ -5,6 +5,7 @@
         <title>SweFreq</title>
         <!-- SCROLLS -->
         <meta charset="utf-8" />
+        <base href="/">
         <!-- Bootstrap -->
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css" />
@@ -15,9 +16,9 @@
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-route.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-cookies.min.js"></script>
         <!-- CSS -->
-        <link rel="stylesheet" href="/javascript/main.css" type="text/css" />
+        <link rel="stylesheet" href="/static/css/main.css" type="text/css" />
         <!-- The application -->
-        <script src="javascript/app.js"></script>
+        <script src="/static/js/app.js"></script>
 
         <!-- Google Analytics -->
         <script>
@@ -48,12 +49,12 @@
                     <ul class="nav navbar-nav navbar-right" bs-active-link>
                         <li><a ng-click="showAbout = !showAbout" style="cursor: pointer">About</a>
                     {% if is_admin %}
-                        <li><a href="/#/admin/">Admin</a>
+                        <li><a href="/admin/">Admin</a>
                     {% end %}
                     {% if user_name %}
-                        <li><a href="/logout" title="Logout {{user_name}}">Logout</a>
+                        <li><a href="/logout" target="_self" title="Logout {{user_name}}">Logout</a>
                     {% else %}
-                        <li><a href="/login">Login</a>
+                        <li><a href="/login" target="_self">Login</a>
                     {% end %}
                     </ul>
                 </div>
@@ -87,16 +88,16 @@
         <footer class="text-center">
             <div class="container affiliate-logos"> <div class="row">
                     <div class="col-sm-3 text-center">
-                        <a href="https://www.scilifelab.se"><img class="logo scilife" src="javascript/SLL_logo.png" alt="SciLifeLab"></a>
+                        <a href="https://www.scilifelab.se"><img class="logo scilife" src="/static/img/SLL_logo.png" alt="SciLifeLab"></a>
                     </div>
                     <div class="col-sm-3 text-center">
-                        <a href="https://ngisweden.scilifelab.se/"><img class="logo" src="javascript/ngisweden_logo.png" alt="NGI"></a>
+                        <a href="https://ngisweden.scilifelab.se/"><img class="logo" src="/static/img/ngisweden_logo.png" alt="NGI"></a>
                     </div>
                     <div class="col-sm-3 text-center">
-                        <a href="https://nbis.se"><img class="logo" src="javascript/nbislogo-green.png" alt="NBIS"></a>
+                        <a href="https://nbis.se"><img class="logo" src="/static/img/nbislogo-green.png" alt="NBIS"></a>
                     </div>
                     <div class="col-sm-3 text-center">
-                        <a href="https://elixir.se"><img class="logo elixir" src="javascript/ELIXIR_SWEDEN_white_background.png" alt="Elixir Sweden"></a>
+                        <a href="https://elixir.se"><img class="logo elixir" src="/static/img/ELIXIR_SWEDEN_white_background.png" alt="Elixir Sweden"></a>
                     </div>
                 </div>
             </div>

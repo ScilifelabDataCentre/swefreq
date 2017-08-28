@@ -22,6 +22,7 @@
                    ng-class="{'disabled': downloadDataCtrl.lChecked}"
                    download="{{file.name}}"
                    href="{{file.uri}}"
+                   target="_self"
                    ng-click="downloadDataCtrl.downloadData()">Download</a></td>
         </tr>
         </tbody>

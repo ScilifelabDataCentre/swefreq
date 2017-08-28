@@ -68,7 +68,7 @@
         localThis.data = gData;
 
         this.getUsers = function(){
-            $http.get('/getUser').success(function(data){
+            $http.get('/api/getUser').success(function(data){
                 console.log(data);
                 localThis.data.userName = data.user;
                 localThis.data.email = data.email;
@@ -85,7 +85,7 @@
     App.controller('homeController', function($http, $scope, $sce) {
         var localThis = this;
         localThis.getDataset = function(){
-            $http.get('/getDataset').success(function(data){
+            $http.get('/api/getDataset').success(function(data){
                 localThis.short_name  = data.short_name;
                 localThis.full_name   = data.full_name;
                 localThis.beacon_uri  = data.beacon_uri;
@@ -110,7 +110,7 @@
         localThis.data = gData;
 
         this.getUsers = function(){
-            $http.get('/getUser').success(function(data){
+            $http.get('/api/getUser').success(function(data){
                 console.log(data);
                 localThis.data.userName = data.user;
                 localThis.data.email = data.email;
@@ -118,10 +118,10 @@
                 localThis.data.has_requested_access = data.has_requested_access;
                 localThis.data.admin = data.admin;
                 if(data.admin == true){
-                    $http.get('/getOutstandingRequests').success(function(data){
+                    $http.get('/api/getOutstandingRequests').success(function(data){
                         localThis.data.requests = data;
                     });
-                    $http.get('/getApprovedUsers').success(function(data){
+                    $http.get('/api/getApprovedUsers').success(function(data){
                         localThis.data.approvedUsers = data;
                         localThis.data.emails = []
                         for (var idx in data) {
@@ -137,14 +137,14 @@
         this.getUsers();
 
         this.revokeUser = function(userData){
-            $http.get('/revokeUser/' + userData.email).success(function(data){
+            $http.get('/api/revokeUser/' + userData.email).success(function(data){
                 localThis.getUsers();
             });
         };
 
         this.approvedUser = function(userData){
-            $http.get('/approveUser/' + userData.email).success(function(data){
-                $http.get('/getOutstandingRequests').success(function(data){
+            $http.get('/api/approveUser/' + userData.email).success(function(data){
+                $http.get('/api/getOutstandingRequests').success(function(data){
                     localThis.getUsers();
                 });
             });
@@ -157,7 +157,7 @@
         var beacon = this;
         beacon.pattern = { 'chromosome': "\\d+" };
         beacon.beacon_info = {};
-        $http.get('/info').success(function(data) {
+        $http.get('/api/info').success(function(data) {
             beacon.beacon_info = data;
             beacon.datasets = data['datasets'];
             beacon.dataset = data['datasets'][0]['id'];
@@ -166,7 +166,7 @@
         beacon.search = function() {
             beacon.color = 'black';
             beacon.response = "Searching...";
-            $http.get('query', { 'params': { 'chrom': beacon.chromosome, 'pos': beacon.position - 1, 'allele': beacon.allele, 'referenceAllele': beacon.referenceAllele, 'dataset': beacon.dataset, 'ref': beacon.reference}})
+            $http.get('/api/query', { 'params': { 'chrom': beacon.chromosome, 'pos': beacon.position - 1, 'allele': beacon.allele, 'referenceAllele': beacon.referenceAllele, 'dataset': beacon.dataset, 'ref': beacon.reference}})
                 .then(function (response){
                     if (response.data['response']['exists']) {
                         beacon.response = "Present";
@@ -192,7 +192,7 @@
         localThis.data = gData;
         this.isChecked = function(){
             if(localThis.lChecked){
-                $http.get('/logEvent/consent').success(function(data){
+                $http.get('/api/logEvent/consent').success(function(data){
                     console.log('Consented');
                 });
             }
@@ -201,13 +201,13 @@
         };
 
         this.downloadData = function(){
-            $http.get('/logEvent/download').success(function(data){
+            $http.get('/api/logEvent/download').success(function(data){
                 console.log("Downloading")
             });
         };
 
         localThis.getDataset = function(){
-            $http.get('/getDataset').success(function(data){
+            $http.get('/api/getDataset').success(function(data){
                 localThis.short_name  = data.short_name;
                 localThis.full_name   = data.full_name;
                 localThis.description = data.description;
@@ -229,7 +229,7 @@
         var localThis = this;
         localThis.data = gData;
         localThis.data.newsletter = true;
-        $http.get('/country_list').success(function(data) {
+        $http.get('/api/country_list').success(function(data) {
             localThis.data['availableCountries'] = data['countries'];
         });
 
@@ -238,7 +238,7 @@
                 return;
             }
             $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-            $http({url:'/requestAccess',
+            $http({url:'/api/requestAccess',
                    method:'POST',
                    data:$.param({'email':localThis.data.email,
                                  'userName':localThis.data.userName,
@@ -262,40 +262,20 @@
 
     ////////////////////////////////////////////////////////////////////////////
     // configure routes
-    App.config(function($routeProvider) {
+    App.config(function($routeProvider, $locationProvider) {
         $routeProvider
-        // Read only view
-            .when('/', {
-                templateUrl : 'static/home.html'
-            })
-        // Data beacon
-            .when('/dataBeacon/', {
-                templateUrl : 'static/dataBeacon.html'
-            })
-        // Data Download
-            .when('/downloadData/', {
-                templateUrl : 'static/downloadData.html'
-            })
-        // Request Access
-            .when('/requestAccess/', {
-                templateUrl : 'static/requestAccess.html'
-            })
-        // Request Access Sent
-            .when('/addedRequest/', {
-                templateUrl : 'static/addedRequest.html'
-            })
-        // Privacy Policy
-            .when('/privacyPolicy/', {
-                templateUrl : 'static/privacyPolicy.html'
-            })
-        // Admin interface
-            .when('/admin/', {
-                templateUrl : 'static/admin.html'
-            })
-        // Terms
-            .when('/terms/', {
-                templateUrl : 'static/terms.html'
-            })
+            .when('/',               { templateUrl: 'static/js/ng-templates/home.html'          })
+            .when('/dataBeacon/',    { templateUrl: 'static/js/ng-templates/dataBeacon.html'    })
+            .when('/downloadData/',  { templateUrl: 'static/js/ng-templates/downloadData.html'  })
+            .when('/requestAccess/', { templateUrl: 'static/js/ng-templates/requestAccess.html' })
+            .when('/addedRequest/',  { templateUrl: 'static/js/ng-templates/addedRequest.html'  })
+            .when('/privacyPolicy/', { templateUrl: 'static/js/ng-templates/privacyPolicy.html' })
+            .when('/admin/',         { templateUrl: 'static/js/ng-templates/admin.html'         })
+            .when('/terms/',         { templateUrl: 'static/js/ng-templates/terms.html'         })
+            .otherwise(              { templateUrl: 'static/js/ng-templates/404.html'           });
+
+        // Use the HTML5 History API
+        $locationProvider.html5Mode(true);
     });
 })();
 

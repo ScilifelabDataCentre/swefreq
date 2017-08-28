@@ -28,35 +28,33 @@ settings = {"debug": False,
 class Application(tornado.web.Application):
     def __init__(self, settings):
         self.declared_handlers = [
-            (r"/",                               application.Home),
             ## Static handlers
-            (r"/static/(home.html)",             tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(dataBeacon.html)",       tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(privacyPolicy.html)",    tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(not_authorized.html)",   tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(terms.html)",            tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/static/(.*)",                    handlers.SafeStaticFileHandler,             {"path": "static/"}),
-            (r'/(favicon.ico)',                  tornado.web.StaticFileHandler,              {"path": "static/"}),
-            (r"/javascript/(.*)",                tornado.web.StaticFileHandler,              {"path": "javascript/"}),
-            (r"/release/(.*)",                   handlers.AuthorizedStaticNginxFileHanlder,  {"path": "/release-files/"}),
+            (r"/static/(.*)",                         tornado.web.StaticFileHandler,              {"path": "static/"}),
+            (r'/(favicon.ico)',                       tornado.web.StaticFileHandler,              {"path": "static/img/"}),
+            (r"/release/(.*)",                        handlers.AuthorizedStaticNginxFileHanlder,  {"path": "/release-files/"}),
             ## Authentication
-            ("/login",                           handlers.LoginHandler),
-            ("/logout",                          handlers.LogoutHandler),
+            ("/login",                                handlers.LoginHandler),
+            ("/logout",                               handlers.LogoutHandler),
             ## API Methods
-            ("/logEvent/(?P<sEvent>[^\/]+)",     application.LogEvent),
-            ("/getUser",                         application.GetUser),
-            ("/getDataset",                      application.GetDataset),
-            ("/getApprovedUsers",                application.GetApprovedUsers),
-            ("/approveUser/(?P<sEmail>[^\/]+)",  application.ApproveUser),
-            ("/query",                           application.Query),
-            ("/info",                            application.Info),
-            ("/revokeUser/(?P<sEmail>[^\/]+)",   application.RevokeUser),
-            ("/getOutstandingRequests",          application.GetOutstandingRequests),
-            ("/requestAccess",                   application.RequestAccess),
-            ("/country_list",                    application.CountryList),
-            ("/dataset_logo/(?P<dataset>[^\/]+)", application.ServeLogo),
+            ("/api/logEvent/(?P<sEvent>[^\/]+)",      application.LogEvent),
+            ("/api/getUser",                          application.GetUser),
+            ("/api/getDataset",                       application.GetDataset),
+            ("/api/requestAccess",                    application.RequestAccess),
+            ("/api/country_list",                     application.CountryList),
+            ("/api/dataset_logo/(?P<dataset>[^\/]+)", application.ServeLogo),
+            ### Beacon API
+            ("/api/query",                            application.Query),
+            ("/api/info",                             application.Info),
+            # # # # # Legacy beacon URIs # # # # #
+            ("/query",                                application.Query),
+            ("/info",                                 tornado.web.RedirectHandler, {"url": "/api/info"}),
+            ### Admin API
+            ("/api/getApprovedUsers",                 application.GetApprovedUsers),
+            ("/api/approveUser/(?P<sEmail>[^\/]+)",   application.ApproveUser),
+            ("/api/revokeUser/(?P<sEmail>[^\/]+)",    application.RevokeUser),
+            ("/api/getOutstandingRequests",           application.GetOutstandingRequests),
             ## Catch all
-            (r'.*',                              handlers.BaseHandler),
+            (r'.*',                                   application.Home),
         ]
 
         # google oauth key
