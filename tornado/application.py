@@ -1,4 +1,3 @@
-import applicationTemplate
 import email.mime.multipart
 from email.mime.text import MIMEText
 import json
@@ -6,7 +5,6 @@ import logging
 import peewee
 import pymongo
 import smtplib
-import tornado.template as template
 import tornado.web
 
 import db
@@ -137,7 +135,7 @@ def lookupAllele(chrom, pos, referenceAllele, allele, reference, dataset):
 
 class Home(handlers.UnsafeHandler):
     def get(self, *args, **kwargs):
-        t = template.Template(applicationTemplate.index)
+        t = self.template_loader().load("index.html")
 
         has_access = self.is_authorized()
         is_admin   = self.is_admin()
