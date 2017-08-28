@@ -45,6 +45,8 @@ class Application(tornado.web.Application):
             ### Beacon API
             ("/api/query",                           application.Query),
             ("/api/info",                            application.Info),
+            ("/query",                               tornado.web.RedirectHandler, {"url": "/api/query"}),
+            ("/info",                                tornado.web.RedirectHandler, {"url": "/api/info"}),
             ### Admin API
             ("/api/getApprovedUsers",                application.GetApprovedUsers),
             ("/api/approveUser/(?P<sEmail>[^\/]+)",  application.ApproveUser),
