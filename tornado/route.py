@@ -7,6 +7,7 @@ from tornado.options import define, options
 import application
 import handlers
 import settings
+import beacon
 
 define("port", default=4000, help="run on the given port", type=int)
 define("develop", default=False, help="Run in develop environment", type=bool)
@@ -43,10 +44,10 @@ class Application(tornado.web.Application):
             ("/api/country_list",                     application.CountryList),
             ("/api/dataset_logo/(?P<dataset>[^\/]+)", application.ServeLogo),
             ### Beacon API
-            ("/api/query",                            application.Query),
-            ("/api/info",                             application.Info),
+            ("/api/query",                            beacon.Query),
+            ("/api/info",                             beacon.Info),
             # # # # # Legacy beacon URIs # # # # #
-            ("/query",                                application.Query),
+            ("/query",                                beacon.Query),
             ("/info",                                 tornado.web.RedirectHandler, {"url": "/api/info"}),
             ### Admin API
             ("/api/getApprovedUsers",                 application.GetApprovedUsers),
