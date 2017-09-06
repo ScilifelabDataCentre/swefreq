@@ -62,12 +62,27 @@ class Dataset(BaseModel):
     class Meta:
         db_table = 'dataset'
 
+
 class User(BaseModel):
     user        = PrimaryKeyField(db_column='user_pk')
     name        = CharField(null=True)
     email       = CharField(unique=True)
     affiliation = CharField(null=True)
     country     = CharField(null=True)
+
+    def is_admin(self, dataset):
+        return DatasetAccess.select().where(
+                DatasetAccess.dataset == dataset,
+                DatasetAccess.user == self,
+                DatasetAccess.is_admin
+            ).count()
+
+    def has_access(self, dataset):
+        return DatasetAccess.select().where(
+                DatasetAccess.dataset == dataset,
+                DatasetAccess.user == self,
+                DatasetAccess.has_access
+            ).count()
 
     class Meta:
         db_table = 'user'
