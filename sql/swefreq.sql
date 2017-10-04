@@ -40,6 +40,18 @@ CREATE TABLE IF NOT EXISTS dataset (
     CONSTRAINT FOREIGN KEY (study_pk) REFERENCES study(study_pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE IF NOT EXISTS dataset_version (
+    dataset_version_pk  INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    dataset_pk          INTEGER         NOT NULL,
+    version             VARCHAR(20)     NOT NULL,
+    description         TEXT            NOT NULL,
+    terms               TEXT            NOT NULL,
+    var_call_ref        VARCHAR(50)     DEFAULT NULL,
+    available_from      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    ref_doi             VARCHAR(100)    DEFAULT NULL,
+    CONSTRAINT FOREIGN KEY (dataset_pk) REFERENCES dataset(dataset_pk)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 CREATE TABLE IF NOT EXISTS collection (
     collection_pk       INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name                VARCHAR(100)    NOT NULL,
@@ -148,18 +160,6 @@ CREATE OR REPLACE VIEW dataset_access_pending AS
                 (revoked.user_pk IS NULL OR requested.ts > revoked.ts)
         GROUP BY requested.user_pk, requested.dataset_pk, requested.action
     );
-
-CREATE TABLE IF NOT EXISTS dataset_version (
-    dataset_version_pk  INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    dataset_pk          INTEGER         NOT NULL,
-    version             VARCHAR(20)     NOT NULL,
-    description         TEXT            NOT NULL,
-    terms               TEXT            NOT NULL,
-    var_call_ref        VARCHAR(50)     DEFAULT NULL,
-    available_from      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-    ref_doi             VARCHAR(100)    DEFAULT NULL,
-    CONSTRAINT FOREIGN KEY (dataset_pk) REFERENCES dataset(dataset_pk)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS dataset_file (
     dataset_file_pk     INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
