@@ -71,18 +71,19 @@ CREATE TABLE IF NOT EXISTS sample_set (
 CREATE TABLE IF NOT EXISTS user_log (
     user_log_pk         INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
     user_pk             INTEGER         NOT NULL,
-    dataset_pk          INTEGER         NOT NULL,
+    dataset_version_pk  INTEGER         NOT NULL,
     action  ENUM ('consent','download',
                   'access_requested','access_granted','access_revoked',
                   'private_link')       DEFAULT NULL,
     ts                  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT FOREIGN KEY (user_pk)    REFERENCES user(user_pk),
-    CONSTRAINT FOREIGN KEY (dataset_pk) REFERENCES dataset(dataset_pk)
+    CONSTRAINT FOREIGN KEY (dataset_version_pk)
+        REFERENCES dataset(dataset_version_pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE OR REPLACE VIEW _user_log_summary AS
-    SELECT MAX(user_log_pk) AS user_log_pk, user_pk, dataset_pk, action,
-           MAX(ts) AS ts
+    SELECT MAX(user_log_pk) AS user_log_pk, user_pk, dataset_version_pk,
+        action, MAX(ts) AS ts
     FROM user_log
     GROUP BY user_pk, dataset_pk, action;
 
@@ -104,27 +105,27 @@ CREATE OR REPLACE VIEW dataset_access_current AS
         (consent.action IS NOT NULL) AS has_consented,
         request.ts AS access_requested
     FROM dataset_access AS access
-    JOIN ( SELECT user_pk, dataset_pk, MAX(ts) AS ts
+    JOIN ( SELECT user_pk, dataset_version_pk, MAX(ts) AS ts
            FROM user_log WHERE action = "access_requested"
-           GROUP BY user_pk, dataset_pk ) AS request
+           GROUP BY user_pk, dataset_version_pk ) AS request
         ON access.user_pk = request.user_pk AND
-           access.dataset_pk = request.dataset_pk
+           access.dataset_version_pk = request.dataset_version_pk
     LEFT JOIN user_log AS consent
         ON access.user_pk = consent.user_pk AND
-           access.dataset_pk = consent.dataset_pk AND
+           access.dataset_version_pk = consent.dataset_version_pk AND
            consent.action = 'consent'
-    WHERE (access.user_pk, access.dataset_pk) IN (
+    WHERE (access.user_pk, access.dataset_version_pk) IN (
         -- gets user_pk for all users with current access
         -- from https://stackoverflow.com/a/39190423/4941495
-        SELECT granted.user_pk, granted.dataset_pk
+        SELECT granted.user_pk, granted.dataset_version_pk
         FROM _user_log_summary AS granted
         LEFT JOIN _user_log_summary AS revoked
                 ON granted.user_pk = revoked.user_pk AND
-                   granted.dataset_pk = revoked.dataset_pk AND
+                   granted.dataset_version_pk = revoked.dataset_version_pk AND
                    revoked.action  = 'access_revoked'
         WHERE granted.action = 'access_granted' AND
             (revoked.user_pk IS NULL OR granted.ts > revoked.ts)
-        GROUP BY granted.user_pk, granted.dataset_pk, granted.action
+        GROUP BY granted.user_pk, granted.dataset_version_pk, granted.action
     );
 
 CREATE OR REPLACE VIEW dataset_access_pending AS
@@ -134,31 +135,33 @@ CREATE OR REPLACE VIEW dataset_access_pending AS
         (consent.action IS NOT NULL) AS has_consented,
         request.ts AS access_requested
     FROM dataset_access AS access
-    JOIN ( SELECT user_pk, dataset_pk, MAX(ts) AS ts
+    JOIN ( SELECT user_pk, dataset_version_pk, MAX(ts) AS ts
            FROM user_log WHERE action = "access_requested"
-           GROUP BY user_pk, dataset_pk ) AS request
+           GROUP BY user_pk, dataset_version_pk ) AS request
         ON access.user_pk = request.user_pk AND
-           access.dataset_pk = request.dataset_pk
+           access.dataset_version_pk = request.dataset_version_pk
     LEFT JOIN user_log AS consent
         ON access.user_pk = consent.user_pk AND
-           access.dataset_pk = consent.dataset_pk AND
+           access.dataset_version_pk = consent.dataset_version_pk AND
            consent.action = 'consent'
-    WHERE (access.user_pk, access.dataset_pk) IN (
+    WHERE (access.user_pk, access.dataset_version_pk) IN (
         -- get user_pk for all users that have pending access requests
-        SELECT requested.user_pk, requested.dataset_pk
+        SELECT requested.user_pk, requested.dataset_version_pk
         FROM _user_log_summary AS requested
         LEFT JOIN _user_log_summary AS granted
                 ON requested.user_pk = granted.user_pk AND
-                   requested.dataset_pk = granted.dataset_pk AND
+                   requested.dataset_version_pk = granted.dataset_version_pk AND
                    granted.action  = 'access_granted'
         LEFT JOIN _user_log_summary AS revoked
                 ON requested.user_pk = revoked.user_pk AND
-                   requested.dataset_pk = revoked.dataset_pk AND
+                   requested.dataset_version_pk = revoked.dataset_version_pk AND
                    revoked.action  = 'access_revoked'
         WHERE requested.action = 'access_requested' AND
                 (granted.user_pk IS NULL OR requested.ts > granted.ts) AND
                 (revoked.user_pk IS NULL OR requested.ts > revoked.ts)
-        GROUP BY requested.user_pk, requested.dataset_pk, requested.action
+        GROUP BY requested.user_pk,
+                 requested.dataset_version_pk,
+                 requested.action
     );
 
 CREATE TABLE IF NOT EXISTS dataset_file (
