@@ -85,7 +85,7 @@ CREATE OR REPLACE VIEW _user_log_summary AS
     SELECT MAX(user_log_pk) AS user_log_pk, user_pk, dataset_version_pk,
         action, MAX(ts) AS ts
     FROM user_log
-    GROUP BY user_pk, dataset_pk, action;
+    GROUP BY user_pk, dataset_version_pk, action;
 
 CREATE TABLE IF NOT EXISTS dataset_access (
     dataset_access_pk   INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
