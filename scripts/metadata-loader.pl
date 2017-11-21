@@ -34,7 +34,7 @@ $dbh->do(
     'INSERT INTO study '
       . '(pi_name,pi_email,contact_name,contact_email,'
       . 'title,description,publication_date,ref_doi) '
-      . 'VALUES (?,?,?,?,?,?,?,?)',
+      . 'VALUE (?,?,?,?,?,?,?,?)',
     undef,
     @{ $data->{'study'} }{
         'pi-name',          'pi-email',
