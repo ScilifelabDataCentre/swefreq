@@ -43,3 +43,15 @@ $dbh->do(
         'publication-date', 'ref-doi'
     }
 );
+
+foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
+    $dbh->do(
+        'INSERT INTO dataset '
+          . '(study_pk,short_name,full_name,avg_seq_depth,'
+          . 'seq_type,seq_tech,seq_center,dataset_size,mongodb_collection '
+          . 'SELECT study_pk,?,?,?,?,?,?,?,"exac" '
+          . 'FROM study WHERE title = ? AND pi_email = ?',
+        undef,
+        #FIXME
+    );
+}
