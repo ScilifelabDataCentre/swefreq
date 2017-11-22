@@ -20,7 +20,7 @@ sub get_file {
 }
 
 my $json_text = get_file('metadata-example.json');
-my $data = decode_json($json_text);
+my $data      = decode_json($json_text);
 
 my $dbh = DBI->connect( 'DBI:mysql:database=swefreq;host=swefreq-db-dev',
     'swefreq', undef, { 'RaiseError' => 1 } );
@@ -45,6 +45,7 @@ $dbh->do(
 );
 
 foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
+
     # Insert dataset
     $dbh->do(
         'INSERT IGNORE INTO dataset '
