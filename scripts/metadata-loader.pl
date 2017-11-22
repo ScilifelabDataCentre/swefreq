@@ -84,15 +84,22 @@ foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
         $dataset->{'short-name'}
     );
 
-    # Insert collection
+    # Insert collection and sample_set
     foreach my $sample_set ( @{ $dataset->{'sample-sets'} } ) {
         $dbh->do(
             'INSERT IGNORE INTO collection '
               . '(name,ethnicity) '
               . 'VALUE (?,?)',
             undef,
-
-            #FIXME
+            @{$sample_set}{ 'collection', 'ethnicity' }
+        );
+        $dbh->do(
+            'INSERT IGNORE INTO sample_set '
+              . '(dataset_pk,collection_pk,sample_size,phenotype) '
+              . 'SELECT dataset_pk,collection_pk,?,? '
+              . 'FROM collection WHERE name = ?',
+            undef,
+            @{$sample_set}{ 'sample-size', 'phenotype', 'collection' }
         );
     }
 }
