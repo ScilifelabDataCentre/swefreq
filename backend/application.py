@@ -280,6 +280,7 @@ class RequestAccess(handlers.SafeHandler):
         self.finish(json.dumps({'user':name, 'email':email}))
 
     def post(self, dataset, *args, **kwargs):
+        user    = self.current_user
         dataset = db.get_dataset(dataset)
 
         affiliation = self.get_argument("affiliation", strip=False)

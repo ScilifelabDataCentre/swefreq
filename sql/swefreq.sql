@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS study (
     title               VARCHAR(100)    NOT NULL,
     description         TEXT            DEFAULT NULL,
     publication_date    DATE            NOT NULL,
-    ref_doi             VARCHAR(100)    DEFAULT NULL
+    ref_doi             VARCHAR(100)    DEFAULT NULL,
+    CONSTRAINT UNIQUE (pi_email, title)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS dataset (
@@ -50,13 +51,15 @@ CREATE TABLE IF NOT EXISTS dataset_version (
     var_call_ref        VARCHAR(50)     DEFAULT NULL,
     available_from      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
     ref_doi             VARCHAR(100)    DEFAULT NULL,
+    CONSTRAINT UNIQUE (dataset_pk, version),
     CONSTRAINT FOREIGN KEY (dataset_pk) REFERENCES dataset(dataset_pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS collection (
     collection_pk       INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name                VARCHAR(100)    NOT NULL,
-    ethnicity           VARCHAR(50)     DEFAULT NULL
+    ethnicity           VARCHAR(50)     DEFAULT NULL,
+    CONSTRAINT UNIQUE (name, ethnicity)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS sample_set (
@@ -65,6 +68,7 @@ CREATE TABLE IF NOT EXISTS sample_set (
     collection_pk       INTEGER         NOT NULL,
     sample_size         INTEGER         NOT NULL,
     phenotype           VARCHAR(50)     NOT NULL,
+    CONSTRAINT UNIQUE (dataset_pk, collection_pk),
     CONSTRAINT FOREIGN KEY (dataset_pk) REFERENCES dataset(dataset_pk),
     CONSTRAINT FOREIGN KEY (collection_pk) REFERENCES collection(collection_pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -75,6 +79,7 @@ CREATE TABLE IF NOT EXISTS dataset_file (
     name                VARCHAR(100)    NOT NULL,
     uri                 VARCHAR(200)    NOT NULL,
     bytes               BIGINT          NOT NULL,
+    CONSTRAINT UNIQUE (uri),
     CONSTRAINT FOREIGN KEY (dataset_version_pk)
         REFERENCES dataset_version(dataset_version_pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
