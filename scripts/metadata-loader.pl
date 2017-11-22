@@ -63,6 +63,12 @@ foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
 
     # Insert dataset_version
     my $version = $dataset->{'version'};
+    if ( -f $version->{'description'} ) {
+        $version->{'description'} = get_file( $version->{'description'} );
+    }
+    if ( -f $version->{'terms'} ) {
+        $version->{'terms'} = get_file( $version->{'terms'} );
+    }
     $dbh->do(
         'INSERT IGNORE INTO dataset_version'
           . '(dataset_pk,version,description,terms,var-call-ref,'
