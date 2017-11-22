@@ -70,7 +70,7 @@ foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
         $version->{'terms'} = get_file( $version->{'terms'} );
     }
     $dbh->do(
-        'INSERT IGNORE INTO dataset_version'
+        'INSERT IGNORE INTO dataset_version '
           . '(dataset_pk,version,description,terms,var_call_ref,'
           . 'available_from,ref_doi) '
           . 'SELECT dataset_pk,?,?,?,?,?,? '
@@ -87,7 +87,7 @@ foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
     # Insert collection
     foreach my $sample_set ( @{ $dataset->{'sample-sets'} } ) {
         $dbh->do(
-            'INSERT IGNORE INTO collection'
+            'INSERT IGNORE INTO collection '
               . '(name,ethnicity) '
               . 'VALUE (?,?)',
             undef,
