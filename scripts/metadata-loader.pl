@@ -28,7 +28,7 @@ if ( -f $data->{'study'}{'description'} ) {
 }
 
 my $dbh = DBI->connect( 'DBI:mysql:database=swefreq;host=swefreq-db-dev',
-    'swefreq', undef, { 'RaisError' => 1 } );
+    'swefreq', undef, { 'RaiseError' => 1 } );
 
 $dbh->do(
     'INSERT IGNORE INTO study '
