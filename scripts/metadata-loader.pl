@@ -25,12 +25,11 @@ my $data = decode_json($json_text);
 my $dbh = DBI->connect( 'DBI:mysql:database=swefreq;host=swefreq-db-dev',
     'swefreq', undef, { 'RaiseError' => 1 } );
 
+# Insert study
 if ( -f $data->{'study'}{'description'} ) {
     $data->{'study'}{'description'} =
       get_file( $data->{'study'}{'description'} );
 }
-
-# Insert study
 $dbh->do(
     'INSERT IGNORE INTO study '
       . '(pi_name,pi_email,contact_name,contact_email,'
@@ -71,11 +70,16 @@ foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
     }
     $dbh->do(
         'INSERT IGNORE INTO dataset_version'
-          . '(dataset_pk,version,description,terms,var-call-ref,'
-          . 'available-from,ref-doi) '
+          . '(dataset_pk,version,description,terms,var_call_ref,'
+          . 'available_from,ref_doi) '
           . 'SELECT dataset_pk,?,?,?,?,?,? '
           . 'FROM dataset WHERE short_name = ?',
         undef,
-        #FIXME
+        @{$version}{
+            'version',        'description',
+            'terms',          'var-call-ref',
+            'available-from', 'ref-doi'
+        },
+        $dataset->{'short-name'}
     );
 }
