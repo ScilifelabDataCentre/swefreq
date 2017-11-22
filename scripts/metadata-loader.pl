@@ -8,23 +8,23 @@ use Data::Dumper;
 use IO::File;
 use JSON;
 
-my $json_text;
-{
+sub get_file {
+    my ($fname) = @_;
+
     local $/;
-    my $json_file = 'metadata-example.json';
-    my $fh = IO::File->new( $json_file, "r" ) or die($!);
-    $json_text = <$fh>;
+    my $fh = IO::File->new( $fname, "r" ) or die($!);
+    my $text = <$fh>;
     $fh->close();
+
+    return $text;
 }
 
-print "$json_text";
+my $json_text = get_file('metadata-example.json');
 my $data = decode_json($json_text);
 
 if ( -f $data->{'study'}{'description'} ) {
-    local $/;
-    my $fh = IO::File->new( $data->{'study'}{'description'}, "r" ) or die($!);
-    $data->{'study'}{'description'} = <$fh>;
-    $fh->close();
+    $data->{'study'}{'description'} =
+      get_file( $data->{'study'}{'description'} );
 }
 
 my $dbh = DBI->connect( 'DBI:mysql:database=swefreq;host=swefreq-db-dev',
