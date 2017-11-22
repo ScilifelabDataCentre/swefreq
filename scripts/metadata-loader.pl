@@ -31,7 +31,7 @@ my $dbh = DBI->connect( 'DBI:mysql:database=swefreq;host=swefreq-db-dev',
     'swefreq', undef, { 'RaisError' => 1 } );
 
 $dbh->do(
-    'INSERT INTO study '
+    'INSERT IGNORE INTO study '
       . '(pi_name,pi_email,contact_name,contact_email,'
       . 'title,description,publication_date,ref_doi) '
       . 'VALUE (?,?,?,?,?,?,?,?)',
@@ -46,7 +46,7 @@ $dbh->do(
 
 foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
     $dbh->do(
-        'INSERT INTO dataset '
+        'INSERT IGNORE INTO dataset '
           . '(study_pk,short_name,full_name,avg_seq_depth,'
           . 'seq_type,seq_tech,seq_center,dataset_size,mongodb_collection '
           . 'SELECT study_pk,?,?,?,?,?,?,?,"exac" '
