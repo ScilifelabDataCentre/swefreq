@@ -60,4 +60,16 @@ foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
         },
         @{ $data->{'study'} }{ 'title', 'pi-email' }
     );
+
+    # Insert dataset_version
+    my $version = $dataset->{'version'};
+    $dbh->do(
+        'INSERT IGNORE INTO dataset_version'
+          . '(dataset_pk,version,description,terms,var-call-ref,'
+          . 'available-from,ref-doi) '
+          . 'SELECT dataset_pk,?,?,?,?,?,? '
+          . 'FROM dataset WHERE short_name = ?',
+        undef,
+        #FIXME
+    );
 }
