@@ -17,3 +17,10 @@ ALTER TABLE dataset MODIFY COLUMN
 
 ALTER TABLE dataset_file ADD COLUMN
     bytes               BIGINT          NOT NULL;
+
+-- Add file sizes to the files we already have
+
+UPDATE dataset_file SET bytes=4957818880 WHERE name='swegen_20161223.tar';
+UPDATE dataset_file SET bytes=4960460800 WHERE name='swegen_20170823.tar';
+UPDATE dataset_file SET bytes=26154119   WHERE name='swegen_frequencies_SVDB_hg19_20171025.tar.gz';
+UPDATE dataset_file SET bytes=4960460800 WHERE name='swegen_frequencies_hg19_20171025.tar';
