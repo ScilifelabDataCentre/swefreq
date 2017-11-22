@@ -52,6 +52,10 @@ foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
           . 'SELECT study_pk,?,?,?,?,?,?,?,"exac" '
           . 'FROM study WHERE title = ? AND pi_email = ?',
         undef,
-        #FIXME
+        @{$dataset}{
+            'short-name', 'full-name',  'avg-seq-depth', 'seq-type',
+            'seq-tech',   'seq-center', 'dataset-size'
+        },
+        @{ $data->{'study'} }{ 'title', 'pi-email' }
     );
 }
