@@ -29,6 +29,7 @@
         "sample-sets": [
           {
             "collection": "Name of collection",
+            "sample-size": "Size of sample",
             "phenotype": "Phenotype",
             "ethnicity": "Ethnicity"
           }
