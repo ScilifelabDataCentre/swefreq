@@ -99,10 +99,13 @@ foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
         $dbh->do(
             'INSERT IGNORE INTO sample_set '
               . '(dataset_pk,collection_pk,sample_size,phenotype) '
-              . 'SELECT dataset_pk,collection_pk,?,? '
-              . 'FROM collection WHERE name = ?',
+              . 'SELECT d.dataset_pk,c.collection_pk,?,? '
+              . 'FROM collection AS c '
+              . 'JOIN dataset AS d '
+              . 'WHERE c.name = ? AND d.short_name = ?',
             undef,
-            @{$sample_set}{ 'sample-size', 'phenotype', 'collection' }
+            @{$sample_set}{ 'sample-size', 'phenotype', 'collection' },
+            $dataset->{'short-name'}
         );
     }
 }
