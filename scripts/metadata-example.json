@@ -8,8 +8,6 @@
     "pi-email": "Email for the above [VARCHAR(100)]",
     "contact-name": "Name of the person to contact regarding this data [VARCHAR(100)]",
     "contact-email": "Email for the above [VARCHAR(100)]",
-    "logotype": "Filename for study logotype [optional, MEDIUMBLOB]",
-    "logotype-mimetype": "Mimetype for logotype file [VARCHAR(50)]",
     "datasets": [
       {
         "short-name": "Short name of dataset [VARCHAR(50)]",
@@ -19,6 +17,8 @@
         "seq-type": "Sequencing type [optional, VARCHAR(50)]",
         "seq-tech": "Sequencing technology [optional, VARCHAR(50)]",
         "seq-center": "Sequencing centre [optional, VARCHAR(100)]",
+        "logotype": "Filename for dataset logotype [optional, MEDIUMBLOB]",
+        "logotype-mimetype": "Mimetype for logotype file [VARCHAR(50)]",
         "version": {
           "version": "Dataset version identifier [VARCHAR(20)]",
           "description": "Long description of dataset (or filename) [TEXT]",
