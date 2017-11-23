@@ -28,10 +28,11 @@ my $dbpass = '';
 my $dbh = DBI->connect( 'DBI:mysql:database=swefreq;host=swefreq-db-dev',
     $dbuser, $dbpass, { 'RaiseError' => 1 } );
 
+my $study = $data->{'study'};
+
 # Insert study
-if ( -f $data->{'study'}{'description'} ) {
-    $data->{'study'}{'description'} =
-      get_file( $data->{'study'}{'description'} );
+if ( -f $study->{'description'} ) {
+    $study->{'description'} = get_file( $study->{'description'} );
 }
 $dbh->do(
     'INSERT IGNORE INTO study '
@@ -39,7 +40,7 @@ $dbh->do(
       . 'title,description,publication_date,ref_doi) '
       . 'VALUE (?,?,?,?,?,?,?,?)',
     undef,
-    @{ $data->{'study'} }{
+    @{$study}{
         'pi-name',          'pi-email',
         'contact-name',     'contact-email',
         'title',            'description',
@@ -47,7 +48,7 @@ $dbh->do(
     }
 );
 
-foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
+foreach my $dataset ( @{ $study->{'datasets'} } ) {
 
     # Insert dataset
     $dbh->do(
@@ -61,7 +62,7 @@ foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
             'short-name', 'full-name',  'avg-seq-depth', 'seq-type',
             'seq-tech',   'seq-center', 'dataset-size'
         },
-        @{ $data->{'study'} }{ 'title', 'pi-email' }
+        @{$study}{ 'title', 'pi-email' }
     );
 
     # Insert dataset_version
