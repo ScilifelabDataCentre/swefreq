@@ -19,14 +19,22 @@ sub get_file {
     return $text;
 }
 
-my $json_text = get_file('metadata-example.json');
-my $data      = decode_json($json_text);
+my $settings = decode_json( get_file('settings.json') );
+my $data     = decode_json( get_file('metadata-example.json') );
 
-my $dbuser = '';
-my $dbpass = '';
+my $dbuser = $settings->{'mysqlUser'};
+my $dbpass = $setting
 
-my $dbh = DBI->connect( 'DBI:mysql:database=swefreq;host=swefreq-db-dev',
-    $dbuser, $dbpass, { 'RaiseError' => 1 } );
+  my $dbh = DBI->connect(
+    sprintf(
+        "DBI:mysql:database=%s;host=%s",
+        $settings->{'mysqlSchema'},
+        $settings->{'mysqlHost'}
+    ),
+    $settings->{'mysqlUser'},
+    $settings->{'mysqlPasswd'},
+    { 'RaiseError' => 1 }
+  );
 
 my $study = $data->{'study'};
 
