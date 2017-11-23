@@ -22,10 +22,7 @@ sub get_file {
 my $settings = decode_json( get_file('settings.json') );
 my $data     = decode_json( get_file('metadata-example.json') );
 
-my $dbuser = $settings->{'mysqlUser'};
-my $dbpass = $setting
-
-  my $dbh = DBI->connect(
+my $dbh = DBI->connect(
     sprintf(
         "DBI:mysql:database=%s;host=%s",
         $settings->{'mysqlSchema'},
@@ -34,7 +31,7 @@ my $dbpass = $setting
     $settings->{'mysqlUser'},
     $settings->{'mysqlPasswd'},
     { 'RaiseError' => 1 }
-  );
+);
 
 my $study = $data->{'study'};
 
