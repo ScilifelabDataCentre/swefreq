@@ -7,20 +7,29 @@ use DBI;
 use Data::Dumper;
 use IO::File;
 use JSON;
+use Getopt::Long;
+use Carp;
+
+my $opt_config = 'settings.json';
+my $opt_file   = 'metadata-example.json';
+
+if ( !GetOptions( 'config|c=s' => \$opt_config, 'file|f=s' => \$opt_file ) ) {
+    die('Failed to parse command line options');
+}
 
 sub get_file {
     my ($fname) = @_;
 
     local $/;
-    my $fh = IO::File->new( $fname, "r" ) or die($!);
+    my $fh = IO::File->new( $fname, "r" ) or croak("$!");
     my $text = <$fh>;
     $fh->close();
 
     return $text;
 }
 
-my $settings = decode_json( get_file('settings.json') );
-my $data     = decode_json( get_file('metadata-example.json') );
+my $settings = decode_json( get_file($opt_config) );
+my $data     = decode_json( get_file($opt_file) );
 
 my $dbh = DBI->connect(
     sprintf(
