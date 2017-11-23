@@ -22,8 +22,11 @@ sub get_file {
 my $json_text = get_file('metadata-example.json');
 my $data      = decode_json($json_text);
 
+my $dbuser = '';
+my $dbpass = '';
+
 my $dbh = DBI->connect( 'DBI:mysql:database=swefreq;host=swefreq-db-dev',
-    'swefreq', undef, { 'RaiseError' => 1 } );
+    $dbuser, $dbpass, { 'RaiseError' => 1 } );
 
 # Insert study
 if ( -f $data->{'study'}{'description'} ) {
