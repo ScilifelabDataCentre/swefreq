@@ -108,4 +108,19 @@ foreach my $dataset ( @{ $data->{'study'}{'datasets'} } ) {
             $dataset->{'short-name'}
         );
     }
+
+    # Insert logotype if present
+    if ( defined( $dataset->{'logotype-mimitype'} )
+        && -f $dataset->{'logotype'} )
+    {
+        $dataset->{'logotype'} = get_file( $dataset->{'logotype'} );
+        $dbh->do(
+            'INSERT IGNORE INTO dataset_logo '
+              . '(dataset_pk,data,mimetype) '
+              . 'SELECT dataset_pk,?,? '
+              . 'FROM dataset WHERE short_name = ?',
+            undef,
+            @{$dataset}{ 'logotype', 'logotype-mimetype', 'short-name' }
+        );
+    }
 }
