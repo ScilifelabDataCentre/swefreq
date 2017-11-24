@@ -12,6 +12,13 @@ use Carp;
 
 my $opt_config = 'settings.json';
 my $opt_file   = 'metadata-example.json';
+my $opt_help   = 0;
+
+sub usage {
+    print("Usage:\n");
+    print("\t$0 [-c config-file] [-f data-file]\n");
+    print("\t$0 -h\n");
+}
 
 sub get_file {
     my ($fname) = @_;
@@ -24,9 +31,14 @@ sub get_file {
     return $text;
 }
 
-if ( !GetOptions( 'config|c=s' => \$opt_config, 'file|f=s' => \$opt_file ) ) {
+if ( !GetOptions( 'help|h'     => \$opt_help,
+                  'config|c=s' => \$opt_config,
+                  'file|f=s'   => \$opt_file ) )
+{
+    usage();
     die('Failed to parse command line options');
 }
+if ($opt_help) { usage(); exit 0; }
 
 my $settings = decode_json( get_file($opt_config) );
 my $data     = decode_json( get_file($opt_file) );
