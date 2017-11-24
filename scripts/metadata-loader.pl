@@ -13,10 +13,6 @@ use Carp;
 my $opt_config = 'settings.json';
 my $opt_file   = 'metadata-example.json';
 
-if ( !GetOptions( 'config|c=s' => \$opt_config, 'file|f=s' => \$opt_file ) ) {
-    die('Failed to parse command line options');
-}
-
 sub get_file {
     my ($fname) = @_;
 
@@ -26,6 +22,10 @@ sub get_file {
     $fh->close();
 
     return $text;
+}
+
+if ( !GetOptions( 'config|c=s' => \$opt_config, 'file|f=s' => \$opt_file ) ) {
+    die('Failed to parse command line options');
 }
 
 my $settings = decode_json( get_file($opt_config) );
