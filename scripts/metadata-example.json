@@ -18,7 +18,6 @@
         "seq-tech": "Sequencing technology [optional, VARCHAR(50)]",
         "seq-center": "Sequencing centre [optional, VARCHAR(100)]",
         "logotype": "Filename for dataset logotype [optional, MEDIUMBLOB]",
-        "logotype-mimetype": "Mimetype for logotype file [VARCHAR(50)]",
         "version": {
           "version": "Dataset version identifier [VARCHAR(20)]",
           "description": "Long description of dataset (or filename) [TEXT]",
