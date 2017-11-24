@@ -9,6 +9,7 @@ use IO::File;
 use JSON;
 use Getopt::Long;
 use Carp;
+use MIME::Types;
 
 my $opt_config = 'settings.json';
 my $opt_file   = 'metadata-example.json';
@@ -118,10 +119,12 @@ foreach my $dataset ( @{ $study->{'datasets'} } ) {
     }
 
     # Insert logotype if present
-    if ( defined( $dataset->{'logotype-mimitype'} )
-         && -f $dataset->{'logotype'} )
-    {
+    if ( -f $dataset->{'logotype'} ) {
+        my $mt = MIME::Types->new();
+        $dataset->{'logotype-mimetype'}
+            = $mt->mimeTypeOf( $dataset->{'logotype'} )->type();
         $dataset->{'logotype'} = get_file( $dataset->{'logotype'} );
+
         $dbh->do( 'INSERT IGNORE INTO dataset_logo '
                       . '(dataset_pk,data,mimetype) '
                       . 'SELECT dataset_pk,?,? '
