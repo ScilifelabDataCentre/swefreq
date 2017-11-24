@@ -74,7 +74,7 @@ foreach my $dataset ( @{ $study->{'datasets'} } ) {
         'INSERT IGNORE INTO dataset '
             . '(study_pk,short_name,full_name,avg_seq_depth,'
             . 'seq_type,seq_tech,seq_center,dataset_size,mongodb_collection) '
-            . 'SELECT study_pk,?,?,?,?,?,?,?,"exac" '
+            . 'SELECT study_pk,?,?,?,?,?,?,?,"non-existent" '
             . 'FROM study WHERE title = ? AND pi_email = ?',
         undef,
         @{$dataset}{
