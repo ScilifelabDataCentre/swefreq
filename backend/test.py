@@ -1,5 +1,5 @@
 import unittest
-from unittest import skip, TestCase
+from unittest import TestCase
 import requests
 import db
 
@@ -88,7 +88,7 @@ class TestRequestAccess(RequestTests):
         if db.database.is_closed():
             try:
                 db.database.connect()
-            except Exception as e:
+            except Exception:
                 pass
 
     def tearDown(self):

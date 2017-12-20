@@ -1,7 +1,6 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from os import path
-import json
 import logging
 from datetime import datetime, timedelta
 import peewee
@@ -129,7 +128,7 @@ class ListDatasetVersions(handlers.UnsafeHandler):
 
 
 class GenerateTemporaryLink(handlers.AuthorizedHandler):
-    def post(self, dataset, version=None, *args, **kwargs):
+    def post(self, dataset, version=None):
         user = self.current_user
         dataset_version = db.get_dataset_version(dataset, version)
         lh = db.Linkhash.create(
@@ -155,7 +154,7 @@ class GenerateTemporaryLink(handlers.AuthorizedHandler):
 
 
 class DatasetFiles(handlers.AuthorizedHandler):
-    def get(self, dataset, version=None, *args, **kwargs):
+    def get(self, dataset, version=None):
         dataset_version = db.get_dataset_version(dataset, version)
         ret = []
         for f in dataset_version.files:
@@ -173,8 +172,7 @@ def format_bytes(bytes):
 
 
 class Collection(handlers.UnsafeHandler):
-    def get(self, dataset, *args, **kwargs):
-        user = self.current_user
+    def get(self, dataset):
         dataset = db.get_dataset(dataset)
 
         collections = {}
@@ -271,7 +269,7 @@ class CountryList(handlers.UnsafeHandler):
 
 
 class RequestAccess(handlers.SafeHandler):
-    def post(self, dataset, *args, **kwargs):
+    def post(self, dataset):
         user    = self.current_user
         dataset = db.get_dataset(dataset)
 
@@ -348,8 +346,7 @@ class ApproveUser(handlers.AdminHandler):
             body = """You now have access to the {} dataset
 
     Please visit https://swefreq.nbis.se/dataset/{}/download to download files.
-            """.format(dataset.full_name, dataset.short_name,
-                    dataset.study.contact_name)
+            """.format(dataset.full_name, dataset.short_name)
             msg.attach(MIMEText(body, 'plain'))
 
             server = smtplib.SMTP(settings.mail_server)
@@ -436,7 +433,7 @@ class ServeLogo(handlers.UnsafeHandler):
                 ).where(
                     db.Dataset.short_name == dataset
                 ).get()
-        except:
+        except Exception:
             self.send_error(status_code=404)
             return
 

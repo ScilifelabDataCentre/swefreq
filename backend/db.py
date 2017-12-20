@@ -18,8 +18,8 @@ class BaseModel(Model):
 class EnumField(Field):
     db_field = 'string' # The same as for CharField
 
-    def __init__(self, values=[], *args, **kwargs):
-        self.values = values
+    def __init__(self, values=None, *args, **kwargs):
+        self.values = values or []
         super().__init__(*args, **kwargs)
 
     def db_value(self, value):
