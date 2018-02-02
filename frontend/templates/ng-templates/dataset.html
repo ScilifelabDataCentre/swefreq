@@ -6,8 +6,8 @@
     <div class="col-sm-12">
         <div class="dataset-panel">
              <div class="dataset-body">
-                 <div ng-if="ctrl.dataset.has_image">
-                     <img ng-src="/api/datasets/{{ctrl.dataset.short_name}}/logo" class="dataset-logo" alt='{{ dataset.short_name }} logo' />
+                 <div ng-if="ctrl.dataset.hasImage">
+                     <img ng-src="/api/datasets/{{ctrl.dataset.shortName}}/logo" class="dataset-logo" alt='{{ dataset.shortName }} logo' />
                  </div>
                  <div ng-bind-html="ctrl.dataset.version.description" />
              </div>
@@ -21,13 +21,13 @@
             <div class="dataset-body">
                 Overview
                 <ul>
-                   <li ng-if="ctrl.dataset.seq_type">Sequencing type: {{ ctrl.dataset.seq_type }}
-                   <li ng-if="ctrl.dataset.seq_tech">Sequencing tech: {{ ctrl.dataset.seq_tech }}
-                   <li ng-if="ctrl.dataset.avg_seq_depth">Average Sequencing Depth: {{ctrl.dataset.avg_seq_depth }}
-                   <li ng-if="ctrl.dataset.seq_center">Sequencing Center: {{ ctrl.dataset.seq_center }}
-                   <li ng-if="ctrl.dataset.dataset_size">Dataset Size: {{ ctrl.dataset.dataset_size }}
-                   <li ng-if="ctrl.dataset.version.var_call_ref">Variant Calling reference: {{ ctrl.dataset.version.var_call_ref }}
-                   <li ng-if="ctrl.dataset.version.ref_doi">Dataset DOI: <a href="https://dx.doi.org/{{ ctrl.dataset.version.ref_doi }}">{{ ctrl.dataset.version.ref_doi }}</a>
+                   <li ng-if="ctrl.dataset.seqType">Sequencing type: {{ ctrl.dataset.seqType }}
+                   <li ng-if="ctrl.dataset.seqTech">Sequencing tech: {{ ctrl.dataset.seqTech }}
+                   <li ng-if="ctrl.dataset.avgSeqDepth">Average Sequencing Depth: {{ctrl.dataset.avgSeqDepth }}
+                   <li ng-if="ctrl.dataset.seqCenter">Sequencing Center: {{ ctrl.dataset.seqCenter }}
+                   <li ng-if="ctrl.dataset.datasetSize">Dataset Size: {{ ctrl.dataset.datasetSize }}
+                   <li ng-if="ctrl.dataset.version.varCallRef">Variant Calling reference: {{ ctrl.dataset.version.varCallRef }}
+                   <li ng-if="ctrl.dataset.version.refDoi">Dataset DOI: <a href="https://dx.doi.org/{{ ctrl.dataset.version.refDoi }}">{{ ctrl.dataset.version.refDoi }}</a>
                 </ul>
             </div>
         </div>
@@ -38,10 +38,10 @@
             <div class="dataset-body">
                 {{ctrl.study.title}}
                 <ul>
-                   <li ng-if="ctrl.study.pi_name">Principal Investigator: {{ ctrl.study.pi_name }}
-                   <li ng-if="ctrl.study.ref_doi">DOI: <a href="https://dx.doi.org/{{ ctrl.study.ref_doi }}">{{ ctrl.study.ref_doi }}</a>
-                   <li ng-if="ctrl.study.publication_date">Publication date: {{ctrl.study.publication_date }}
-                   <li ng-if="ctrl.study.contact_email">Contact: <a href="mailto:{{ctrl.study.contact_email}}">{{ ctrl.study.contact_name_uc }}</a>
+                   <li ng-if="ctrl.study.piName">Principal Investigator: {{ ctrl.study.piName }}
+                   <li ng-if="ctrl.study.refDoi">DOI: <a href="https://dx.doi.org/{{ ctrl.study.refDoi }}">{{ ctrl.study.refDoi }}</a>
+                   <li ng-if="ctrl.study.publicationDate">Publication date: {{ctrl.study.publicationDate }}
+                   <li ng-if="ctrl.study.contactEmail">Contact: <a href="mailto:{{ctrl.study.contactEmail}}">{{ ctrl.study.contactNameUc }}</a>
                    <li ng-if="ctrl.study.description">Description: {{ ctrl.study.description }}
                 </ul>
             </div>
@@ -53,8 +53,8 @@
             <div class="dataset-body">
                 <div ng-repeat="(name, coll) in ctrl.collections">
                     {{ name }} <span class='ethnicity'>{{coll.ethnicity}}</span>
-                    <ul ng-repeat="sample in coll.sample_sets" class='samples'>
-                        <li>Sample size: {{ sample.sample_size }}</li>
+                    <ul ng-repeat="sample in coll.sampleSets" class='samples'>
+                        <li>Sample size: {{ sample.sampleSize }}</li>
                         <li>Phenotype: {{ sample.phenotype }}</li>
                     </ul>
                 </div>

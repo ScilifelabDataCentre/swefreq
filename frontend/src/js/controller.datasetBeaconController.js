@@ -38,7 +38,7 @@
                     d.response.state = d.response.exists ? "Present" : "Absent";
                     localThis.queryResponses.push(d);
                 },
-                function(response) {
+                function() {
                     localThis.queryResponses.push({
                         "response": { "state": "Error" },
                         "query": {
@@ -51,6 +51,6 @@
                     });
                 }
             );
-        };
+        }
     }]);
 })();

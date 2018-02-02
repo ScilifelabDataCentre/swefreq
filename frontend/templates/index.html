@@ -49,8 +49,14 @@
                 <div class="collapse navbar-collapse" id="navbar-things">
                     <ul class="nav navbar-nav navbar-right">
                         <li><a ng-click="showAbout = !showAbout" style="cursor: pointer">About</a>
-                        <li ng-if="mainCtrl.logged_in == true"><a href="/logout?next={{ mainCtrl.url() }}" target="_self" title="Logout {{user_name}}">Logout</a></li>
-                        <li ng_if="mainCtrl.logged_in == false"><a href="/login?next={{ mainCtrl.url() }}" target="_self">Login</a></li>
+                        <li ng-if="mainCtrl.loggedIn == true"><a href="/logout?next={{ mainCtrl.url() }}" target="_self" title="Logout {{mainCtrl.user.user}}">Logout</a></li>
+                        <li class="dropdown" ng_if="mainCtrl.loggedIn == false">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Login <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/elixir/login?next={{ mainCtrl.url() }}" target="_self">Elixir AAI</a></li>
+                                <li><a href="/login/?next={{ mainCtrl.url() }}" target="_self">Google (legacy)</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -73,6 +79,11 @@
                     <div class="col-md-2"></div>
                 </div>
             </div>
+        </div>
+
+        <!-- User information message -->
+        <div class="alert fade in" ng-class="{'success':'alert-success', 'info':'alert-info', 'warning':'alert-warning', 'error':'alert-danger'}[mainCtrl.msg.level]" ng-if="mainCtrl.msg.msg">
+            <center><strong>{{ mainCtrl.msg.level }}!</strong> {{ mainCtrl.msg.msg }}</center>
         </div>
 
         <div id="main">

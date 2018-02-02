@@ -13,3 +13,4 @@ tornado/static/js/app.js
 tornado/static/js/app.min.js
 backend/static
 backend/templates
+static

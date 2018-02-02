@@ -6,7 +6,8 @@ from tornado.options import define, options
 
 import application
 import handlers
-import settings
+import auth
+import settings as swefreq_settings
 import beacon
 #import template
 
@@ -14,18 +15,21 @@ import beacon
 define("port", default=4000, help="run on the given port", type=int)
 define("develop", default=False, help="Run in develop environment", type=bool)
 
-redirect_uri = settings.redirect_uri
-
 # Setup the Tornado Application
-settings = {"debug": False,
-            "cookie_secret": settings.cookie_secret,
+tornado_settings = {"debug": False,
+            "cookie_secret": swefreq_settings.cookie_secret,
             "login_url": "/login",
             "google_oauth": {
-                "key": settings.google_key,
-                "secret": settings.google_secret
+                "key": swefreq_settings.google_key,
+                "secret": swefreq_settings.google_secret
+            },
+            "elixir_oauth": {
+                "id": swefreq_settings.elixir["id"],
+                "secret": swefreq_settings.elixir["secret"],
+                "redirect_uri": swefreq_settings.elixir["redirectUri"],
             },
             "contact_person": 'mats.dahlberg@scilifelab.se',
-            "redirect_uri": redirect_uri,
+            "redirect_uri": swefreq_settings.redirect_uri,
             "xsrf_cookies": True,
             "template_path": "templates/",
         }
@@ -43,44 +47,52 @@ class Application(tornado.web.Application):
             (r"/release/(?P<dataset>[^\/]+)/(?P<file>[^\/]+)",                       handlers.AuthorizedStaticNginxFileHandler,
                                                                                          {"path": "/release-files/"}),
             ## Authentication
-            ("/login",                                                               handlers.LoginHandler),
-            ("/logout",                                                              handlers.LogoutHandler),
+            (r"/logout",                                                              auth.ElixirLogoutHandler),
+            (r"/elixir/login",                                                        auth.ElixirLoginHandler),
+            (r"/elixir/logout",                                                       auth.ElixirLogoutHandler),
+            (r"/google/login",                                                        auth.GoogleLoginHandler),
+            (r"/google/logout",                                                       auth.GoogleLogoutHandler),
             ## API Methods
-            ("/api/countries",                                                       application.CountryList),
-            ("/api/users/me",                                                        application.GetUser),
+            (r"/api/users/elixir_transfer",                                           auth.UpdateUserHandler),
+            (r"/api/countries",                                                       application.CountryList),
+            (r"/api/users/me",                                                        application.GetUser),
+            (r"/api/users/datasets",                                                  application.UserDatasetAccess),
             ### Dataset Api
-            ("/api/datasets",                                                        application.ListDatasets),
-            ("/api/datasets/(?P<dataset>[^\/]+)",                                    application.GetDataset),
-            ("/api/datasets/(?P<dataset>[^\/]+)/log/(?P<event>[^\/]+)/(?P<target>[^\/]+)", application.LogEvent),
-            ("/api/datasets/(?P<dataset>[^\/]+)/logo",                               application.ServeLogo),
-            ("/api/datasets/(?P<dataset>[^\/]+)/files",                              application.DatasetFiles),
-            ("/api/datasets/(?P<dataset>[^\/]+)/collection",                         application.Collection),
-            ("/api/datasets/(?P<dataset>[^\/]+)/users_current",                      application.DatasetUsersCurrent),
-            ("/api/datasets/(?P<dataset>[^\/]+)/users_pending",                      application.DatasetUsersPending),
-            ("/api/datasets/(?P<dataset>[^\/]+)/temporary_link",                     application.GenerateTemporaryLink),
-            ("/api/datasets/(?P<dataset>[^\/]+)/users/(?P<email>[^\/]+)/request",    application.RequestAccess),
-            ("/api/datasets/(?P<dataset>[^\/]+)/users/(?P<email>[^\/]+)/approve",    application.ApproveUser),
-            ("/api/datasets/(?P<dataset>[^\/]+)/users/(?P<email>[^\/]+)/revoke",     application.RevokeUser),
-            ("/api/datasets/(?P<dataset>[^\/]+)/versions",                           application.ListDatasetVersions),
-            ("/api/datasets/(?P<dataset>[^\/]+)/versions/(?P<version>[^\/]+)",       application.GetDataset),
-            ("/api/datasets/(?P<dataset>[^\/]+)/versions/(?P<version>[^\/]+)/files", application.DatasetFiles),
-            ("/api/datasets/(?P<dataset>[^\/]+)/versions/(?P<version>[^\/]+)/temporary_link", application.GenerateTemporaryLink),
+            (r"/api/datasets",                                                        application.ListDatasets),
+            (r"/api/datasets/(?P<dataset>[^\/]+)",                                    application.GetDataset),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/log/(?P<event>[^\/]+)/(?P<target>[^\/]+)", application.LogEvent),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/logo",                               application.ServeLogo),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/files",                              application.DatasetFiles),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/collection",                         application.Collection),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/users_current",                      application.DatasetUsersCurrent),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/users_pending",                      application.DatasetUsersPending),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/temporary_link",                     application.GenerateTemporaryLink),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/users/[^\/]+/request",               application.RequestAccess),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/users/(?P<email>[^\/]+)/approve",    application.ApproveUser),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/users/(?P<email>[^\/]+)/revoke",     application.RevokeUser),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/versions",                           application.ListDatasetVersions),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/versions/(?P<version>[^\/]+)",       application.GetDataset),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/versions/(?P<version>[^\/]+)/files", application.DatasetFiles),
+            (r"/api/datasets/(?P<dataset>[^\/]+)/versions/(?P<version>[^\/]+)/temporary_link", application.GenerateTemporaryLink),
             ### Beacon API
-            ("/api/beacon/query",                                                    beacon.Query),
-            ("/api/beacon/info",                                                     beacon.Info),
+            (r"/api/beacon/query",                                                    beacon.Query),
+            (r"/api/beacon/info",                                                     beacon.Info),
             # # # # # Legacy beacon URIs # # # # #
-            ("/query",                                                               beacon.Query),
-            ("/info",                                                                tornado.web.RedirectHandler,
+            (r"/query",                                                               beacon.Query),
+            (r"/info",                                                                tornado.web.RedirectHandler,
                                                                                          {"url": "/api/beacon/info"}),
             ## Catch all
-            ("/api/.*",                                                              tornado.web.ErrorHandler,
+            (r"/api/.*",                                                              tornado.web.ErrorHandler,
                                                                                          {"status_code": 404} ),
-            (r'().*',                                                                  tornado.web.StaticFileHandler,
-                                                                                         {"path": "templates/",  "default_filename": "index.html"}),
+            (r'().*',                                                                 tornado.web.StaticFileHandler,
+                                                                                         {"path": "static/templates/",  "default_filename": "index.html"}),
         ]
+        ## Adding developer login handler
+        if settings.get('develop', False):
+            self.declared_handlers.insert(-1, ("/developer/login", auth.DeveloperLoginHandler))
 
         # google oauth key
-        self.oauth_key = settings["google_oauth"]["key"]
+        self.oauth_key = tornado_settings["google_oauth"]["key"]
 
         # Setup the Tornado Application
         tornado.web.Application.__init__(self, self.declared_handlers, **settings)
@@ -90,12 +102,12 @@ if __name__ == '__main__':
     tornado.options.parse_command_line()
 
     if options.develop:
-        settings['debug'] = True
-        settings['develop'] = True
+        tornado_settings['debug'] = True
+        tornado_settings['develop'] = True
         logging.getLogger().setLevel(logging.DEBUG)
 
     # Instantiate Application
-    application = Application(settings)
+    application = Application(tornado_settings)
     application.listen(options.port)
 
     # Start HTTP Server

@@ -2,10 +2,10 @@
 [% extends "ng-templates/dataset-base.html" %]
 [% block controller %]datasetAdminController[% endblock %]
 [% block contents %]
-<div ng-if="ctrl.dataset.is_admin == false">
+<div ng-if="ctrl.dataset.isAdmin == false">
     <p>You need to be logged in as an admin to use this page.
 </div>
-<div ng-if="ctrl.dataset.is_admin == true">
+<div ng-if="ctrl.dataset.isAdmin == true">
 
     <div class="container">
         <div class="row">

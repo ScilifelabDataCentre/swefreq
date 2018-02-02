@@ -9,8 +9,46 @@ CREATE TABLE IF NOT EXISTS user (
     email               VARCHAR(100)    NOT NULL,
     affiliation         VARCHAR(100)    DEFAULT NULL,
     country             VARCHAR(100)    DEFAULT NULL,
-    CONSTRAINT UNIQUE (email)
+    identity            VARCHAR(100)    NOT NULL,
+    identity_type       ENUM ('google', 'elixir')
+                                        NOT NULL,
+    CONSTRAINT UNIQUE (email),
+    CONSTRAINT UNIQUE (identity, identity_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS sftp_user (
+    sftp_user_pk        INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_pk             INTEGER         NOT NULL,
+    user_uid            INTEGER         NOT NULL,
+    user_name           VARCHAR(50)     NOT NULL,
+    password_hash       VARCHAR(100)    NOT NULL,
+    account_expires     TIMESTAMP       NOT NULL,
+    CONSTRAINT FOREIGN KEY (user_pk) REFERENCES user(user_pk),
+    CONSTRAINT UNIQUE (user_uid)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Triggers on INSERT and UPDATE of sftp_user.user_uid to make sure the
+-- new value is always 10000 or larger.
+
+DELIMITER $$
+
+CREATE TRIGGER check_before_insert BEFORE INSERT ON sftp_user
+FOR EACH ROW
+IF NEW.user_uid < 10000 THEN
+    SIGNAL SQLSTATE '38001'
+    SET MESSAGE_TEXT = 'Check constraint failed on sftp_user.user_uid insert';
+END IF$$
+
+CREATE TRIGGER check_before_update BEFORE UPDATE ON sftp_user
+FOR EACH ROW
+IF NEW.user_uid < 10000 THEN
+    SIGNAL SQLSTATE '38002'
+    SET MESSAGE_TEXT = 'Check constraint failed on sftp_user.user_uid update';
+END IF$$
+
+DELIMITER ;
+
+-- End of triggers
 
 CREATE TABLE IF NOT EXISTS study (
     study_pk            INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -21,7 +59,8 @@ CREATE TABLE IF NOT EXISTS study (
     title               VARCHAR(100)    NOT NULL,
     description         TEXT            DEFAULT NULL,
     publication_date    DATE            NOT NULL,
-    ref_doi             VARCHAR(100)    DEFAULT NULL
+    ref_doi             VARCHAR(100)    DEFAULT NULL,
+    CONSTRAINT UNIQUE (pi_email, title)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS dataset (
@@ -50,13 +89,15 @@ CREATE TABLE IF NOT EXISTS dataset_version (
     var_call_ref        VARCHAR(50)     DEFAULT NULL,
     available_from      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
     ref_doi             VARCHAR(100)    DEFAULT NULL,
+    CONSTRAINT UNIQUE (dataset_pk, version),
     CONSTRAINT FOREIGN KEY (dataset_pk) REFERENCES dataset(dataset_pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS collection (
     collection_pk       INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name                VARCHAR(100)    NOT NULL,
-    ethnicity           VARCHAR(50)     DEFAULT NULL
+    ethnicity           VARCHAR(50)     DEFAULT NULL,
+    CONSTRAINT UNIQUE (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS sample_set (
@@ -65,6 +106,7 @@ CREATE TABLE IF NOT EXISTS sample_set (
     collection_pk       INTEGER         NOT NULL,
     sample_size         INTEGER         NOT NULL,
     phenotype           VARCHAR(50)     NOT NULL,
+    CONSTRAINT UNIQUE (dataset_pk, collection_pk),
     CONSTRAINT FOREIGN KEY (dataset_pk) REFERENCES dataset(dataset_pk),
     CONSTRAINT FOREIGN KEY (collection_pk) REFERENCES collection(collection_pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -75,6 +117,7 @@ CREATE TABLE IF NOT EXISTS dataset_file (
     name                VARCHAR(100)    NOT NULL,
     uri                 VARCHAR(200)    NOT NULL,
     bytes               BIGINT          NOT NULL,
+    CONSTRAINT UNIQUE (uri),
     CONSTRAINT FOREIGN KEY (dataset_version_pk)
         REFERENCES dataset_version(dataset_version_pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -83,8 +126,9 @@ CREATE TABLE IF NOT EXISTS user_access_log (
     user_access_log_pk  INTEGER         NOT NULL PRIMARY KEY AUTO_INCREMENT,
     user_pk             INTEGER         NOT NULL,
     dataset_pk          INTEGER         NOT NULL,
-    action  ENUM ('access_requested','access_granted','access_revoked',
-                  'private_link')       DEFAULT NULL,
+    action              ENUM ('access_requested', 'access_granted',
+                        'access_revoked', 'private_link')
+                                        DEFAULT NULL,
     ts                  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT FOREIGN KEY (user_pk)    REFERENCES user(user_pk),
     CONSTRAINT FOREIGN KEY (dataset_pk) REFERENCES dataset(dataset_pk)

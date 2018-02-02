@@ -5,7 +5,7 @@ STATIC_TEMPLATES = $(subst frontend,static,$(FRONT_TEMPLATES))
 JAVASCRIPT_FILES = $(wildcard frontend/src/js/app.module.js frontend/src/js/*.js)
 JAVASCRIPT_VENDOR = frontend/node_modules/angular-clipboard/angular-clipboard.js
 
-.PHONY: all templates clean static dist javascript css
+.PHONY: all templates clean static dist javascript css eslint eslint-fix
 
 all: static
 
@@ -17,6 +17,12 @@ dist: static
 
 clean:
 	rm -rf static
+
+eslint:
+	frontend/node_modules/.bin/eslint frontend/src/js
+
+eslint-fix:
+	frontend/node_modules/.bin/eslint --fix frontend/src/js
 
 templates: $(STATIC_TEMPLATES)
 

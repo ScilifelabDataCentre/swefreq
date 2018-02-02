@@ -4,18 +4,18 @@
         <div class="col-md-1"></div>
         <div class="col-md-10">
             <div class="dataset-panel">
-                 <div class="dataset-heading {{ dataset.future ? 'future-title' : ''}}">{{ dataset.full_name }}</div>
+                 <div class="dataset-heading {{ dataset.future ? 'future-title' : ''}}">{{ dataset.fullName }}</div>
                  <div class="dataset-body">
-                     <div ng-if="dataset.has_image">
-                         <img ng-src="/api/datasets/{{dataset.short_name}}/logo" class="dataset-logo" alt='{{ dataset.short_name }} logo' />
+                     <div ng-if="dataset.hasImage">
+                         <img ng-src="/api/datasets/{{dataset.shortName}}/logo" class="dataset-logo" alt='{{ dataset.shortName }} logo' />
                      </div>
-                     <div ng-if="dataset.future" class='future-blurb'>This version will become public at {{ dataset.version.available_from }}.</div>
+                     <div ng-if="dataset.future" class='future-blurb'>This version will become public at {{ dataset.version.availableFrom }}.</div>
                      <div ng-bind-html="dataset.version.description" />
                  </div>
                  <div class="dataset-links">
                      <li><a href="{{ dataset.urlbase }}">More information</a></li>
                      <li><a href="{{ dataset.urlbase + '/beacon' }}">Beacon</a></li>
-                     <li><a target="_blank" href="{{dataset.browser_uri}}">Graphical Browser <span class="glyphicon glyphicon-new-window" aria-hidden="true"></a></li>
+                     <li><a target="_blank" href="{{dataset.browserUri}}">Graphical Browser <span class="glyphicon glyphicon-new-window" aria-hidden="true"></a></li>
                  </div>
             </div>
         </div>

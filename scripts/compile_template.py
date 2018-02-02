@@ -1,11 +1,11 @@
 import jinja2
 import argparse
-import os
 from pathlib import Path
 
 class Jinja2Renderer(object):
     def __init__(self, directory):
         self.env = jinja2.Environment(
+                autoescape            = True,
                 block_start_string    = '[%',
                 block_end_string      = '%]',
                 variable_start_string = '[[',

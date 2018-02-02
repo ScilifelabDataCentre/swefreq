@@ -9,8 +9,8 @@
     <div class="container" ng-if="!ctrl.error">
         <div class="row">
             <div>
-                <div ng-if="ctrl.dataset.future" class="alert alert-danger alert-future">This version will become public at {{ctrl.dataset.version.available_from}}</div>
-                <h1>{{ ctrl.dataset.full_name }}</h1>
+                <div ng-if="ctrl.dataset.future" class="alert alert-danger alert-future">This version will become public at {{ctrl.dataset.version.availableFrom}}</div>
+                <h1>{{ ctrl.dataset.fullName }}</h1>
             </div>
         </div>
         <div class="row">
@@ -21,13 +21,13 @@
                         <li class="[[ 'active' if active=='terms'    ]]"><a href="{{navbarCtrl.createUrl('terms')}}">Terms</a></li>
                         <li class="[[ 'active' if active=='download' ]]"><a href="{{navbarCtrl.createUrl('download')}}">Download</a></li>
                         <li class="[[ 'active' if active=='beacon'   ]]"><a href="{{navbarCtrl.createUrl('beacon')}}">Beacon</a></li>
-                        <li class="[[ 'active' if active=='browser'  ]]"><a href="{{navbarCtrl.browser_uri}}" target="_blank">Graphical Browser <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a></li>
+                        <li class="[[ 'active' if active=='browser'  ]]"><a href="{{navbarCtrl.browserUri}}" target="_blank">Graphical Browser <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a></li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Version <span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li ng-repeat="v in navbarCtrl.versions" class="{{ v.active ? 'active' : ''}} {{v.future ? 'future' : ''}}"><a href="{{navbarCtrl.createUrl('[[active]]',v.name)}}">{{ v.name }}{{ v.current ? " (current)" : ""}}</a></li>
                             </ul>
-                        <li class="[[ 'active' if active=='admin'    ]] pull-right admin-tab" ng-if="navbarCtrl.is_admin"><a href="{{navbarCtrl.createUrl('admin')}}">Admin</a></li>
+                        <li class="[[ 'active' if active=='admin'    ]] pull-right admin-tab" ng-if="navbarCtrl.isAdmin"><a href="{{navbarCtrl.createUrl('admin')}}">Admin</a></li>
                     </ul>
                 </div>
 

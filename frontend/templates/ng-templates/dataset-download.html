@@ -2,8 +2,8 @@
 [% extends "ng-templates/dataset-base.html" %]
 [% block controller %]datasetDownloadController[% endblock %]
 [% block contents %]
-<div ng-switch on='ctrl.authorization_level'>
-<div ng-switch-when="loggedout">
+<div ng-switch on='ctrl.authorizationLevel'>
+<div ng-switch-when="logged_out">
     <div class="row">
         <div class="col-sm-12">
             <div class="dataset-body padding-tb">You need to login for this access</div>
@@ -65,7 +65,7 @@
         </div>
     </div>
 </div>
-<div ng-switch-when="thank-you">
+<div ng-switch-when="thank_you">
     <div class="row">
         <div class="col-sm-12">
             <div class="dataset-body padding-tb">Thank you for your application. We will review it as soon as possible, thank you for your patience.</div>
@@ -83,7 +83,7 @@
     <!-- For some reason, it only works if I initialize this here -->
     <script>$('[data-toggle="popover"]').popover();</script>
 
-    <h2>Terms of use for the {{ ctrl.dataset.short_name }} dataset (release {{ ctrl.dataset.version.version }})</h3>
+    <h2>Terms of use for the {{ ctrl.dataset.shortName }} dataset (release {{ ctrl.dataset.version.version }})</h3>
     <div ng-bind-html="ctrl.dataset.version.terms"></div>
 
 
@@ -111,14 +111,14 @@
             <tr ng-repeat="file in ctrl.files" class="table">
                 <td><a class="btn btn-primary btn-download btn-sm" ng-class="{'disabled': !ctrl.checked}" download="{{file.name}}" href="{{file.uri}}" target="_self" ng-click="ctrl.downloadData()" aria-label="Download" title="Download"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a></td>
                 <td>{{file.name}}</td>
-                <td class="text-right">{{file.human_size}}</td>
+                <td class="text-right">{{file.humanSize}}</td>
 
                 <td>
                     <div class="temporary-links">
-                        <input class="input-sm" type="text" value="{{ file.temp_url }}" size="50" readonly>
-                        <a ng-if="ctrl.canCopy" ng-class="{'disabled': !ctrl.temporaries}" class="btn btn-primary btn-sm" ng-click="ctrl.copyLink(file.temp_url)" aria-label="Copy {{file.temp_url}} to clipboard" title="Copy to clipboard"><span class="glyphicon glyphicon-copy" aria-hidden="true"></a>
+                        <input class="input-sm" type="text" value="{{ file.tempUrl }}" size="50" readonly>
+                        <a ng-if="ctrl.canCopy" ng-class="{'disabled': !ctrl.temporaries}" class="btn btn-primary btn-sm" ng-click="ctrl.copyLink(file.tempUrl)" aria-label="Copy {{file.tempUrl}} to clipboard" title="Copy to clipboard"><span class="glyphicon glyphicon-copy" aria-hidden="true"></a>
                     </div>
-                <td><nobr>{{ file.expires_on }}</nobr></td>
+                <td><nobr>{{ file.expiresOn }}</nobr></td>
             </tr>
             </tbody>
         </table>

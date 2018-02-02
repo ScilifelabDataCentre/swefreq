@@ -6,11 +6,11 @@
         };
 
         function getTemporary(dataset, version) {
-            url = "/api/datasets/" + dataset;
+            var url = "/api/datasets/" + dataset;
             if (version) {
                 url += "/versions/" + version;
             }
-            url += "/temporary_link"
+            url += "/temporary_link";
             return $http.post(
                     url,
                     $.param({"_xsrf": $cookies.get("_xsrf")})

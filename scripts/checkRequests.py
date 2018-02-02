@@ -1,5 +1,5 @@
-import email.mime.multipart
-from email.MIMEText import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import logging
 import peewee
 import smtplib
@@ -8,7 +8,7 @@ import db
 import secrets
 
 def send_email():
-    msg             = email.mime.multipart.MIMEMultipart()
+    msg             = MIMEMultipart()
     msg['to']       = secrets.admin_address
     msg['from']     = secrets.from_address
     msg['subject']  = 'Pending SweFreq requests'
@@ -27,5 +27,5 @@ if __name__ == '__main__':
     except peewee.DoesNotExist:
         # No new users so we don't send any emails.
         pass
-    except Exception as e:
-        logging.warn("Can't send email. Got this exception: {}".format(e))
+    except smtplib.SMTPException as e:
+        logging.warning("Can't send email. Got this exception: {}".format(e))

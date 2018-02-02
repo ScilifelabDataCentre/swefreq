@@ -6,12 +6,12 @@
         };
 
         function getFiles(dataset, version) {
-            var file_uri = "/api/datasets/" + dataset + "/files";
+            var fileUri = "/api/datasets/" + dataset + "/files";
             if ( version ) {
-                file_uri = "/api/datasets/" + dataset + "/versions/" + version + "/files";
+                fileUri = "/api/datasets/" + dataset + "/versions/" + version + "/files";
             }
-            return $http.get(file_uri).then(function(data) {
-                return data.data.files
+            return $http.get(fileUri).then(function(data) {
+                return data.data.files;
             });
         }
     }]);

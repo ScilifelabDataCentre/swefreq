@@ -38,7 +38,7 @@
         function revokeUser(userData) {
             DatasetUsers.revokeUser(
                     $routeParams.dataset, userData.email
-                ).then(function(data) {
+                ).then(function() {
                     getUsers();
                 }
             );
@@ -47,7 +47,7 @@
         function approveUser(userData){
             DatasetUsers.approveUser(
                     $routeParams.dataset, userData.email
-                ).then(function(data) {
+                ).then(function() {
                     getUsers();
                 }
             );

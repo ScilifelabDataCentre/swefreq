@@ -4,14 +4,8 @@ python:
 services:
     - docker
 before_install:
-    - docker pull mysql:5.7
-    - docker run --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -d -p 3366:3306  mysql:5.7
+    - test/travis_before_install.sh
 install:
     - pip install -r backend/requirements.txt
 script:
-    - cp settings_sample.json settings.json
-    - cd backend
-    - bash ../test/01_daemon_starts.sh
-    - cd ..
-    - mysql -u root -h 127.0.0.1 -P 3366 -e 'CREATE DATABASE swefreq;'
-    - mysql -u root -h 127.0.0.1 -P 3366 swefreq < sql/swefreq.sql
+    - test/travis_script.sh

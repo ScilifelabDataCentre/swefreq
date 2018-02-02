@@ -10,6 +10,6 @@
                     return data.data.data;
                 }
             );
-        };
+        }
     }]);
 })();

@@ -1,11 +1,24 @@
-from peewee import *
+from peewee import (
+        BlobField,
+        CharField,
+        DateTimeField,
+        Field,
+        FloatField,
+        ForeignKeyField,
+        IntegerField,
+        Model,
+        MySQLDatabase,
+        PrimaryKeyField,
+        TextField,
+    )
 import settings
 
 database = MySQLDatabase(
         settings.mysql_schema,
         host=settings.mysql_host,
         user=settings.mysql_user,
-        password=settings.mysql_passwd
+        password=settings.mysql_passwd,
+        port=settings.mysql_port
     )
 
 
@@ -17,8 +30,8 @@ class BaseModel(Model):
 class EnumField(Field):
     db_field = 'string' # The same as for CharField
 
-    def __init__(self, values=[], *args, **kwargs):
-        self.values = values
+    def __init__(self, values=None, *args, **kwargs):
+        self.values = values or []
         super().__init__(*args, **kwargs)
 
     def db_value(self, value):
@@ -33,11 +46,13 @@ class EnumField(Field):
 
 
 class User(BaseModel):
-    user        = PrimaryKeyField(db_column='user_pk')
-    name        = CharField(null=True)
-    email       = CharField(unique=True)
-    affiliation = CharField(null=True)
-    country     = CharField(null=True)
+    user          = PrimaryKeyField(db_column='user_pk')
+    name          = CharField(null=True)
+    email         = CharField(unique=True)
+    identity      = CharField(unique=True)
+    identity_type = EnumField(null=False, values=['google', 'elixir'])
+    affiliation   = CharField(null=True)
+    country       = CharField(null=True)
 
     def is_admin(self, dataset):
         return DatasetAccess.select().where(

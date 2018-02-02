@@ -1,7 +1,6 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from os import path
-import json
 import logging
 from datetime import datetime, timedelta
 import peewee
@@ -129,7 +128,7 @@ class ListDatasetVersions(handlers.UnsafeHandler):
 
 
 class GenerateTemporaryLink(handlers.AuthorizedHandler):
-    def post(self, dataset, version=None, *args, **kwargs):
+    def post(self, dataset, version=None):
         user = self.current_user
         dataset_version = db.get_dataset_version(dataset, version)
         lh = db.Linkhash.create(
@@ -155,7 +154,7 @@ class GenerateTemporaryLink(handlers.AuthorizedHandler):
 
 
 class DatasetFiles(handlers.AuthorizedHandler):
-    def get(self, dataset, version=None, *args, **kwargs):
+    def get(self, dataset, version=None):
         dataset_version = db.get_dataset_version(dataset, version)
         ret = []
         for f in dataset_version.files:
@@ -166,15 +165,14 @@ class DatasetFiles(handlers.AuthorizedHandler):
 
         self.finish({'files': ret})
 
-def format_bytes(bytes):
+def format_bytes(nbytes):
     postfixes = ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb']
-    exponent = math.floor( math.log(bytes) / math.log(1000) )
-    return "{} {}".format( round(bytes/1000**exponent, 2), postfixes[exponent])
+    exponent = math.floor( math.log(nbytes) / math.log(1000) )
+    return "{} {}".format( round(nbytes/1000**exponent, 2), postfixes[exponent])
 
 
 class Collection(handlers.UnsafeHandler):
-    def get(self, dataset, *args, **kwargs):
-        user = self.current_user
+    def get(self, dataset):
         dataset = db.get_dataset(dataset)
 
         collections = {}
@@ -202,17 +200,24 @@ class GetUser(handlers.UnsafeHandler):
     def get(self):
         user = self.current_user
 
-        ret = { 'user': None, 'email': None }
+        ret = { 'user': None, 'email': None, 'loginType': 'none' }
         if user:
-            ret = { 'user': user.name, 'email': user.email }
+            ret = {
+                'user':        user.name,
+                'email':       user.email,
+                'affiliation': user.affiliation,
+                'country':     user.country,
+                'loginType':   self.get_secure_cookie('identity_type').decode('utf-8'),
+            }
 
         self.finish(ret)
 
 
 class CountryList(handlers.UnsafeHandler):
-    def get(self, *args, **kwargs):
-        self.write({'countries': [{'name': c} for c in self.country_list()]})
+    def get(self):
+        self.write({'countries': [{'name': c} for c in self.country_list]})
 
+    @property
     def country_list(self):
         return ["Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra",
                 "Angola", "Anguilla", "Antarctica", "Antigua and Barbuda",
@@ -267,19 +272,12 @@ class CountryList(handlers.UnsafeHandler):
                 "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
                 "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican",
                 "Venezuela", "Vietnam", "Wallis and Futuna", "Western Sahara",
-                "Yemen", "Zambia", "Zimbabwe" ];
+                "Yemen", "Zambia", "Zimbabwe" ]
 
 
 class RequestAccess(handlers.SafeHandler):
-    def get(self, dataset, *args, **kwargs):
-        user = self.current_user
-        name = user.name
-        email = user.email
-
-        logging.info("Request: " + name + ' ' + email)
-        self.finish(json.dumps({'user':name, 'email':email}))
-
-    def post(self, dataset, *args, **kwargs):
+    def post(self, dataset):
+        user    = self.current_user
         dataset = db.get_dataset(dataset)
 
         affiliation = self.get_argument("affiliation", strip=False)
@@ -288,6 +286,7 @@ class RequestAccess(handlers.SafeHandler):
 
         user.affiliation = affiliation
         user.country = country
+
         logging.info("Inserting into database: {}, {}".format(user.name, user.email))
 
         try:
@@ -315,7 +314,10 @@ class LogEvent(handlers.SafeHandler):
         if event == 'consent':
             dv = (db.DatasetVersion
                     .select()
-                    .where(db.DatasetVersion.version==target)
+                    .join(db.Dataset)
+                    .where(
+                        db.DatasetVersion.version == target,
+                        db.Dataset.short_name     == dataset)
                     .get())
             db.UserConsentLog.create(
                     user = user,
@@ -345,20 +347,24 @@ class ApproveUser(handlers.AdminHandler):
                     action = 'access_granted'
                 )
 
-        msg = MIMEMultipart()
-        msg['to'] = email
-        msg['from'] = settings.from_address
-        msg['subject'] = 'Swefreq access granted to {}'.format(dataset.short_name)
-        msg.add_header('reply-to', settings.reply_to_address)
-        body = """You now have access to the {} dataset
+        try:
+            msg = MIMEMultipart()
+            msg['to'] = email
+            msg['from'] = settings.from_address
+            msg['subject'] = 'Swefreq access granted to {}'.format(dataset.short_name)
+            msg.add_header('reply-to', settings.reply_to_address)
+            body = """You now have access to the {} dataset
 
-Please visit https://swefreq.nbis.se/dataset/{}/download to download files.
-        """.format(dataset.full_name, dataset.short_name,
-                dataset.study.contact_name)
-        msg.attach(MIMEText(body, 'plain'))
+    Please visit https://swefreq.nbis.se/dataset/{}/download to download files.
+            """.format(dataset.full_name, dataset.short_name)
+            msg.attach(MIMEText(body, 'plain'))
 
-        server = smtplib.SMTP(settings.mail_server)
-        server.sendmail(msg['from'], [msg['to']], msg.as_string())
+            server = smtplib.SMTP(settings.mail_server)
+            server.sendmail(msg['from'], [msg['to']], msg.as_string())
+        except Exception as e:
+            logging.error("Email error: {}".format(e))
+
+        self.finish()
 
 
 class RevokeUser(handlers.AdminHandler):
@@ -373,33 +379,32 @@ class RevokeUser(handlers.AdminHandler):
                     action = 'access_revoked'
                 )
 
-class DatasetUsers():
-    def _build_json_response(self, query, access_for):
-        json_response = []
-        for user in query:
-            applyDate = '-'
-            access = access_for(user)
-            if not access:
-                continue
-            access = access[0]
-            if access.access_requested:
-                applyDate = access.access_requested.strftime('%Y-%m-%d')
+def _build_json_response(query, access_for):
+    json_response = []
+    for user in query:
+        applyDate = '-'
+        access = access_for(user)
+        if not access:
+            continue
+        access = access[0]
+        if access.access_requested:
+            applyDate = access.access_requested.strftime('%Y-%m-%d')
 
-            data = {
-                    'user':        user.name,
-                    'email':       user.email,
-                    'affiliation': user.affiliation,
-                    'country':     user.country,
-                    'newsletter':  access.wants_newsletter,
-                    'has_access':  access.has_access,
-                    'applyDate':   applyDate
-                }
-            json_response.append(data)
-        return json_response
+        data = {
+                'user':        user.name,
+                'email':       user.email,
+                'affiliation': user.affiliation,
+                'country':     user.country,
+                'newsletter':  access.wants_newsletter,
+                'has_access':  access.has_access,
+                'applyDate':   applyDate
+            }
+        json_response.append(data)
+    return json_response
 
 
-class DatasetUsersPending(handlers.AdminHandler, DatasetUsers):
-    def get(self, dataset, *args, **kwargs):
+class DatasetUsersPending(handlers.AdminHandler):
+    def get(self, dataset):
         dataset = db.get_dataset(dataset)
         users = db.User.select()
         access = (db.DatasetAccessPending
@@ -409,12 +414,11 @@ class DatasetUsersPending(handlers.AdminHandler, DatasetUsers):
                    ))
         query = peewee.prefetch(users, access)
 
-        self.finish({'data': self._build_json_response(
-            query, lambda u: u.access_pending_prefetch)})
+        self.finish({'data': _build_json_response(query, lambda u: u.access_pending_prefetch)})
 
 
-class DatasetUsersCurrent(handlers.AdminHandler, DatasetUsers):
-    def get(self, dataset, *args, **kwargs):
+class DatasetUsersCurrent(handlers.AdminHandler):
+    def get(self, dataset):
         dataset = db.get_dataset(dataset)
         users = db.User.select()
         access = (db.DatasetAccessCurrent
@@ -423,12 +427,41 @@ class DatasetUsersCurrent(handlers.AdminHandler, DatasetUsers):
                        db.DatasetAccessCurrent.dataset == dataset,
                    ))
         query = peewee.prefetch(users, access)
-        self.finish({'data': self._build_json_response(
+        self.finish({'data': _build_json_response(
             query, lambda u: u.access_current_prefetch)})
 
 
+class UserDatasetAccess(handlers.SafeHandler):
+    def get(self):
+        user = self.current_user
+
+        ret = {
+            "data": [],
+        }
+
+        for access in user.access_pending:
+            d = {}
+            d['short_name']       = access.dataset.short_name
+            d['wants_newsletter'] = access.wants_newsletter
+            d['is_admin']         = False
+            d['access']           = False
+
+            ret['data'].append( d )
+
+        for access in user.access_current:
+            d = {}
+            d['short_name']       = access.dataset.short_name
+            d['wants_newsletter'] = access.wants_newsletter
+            d['is_admin']         = access.is_admin
+            d['access']           = True
+
+            ret['data'].append( d )
+
+        self.finish(ret)
+
+
 class ServeLogo(handlers.UnsafeHandler):
-    def get(self, dataset, *args, **kwargs):
+    def get(self, dataset):
         try:
             logo_entry = db.DatasetLogo.select(
                     db.DatasetLogo
@@ -437,7 +470,7 @@ class ServeLogo(handlers.UnsafeHandler):
                 ).where(
                     db.Dataset.short_name == dataset
                 ).get()
-        except:
+        except db.DatasetLogo.DoesNotExist:
             self.send_error(status_code=404)
             return
 

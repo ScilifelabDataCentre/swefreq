@@ -12,13 +12,13 @@
             if (dataset === undefined) {
                 return defer.reject("No dataset provided");
             }
-            var dataset_uri = "/api/datasets/" + dataset;
+            var datasetUri = "/api/datasets/" + dataset;
             if (version) {
-                dataset_uri += "/versions/" + version;
+                datasetUri += "/versions/" + version;
             }
 
             $q.all([
-                $http.get(dataset_uri).then(function(data){
+                $http.get(datasetUri).then(function(data){
                     var d = data.data;
                     d.version.description = $sce.trustAsHtml( d.version.description );
                     d.version.terms       = $sce.trustAsHtml( d.version.terms );
@@ -28,22 +28,22 @@
                     state.collections = data.data.collections;
                     state.study = data.data.study;
 
-                    var contact_name = state.study.contact_name;
-                    state.study.contact_name_uc = contact_name.charAt(0).toUpperCase() + contact_name.slice(1);
+                    var contactName = state.study.contactName;
+                    state.study.contactNameUc = contactName.charAt(0).toUpperCase() + contactName.slice(1);
                 })
-            ]).then(function(data) {
+            ]).then(function() {
                     defer.resolve(state);
                 },
-                function(error) {
-                    var error_message = "Can't find dataset " + dataset;
+                function() {
+                    var errorMessage = "Can't find dataset " + dataset;
                     if (version) {
-                        error_message += " version " + version;
+                        errorMessage += " version " + version;
                     }
-                    defer.reject(error_message);
+                    defer.reject(errorMessage);
                 }
             );
 
             return defer.promise;
-        };
+        }
     }]);
 })();

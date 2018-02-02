@@ -1,0 +1,65 @@
+<!-- login.html -->
+<div ng-controller="mainController as main" class="container">
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="alert alert-success col-md-offset-3 col-md-6" ng-if="main.loginType == 'updated'">
+                <center>
+                    <h1>Your account has been updated!</h1>
+                    You may now use the site as you used to, using your Elixir account.
+                </center>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6" ng-if="main.loginType != 'updated'">
+                    <h1>Login to swefreq is changing</h1>
+                <div class="panel-body">
+                    <p>
+                        To transfer your login credentials from a google account to an elixir account, 
+                        just use the buttons below to log in to both google and elixir, we will then 
+                        give you the option to update your account with the elixir information.
+                    </p>
+                    <center>
+                        <!-- Google Login button -->
+                        <a href="/google/login?next={{ main.url() }}" target="_self">
+                            <button type="button" class="btn" ng-class="{'none':'btn-primary', 'google':'btn-success', 'elixir':'btn-primary', 'elixir_google':'btn-success'}[main.loginType]">
+                                <span ng-if="main.loginType != 'google' && main.loginType != 'elixir_google'">Login with Google</span>
+                                <span ng-if="main.loginType == 'google' || main.loginType == 'elixir_google'">Logged in with Google <span class="glyphicon glyphicon-ok" aria-hidden="true"/></span>
+                            </button>
+                        </a>
+
+                        <!-- Elixir Login button -->
+                        <a href="/elixir/login?next={{ main.url() }}" target="_self">
+                            <button type="button" class="btn" ng-class="{'none':'btn-primary', 'google':'btn-primary', 'elixir':'btn-success', 'elixir_google':'btn-success'}[main.loginType]">
+                                <span ng-if="main.loginType != 'elixir' && main.loginType != 'elixir_google'">Login with Elixir</span>
+                                <span ng-if="main.loginType == 'elixir' || main.loginType == 'elixir_google'">Logged in with Elixir <span class="glyphicon glyphicon-ok" aria-hidden="true"/></span>
+                            </button>
+                        </a>
+                    </center>
+            
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-controller="loginController as login">
+            <div class="col-md-offset-3 col-md-6" ng-if="main.loginType == 'elixir_google'">
+                <div class="panel panel-info">
+                    <div class="panel-heading">Transfer Account Credentials</div>
+                    <div class="panel-body">
+                        <p>
+                            We can now transfer your credentials from your google account to your Elixir account!
+                        </p>
+                        <div class="alert alert-warning">
+                            Note that this will make you unable to log in with your google account in the future,
+                            as your user data will be permanently updated with the elixir information.
+                        </div>
+                        <form role="form" name="transferForm">
+                            <center>
+                                <button ng-click="login.postTransferForm(transferForm.$valid)" class="btn btn-primary">Transfer Credentials</button>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

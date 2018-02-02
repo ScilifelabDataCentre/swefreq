@@ -11,37 +11,37 @@
 
          function getUsers(dataset) {
             var defer = $q.defer();
-            var data = {"pending": [], "current": []};
+            var users = {"pending": [], "current": []};
             $q.all([
                 $http.get( "/api/datasets/" + dataset + "/users_pending" )
-                    .then(function(d) {
-                        data["pending"] = d.data.data;
+                    .then(function(data) {
+                        users.pending = data.data.data;
                     }
                 ),
                 $http.get( "/api/datasets/" + dataset + "/users_current" )
-                    .then(function(d) {
-                        data["current"] = d.data.data;
+                    .then(function(data) {
+                        users.current = data.data.data;
                     }
                 )
-            ]).then(function(d) {
-                defer.resolve(data);
+            ]).then(function() {
+                defer.resolve(users);
             });
             return defer.promise;
-        };
+        }
 
          function approveUser(dataset, email) {
             return $http.post(
                     "/api/datasets/" + dataset + "/users/" + email + "/approve",
                     $.param({"_xsrf": $cookies.get("_xsrf")})
                 );
-        };
+        }
 
          function revokeUser(dataset, email) {
             return $http.post(
                     "/api/datasets/" + dataset + "/users/" + email + "/revoke",
                     $.param({"_xsrf": $cookies.get("_xsrf")})
-                )
-        };
+                );
+        }
 
          function requestAccess(dataset, user) {
             return $http({url:"/api/datasets/" + dataset + "/users/" + user.email + "/request",
@@ -56,6 +56,6 @@
                         })
                 }
             );
-        };
+        }
     }]);
 })();

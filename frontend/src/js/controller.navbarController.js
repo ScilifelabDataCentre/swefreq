@@ -2,7 +2,7 @@
     angular.module("App")
     .controller("navbarController", ["$routeParams", "Dataset", "DatasetVersions", function($routeParams, Dataset, DatasetVersions) {
         var localThis = this;
-        localThis.is_admin = false;
+        localThis.isAdmin = false;
         localThis.createUrl = createUrl;
 
         activate();
@@ -10,9 +10,9 @@
         function activate() {
             Dataset.getDataset($routeParams.dataset, $routeParams.version)
                 .then(function(data) {
-                    localThis.is_admin    = data.dataset.is_admin;
-                    localThis.dataset     = data.dataset.short_name;
-                    localThis.browser_uri = data.dataset.browser_uri;
+                    localThis.isAdmin     = data.dataset.isAdmin;
+                    localThis.dataset     = data.dataset.shortName;
+                    localThis.browserUri  = data.dataset.browserUri;
                     localThis.urlBase     = "/dataset/" + localThis.dataset;
                     localThis.thisVersion = data.dataset.version.version;
                     if ($routeParams.version) {
@@ -45,6 +45,6 @@
                 return "/dataset/" + localThis.dataset + "/version/" + version + "/" + subpage;
             }
             return localThis.urlBase + "/" + subpage;
-        };
+        }
     }]);
 })();

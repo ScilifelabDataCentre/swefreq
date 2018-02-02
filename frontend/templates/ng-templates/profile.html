@@ -1,0 +1,72 @@
+<div ng-controller="profileController as ctrl">
+    <div class="container" ng-if="ctrl.error">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>{{ ctrl.error }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <!-- About me -->
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>About me</h1>
+            </div class="col-sm-12">
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <form class="form-horizontal" role="form" name="requestForm">
+                    <div class="form-group">
+                        <label for="user_name" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="user-name" ng-model="ctrl.user.user" ng-disabled="true" placeholder="Your name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2 control-label">E-mail</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="email" ng-model="ctrl.user.email" required ng-disabled="true" placeholder="Your e-mail">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="affiliation" class="col-sm-2 control-label">Affiliation</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="affiliation" name="affiliation" required ng-disabled="true" ng-model="ctrl.user.affiliation" placeholder="Your affiliation">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="country" class="col-sm-2 control-label">Country</label>
+                        <div class="col-sm-4">
+                            <select name="country" class="form-control" id="country" ng-options="option.name for option in ctrl.availableCountries track by option.name" ng-model="ctrl.user.country" required ng-disabled="true">
+                                <option value="">-- Select Country --
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dataset Access -->
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>Dataset Access</h1>
+            </div class="col-sm-12">
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Dataset
+                        <th>Subscribed to email updates
+                        <th>Access
+                    </tr>
+                    <tr ng-repeat="row in ctrl.datasets">
+                        <td>{{row.shortName}}</td>
+                        <td>{{row.email ? "Yes" : "No"}}</td>
+                        <td>{{row.access ? (row.isAdmin ? "Admin" : "Approved" ) : "Request pending" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

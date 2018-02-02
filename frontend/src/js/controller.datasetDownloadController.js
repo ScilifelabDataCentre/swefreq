@@ -1,10 +1,10 @@
 (function() {
     angular.module("App")
-    .controller("datasetDownloadController", ["$location", "$http", "$routeParams", "clipboard", "User", "Dataset", "DatasetUsers", "Log", "DatasetFiles", "TemporaryLink",
-                                function($location, $http, $routeParams, clipboard, User, Dataset, DatasetUsers, Log, DatasetFiles, TemporaryLink) {
+    .controller("datasetDownloadController", ["$location", "$http", "$routeParams", "clipboard", "User", "Dataset", "DatasetUsers", "Log", "DatasetFiles", "TemporaryLink", "Countries",
+                                function($location, $http, $routeParams, clipboard, User, Dataset, DatasetUsers, Log, DatasetFiles, TemporaryLink, Countries) {
         var localThis                 = this;
         var dataset                   = $routeParams.dataset;
-        localThis.authorization_level = "loggedout";
+        localThis.authorizationLevel  = "logged_out";
         localThis.sendRequest         = sendRequest;
         localThis.consented           = consented;
         localThis.createTemporaryLink = createTemporaryLink;
@@ -16,8 +16,8 @@
         activate();
 
         function activate() {
-            $http.get("/api/countries").then(function(data) {
-                localThis.availableCountries = data.data.countries;
+            Countries.getCountries().then(function(data) {
+                localThis.availableCountries = data;
             });
 
             User.getUser().then(function(data) {
@@ -44,10 +44,10 @@
 
         function updateAuthorizationLevel() {
             if (!localThis.hasOwnProperty("user") || localThis.user.user == null) {
-                localThis.authorization_level = "loggedout";
+                localThis.authorizationLevel = "logged_out";
             }
             else if (localThis.hasOwnProperty("dataset")) {
-                localThis.authorization_level = localThis.dataset.authorization_level;
+                localThis.authorizationLevel = localThis.dataset.authorizationLevel;
             }
         }
 
@@ -56,32 +56,32 @@
                 return;
             }
             DatasetUsers.requestAccess(dataset, localThis.user)
-                .then(function(data) {
-                    localThis.authorization_level = "thank-you";
+                .then(function() {
+                    localThis.authorizationLevel = "thank_you";
                 }
             );
-        };
+        }
 
-        var has_already_logged = false;
+        var hasAlreadyLogged = false;
         function consented() {
-            if (!has_already_logged){
-                has_already_logged = true;
+            if (!hasAlreadyLogged){
+                hasAlreadyLogged = true;
                 Log.consent(dataset, localThis.dataset.version.version);
             }
-        };
+        }
 
         function createTemporaryLink() {
             TemporaryLink.getTemporary($routeParams.dataset, $routeParams.version).success(function(data) {
                 localThis.temporaries = true;
                 for (let file of localThis.files) {
-                    file["temp_url"] = localThis.host
-                                     + file["dirname"] + "/"
-                                     + data.hash + "/"
-                                     + file["name"];
-                    file["expires_on"] = data.expires_on;
+                    file.tempUrl   = localThis.host
+                                   + file["dirname"] + "/"
+                                   + data.hash       + "/"
+                                   + file["name"];
+                    file.expiresOn = data.expiresOn;
                 }
             });
-        };
+        }
 
         function copyLink(link) {
             clipboard.copyText(link);

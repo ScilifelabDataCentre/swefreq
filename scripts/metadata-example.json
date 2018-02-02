@@ -1,0 +1,38 @@
+{
+  "title": "Title/name of study [VARCHAR(100)]",
+  "description": "Long description of study (or filename) [optional, TEXT]",
+  "publication-date": "Date of publication [DATE]",
+  "ref-doi": "DOI of publication [optional, VARCHAR(100)]",
+  "pi-name": "Name of the Principle Investigator [VARCHAR(100)]",
+  "pi-email": "Email for the above [VARCHAR(100)]",
+  "contact-name": "Name of the person to contact regarding this data [VARCHAR(100)]",
+  "contact-email": "Email for the above [VARCHAR(100)]",
+  "datasets": [
+    {
+      "short-name": "Short name of dataset [VARCHAR(50)]",
+      "full-name": "Long name of dataset [VARCHAR(100)]",
+      "dataset-size": "Size of dataset [INTEGER]",
+      "avg-seq-depth": "Average sequencing depth [optional, FLOAT]",
+      "seq-type": "Sequencing type [optional, VARCHAR(50)]",
+      "seq-tech": "Sequencing technology [optional, VARCHAR(50)]",
+      "seq-center": "Sequencing centre [optional, VARCHAR(100)]",
+      "logotype": "Filename for dataset logotype [optional, MEDIUMBLOB]",
+      "version": {
+        "version": "Dataset version identifier [VARCHAR(20)]",
+        "description": "Long description of dataset (or filename) [TEXT]",
+        "terms": "Terms of use for this dataset (or filename) [TEXT]",
+        "var-call-ref": "Reference genome used [optional, VARCHAR(50)]",
+        "ref-doi": "DOI of publication [optional, VARCHAR(100)]",
+        "available-from": "Date of publication [optional, TIMESTAMP]"
+      },
+      "sample-sets": [
+        {
+          "collection": "Name of collection [VARCHAR(100)]",
+          "sample-size": "Size of sample [INTEGER]",
+          "phenotype": "Phenotype [VARCHAR(50)]",
+          "ethnicity": "Ethnicity [optional, VARCHAR(50)]"
+        }
+      ]
+    }
+  ]
+}
