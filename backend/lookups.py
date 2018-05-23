@@ -289,12 +289,34 @@ def remove_extraneous_information(variant):
     del variant['site_quality']
     del variant['vep_annotations']
 
+def fix_vep_annotations(variant):
+    all_vep_annotations = ["TSL", "APPRIS", "ExAC_EAS_MAF", "SYMBOL",
+            "EAS_MAF", "Feature", "Codons", "MOTIF_NAME", "DOMAINS", "SIFT",
+            "VARIANT_CLASS", "CDS_position", "CCDS", "Allele", "PolyPhen",
+            "MOTIF_SCORE_CHANGE", "IMPACT", "HGVSp", "ENSP", "LoF",
+            "ExAC_FIN_MAF", "INTRON", "ExAC_AMR_MAF", "ExAC_Adj_MAF",
+            "Existing_variation", "HGVSc", "LoF_filter", "MOTIF_POS",
+            "HIGH_INF_POS", "ExAC_MAF", "GENE_PHENO", "AA_MAF", "LoF_flags",
+            "AFR_MAF", "UNIPARC", "cDNA_position", "PUBMED", "ALLELE_NUM",
+            "Feature_type", "GMAF", "HGNC_ID", "PHENO", "LoF_info",
+            "SWISSPROT", "FLAGS", "EUR_MAF", "Consequence", "Protein_position",
+            "Gene", "STRAND", "DISTANCE", "EA_MAF", "SOMATIC", "SYMBOL_SOURCE",
+            "Amino_acids", "TREMBL", "CLIN_SIG", "SAS_MAF", "HGVS_OFFSET",
+            "BIOTYPE", "ExAC_AFR_MAF", "ExAC_OTH_MAF", "EXON", "ExAC_NFE_MAF",
+            "ExAC_SAS_MAF", "AMR_MAF", "CANONICAL"]
+
+    for annotation in all_vep_annotations:
+        if not annotation in variant['vep_annotations']:
+            variant['vep_annotations'] = ""
+    return variant
+
 
 def get_variants_in_gene(db, gene_id):
     """
     """
     variants = []
     for variant in db.variants.find({'genes': gene_id}, projection={'_id': False}):
+        fix_vep_annotations(variant)
         variant['vep_annotations'] = [x for x in variant['vep_annotations'] if x['Gene'] == gene_id]
         add_consequence_to_variant(variant)
         remove_extraneous_information(variant)
@@ -311,6 +333,7 @@ def get_variants_in_transcript(db, transcript_id):
     """
     variants = []
     for variant in db.variants.find({'transcripts': transcript_id}, projection={'_id': False}):
+        fix_vep_annotations(variant)
         variant['vep_annotations'] = [x for x in variant['vep_annotations'] if x['Feature'] == transcript_id]
         add_consequence_to_variant(variant)
         remove_extraneous_information(variant)
