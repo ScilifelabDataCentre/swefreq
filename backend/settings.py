@@ -1,9 +1,13 @@
+
+import os
 import json
 
 try:
-    json_settings_fh = open("settings.json")
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    json_settings_fh = open(os.path.join(current_dir, "settings.json"))
 except FileNotFoundError:
-    json_settings_fh = open("../settings.json")
+    parent_dir = os.path.join(current_dir, os.pardir)
+    json_settings_fh = open(os.path.join(parent_dir, "settings.json"))
 
 json_settings = json.load(json_settings_fh)
 json_settings_fh.close()
@@ -30,6 +34,13 @@ mongo_port      = json_settings["mongoPort"]
 mongo_user      = json_settings["mongoUser"]
 mongo_password  = json_settings["mongoPassword"]
 mongo_databases = json_settings["mongoDatabases"]
+
+# PostgreSQL settings
+psql_host = json_settings["postgresHost"]
+psql_port = json_settings["postgresPort"]
+psql_name = json_settings["postgresName"]
+psql_user = json_settings["postgresUser"]
+psql_pass = json_settings["postgresPass"]
 
 # e-mail config
 mail_server = json_settings["mailServer"]
