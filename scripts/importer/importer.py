@@ -59,8 +59,7 @@ if __name__ == '__main__':
         logging.info("  - dbSNP version:   {}".format(args.dbsnp_version))
         logging.info("  - dbSNP reference: {}".format(args.dbsnp_reference))
 
-        importer = DbSNPImporter(args.dbsnp_version, args.dbsnp_reference,
-                                 args.data_dir, args.limit_chrom, args.batch_size)
+        importer = DbSNPImporter(args)
         importer.prepare_data()
         if not args.disable_progress:
             importer.count_entries()

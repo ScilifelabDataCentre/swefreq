@@ -11,15 +11,16 @@ class DbSNPImporter( DataImporter ):
     Downloads and imports a dbSNP-dataset into the swefreq database.
     """
 
-    URL=("ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_{a.version}"
-         "_{a.reference}/database/data/organism_data/{a.version}_"
-         "SNPChrPosOnRef_{a.number}.bcp.gz")
+    URL=("ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_{a.dbsnp_version}"
+         "_{a.dbsnp_reference}/database/data/organism_data/{a.dbsnp_version}_"
+         "SNPChrPosOnRef_{a.dbsnp_number}.bcp.gz")
 
-    def __init__(self, version, reference, download_dir="", chrom=None, batch_size=5000):
-        super().__init__(download_dir, chrom, batch_size)
-        self.version = version
-        self.reference = reference
-        self.number = 105 if reference.startswith("GRCh37") else 108
+    def __init__(self, settings):
+        super().__init__(settings)
+        self.settings = settings
+        self.settings.dbsnp_number = 105
+        if settings.dbsnp_reference.startswith("GRCh37"):
+            self.settings.dbsnp_number = 108
         self.total = None
 
     def count_entries(self):
@@ -42,7 +43,7 @@ class DbSNPImporter( DataImporter ):
         logging.info("Found {} lines in {}".format(self.total, self._time_since(start)))
 
     def prepare_data(self):
-        url = DbSNPImporter.URL.format(a=self)
+        url = DbSNPImporter.URL.format(a=self.settings)
         filename = url.split("/")[-1]
         try:
             os.stat( os.path.join(self.download_dir, filename) )
@@ -51,7 +52,7 @@ class DbSNPImporter( DataImporter ):
             self.in_file = self._download_and_open(url)
 
     def prepare_version(self):
-        version_id = "{a.version}_{a.reference}".format(a=self)
+        version_id = "{a.dbsnp_version}_{a.dbsnp_reference}".format(a=self.settings)
         dbsnp_version, created = db.DbSNP_version.get_or_create(version_id = version_id)
         if created:
             logging.info("Created dbsnp_version '{}'".format(version_id))

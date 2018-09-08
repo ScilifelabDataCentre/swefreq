@@ -12,10 +12,11 @@ class DataImporter( object ):
 
     BLOCKSIZE = 1024
 
-    def __init__(self, download_dir, chrom = None, batch_size = 5000):
-        self.download_dir = download_dir
-        self.chrom = chrom
-        self.batch_size = batch_size
+    def __init__(self, settings):
+        self.download_dir = settings.data_dir
+        self.chrom = settings.limit_chrom
+        self.batch_size = settings.batch_size
+        self.progress_bar = not settings.disable_progress
         self.in_file = None
 
     def _connect(self, host, user, passwd, database):
@@ -53,14 +54,14 @@ class DataImporter( object ):
             logging.info("response lacks content-length header, but will still download.")
         downloaded = 0
         logging.info("Downloading file {}".format(url))
-        if filesize:
+        if filesize and self.progress_bar:
             self._print_progress_bar()
         with open(filename, 'wb') as out:
             block = response.read(DataImporter.BLOCKSIZE)
             last_progress = 0
             while block:
                 downloaded += len(block)
-                if logging.getLogger().getEffectiveLevel() < 30 and filesize:
+                if self.progress_bar and logging.getLogger().getEffectiveLevel() < 30 and filesize:
                     progress = downloaded / filesize
                     while progress -last_progress > 0.01:
                         last_progress += 0.01
@@ -68,7 +69,7 @@ class DataImporter( object ):
                 out.write(block)
                 block = response.read(DataImporter.BLOCKSIZE)
         response.close()
-        if logging.getLogger().getEffectiveLevel() < 30 and filesize:
+        if self.progress_bar and logging.getLogger().getEffectiveLevel() < 30 and filesize:
             self._tick(True)
             sys.stderr.write("=\n")
         return filename
