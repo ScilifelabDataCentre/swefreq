@@ -4,6 +4,7 @@ Swefreq data importer.
 """
 
 from data_importer.dbsnp_importer import DbSNPImporter
+from data_importer.reference_set_importer import ReferenceSetImporter
 
 if __name__ == '__main__':
 
@@ -38,6 +39,13 @@ if __name__ == '__main__':
     parser.add_argument("--dbsnp_reference", default="GRCh37p13",
                         help = "Which reference the dbSNP should be aligned to.")
 
+    # omim file, since we can't download or version them
+    parser.add_argument("--omim_file", default=os.path.join(os.path.dirname(__file__),
+                                                            "downloaded_files",
+                                                            "omim_info.txt.gz"),
+                        help = "OMIM annotation file.")
+
+
     # Actions
     parser.add_argument("--add_dbsnp", action="store_true",
                         help = "Adds a new dbSNP version to the database.")
@@ -71,3 +79,9 @@ if __name__ == '__main__':
         logging.info("  - Ensembl: {}".format(args.ensembl_version))
         logging.info("  - dbNSFP:  {}".format(args.dbnsfp_version))
         logging.info("  - dbSNP:   {}".format(args.dbsnp_version))
+
+        importer = ReferenceSetImporter(args)
+        importer.prepare_data()
+        if not args.disable_progress:
+            importer.count_entries()
+        importer.start_import()

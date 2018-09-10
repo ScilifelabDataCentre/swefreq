@@ -17,9 +17,8 @@ class DbSNPImporter( DataImporter ):
 
     def __init__(self, settings):
         super().__init__(settings)
-        self.settings = settings
         self.settings.dbsnp_number = 105
-        if settings.dbsnp_reference.startswith("GRCh37"):
+        if settings.dbsnp_reference.startswith("GRCh38"):
             self.settings.dbsnp_number = 108
         self.total = None
 
@@ -32,10 +31,10 @@ class DbSNPImporter( DataImporter ):
             if line.startswith("#"):
                 continue
 
-            if line.count("\t") != 2:
+            if line.count("\t") < 2:
                 continue
 
-            if self.chrom and not line.split("\t")[1] == self.chrom:
+            if self.chrom and not line.split("\t")[1] == str(self.chrom):
                 continue
 
             self.total += 1

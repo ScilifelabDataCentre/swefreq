@@ -1,36 +1,43 @@
 #!/usr/bin/env bash
 
 # Some variables
-COMMANDS=(import add_picture)
-PRINT_HELP=$#
-SCRIPT_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-export PYTHONPATH="${PYTHONPATH}:${SCRIPT_DIR}/../backend"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PYTHONPATH=${PYTHONPATH:+"$PYTHONPATH:"}"$SCRIPT_DIR/../backend"
 
-# Figure out if -h/--help goes to this script or to the command
-for arg in $@
-do 
-    for command in ${COMMANDS[@]}; do [[ "$arg" == "$command" ]] && break 2; done
-    [[ "$arg" == "-h" ]] || [[ "$arg" == "--help" ]] && PRINT_HELP="0"
-done
+do_help () {
+    cat <<USAGE
+USAGE:
 
-if [[ "$PRINT_HELP" == "0" ]]
-then
-    cat <<-USAGE
-USAGE: $0 [command] <args>
+    $0 command args
+    $0 command -h
 
 Valid commands are:
 
-    import          Import data into the database.
+    import          Import data into the database
     add_picture     Add a picture into the database
 
-Use $0 [command] -h or --help to get help on a specific command.
+Use
+    $0 command -h
+to get help on a specific command.
 USAGE
-fi
+}
 
-while (( "$#" ))
-do
-    arg="$1"
-    shift
-    [[ "$arg" == "import"      ]] && ${SCRIPT_DIR}/importer/importer.py $@ && break
-    [[ "$arg" == "add_picture" ]] && ${SCRIPT_DIR}/add_picture_to_db.py $@ && break
-done
+cmd=$1
+shift
+
+case $cmd in
+    help|-h|--help)
+        do_help
+        exit
+        ;;
+    import)
+        "$SCRIPT_DIR/importer/importer.py" "$@"
+        ;;
+    picture)
+        "$SCRIPT_DIR/add_picture_to_db.py" "$@"
+        ;;
+    *)
+        printf 'Error: Invalid command "%s"\n' "$cmd" >&2
+        do_help >&2
+        exit 1
+esac

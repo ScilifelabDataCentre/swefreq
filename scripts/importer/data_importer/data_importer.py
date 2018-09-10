@@ -13,6 +13,7 @@ class DataImporter( object ):
     BLOCKSIZE = 1024
 
     def __init__(self, settings):
+        self.settings = settings
         self.download_dir = settings.data_dir
         self.chrom = settings.limit_chrom
         self.batch_size = settings.batch_size

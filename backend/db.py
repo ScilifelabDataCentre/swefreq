@@ -114,6 +114,8 @@ class Transcript(BaseModel):
 
     transcript_id = CharField(max_length=15)
     gene = ForeignKeyField(Gene, db_column="gene", related_name="transcripts")
+    mim_gene_accession = IntegerField()
+    mim_annotation = CharField()
     chrom = CharField(max_length=10)
     start = IntegerField(db_column="start_pos")
     stop = IntegerField(db_column="stop_pos")
