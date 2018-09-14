@@ -79,25 +79,18 @@ class ReferenceSetImporter( DataImporter ):
         for i, gene in enumerate(self.genes):
             # As far as I know I can't batch insert these and still get the id's back
 
-            try:
-                db_gene = db.Gene(  reference_set = self.db_reference,
-                                    gene_id = gene['gene_id'],
-                                    name = gene['name'],
-                                    full_name = gene.get('full_name', None),
-                                    other_names = gene.get('other_names', None),
-                                    canonical_transcript = gene.get('canonical_transcript', None),
-                                    chrom = gene['chrom'],
-                                    start = gene['start'],
-                                    end = gene['stop'],
-                                    strand = gene['strand']
-                                )
-                db_gene.save()
-            except IntegrityError as e:
-                print("\n")
-                logging.warning("Ignoring ")
-                print("{}:{}".format(type(e),e))
-                import sys
-                sys.exit(0)
+            db_gene = db.Gene(  reference_set = self.db_reference,
+                                gene_id = gene['gene_id'],
+                                name = gene['name'],
+                                full_name = gene.get('full_name', None),
+                                other_names = gene.get('other_names', None),
+                                canonical_transcript = gene.get('canonical_transcript', None),
+                                chrom = gene['chrom'],
+                                start = gene['start'],
+                                end = gene['stop'],
+                                strand = gene['strand']
+                            )
+            db_gene.save()
             self.gene_db_ids[gene['gene_id']] = db_gene.id
 
             progress = i / len(self.genes)
