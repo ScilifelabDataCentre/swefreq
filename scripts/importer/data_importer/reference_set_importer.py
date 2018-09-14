@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import gzip
 import time
 import shutil
 import logging
 import zipfile
 import db
-
+from peewee import IntegrityError
 from .data_importer import DataImporter
 
 class ReferenceSetImporter( DataImporter ):
@@ -78,18 +79,25 @@ class ReferenceSetImporter( DataImporter ):
         for i, gene in enumerate(self.genes):
             # As far as I know I can't batch insert these and still get the id's back
 
-            db_gene = db.Gene(  reference_set = self.db_reference,
-                                gene_id = gene['gene_id'],
-                                name = gene['name'],
-                                full_name = gene.get('full_name', None),
-                                other_names = gene.get('other_names', None),
-                                canonical_transcript = gene.get('canonical_transcript', None),
-                                chrom = gene['chrom'],
-                                start = gene['start'],
-                                end = gene['stop'],
-                                strand = gene['strand']
-                            )
-            db_gene.save()
+            try:
+                db_gene = db.Gene(  reference_set = self.db_reference,
+                                    gene_id = gene['gene_id'],
+                                    name = gene['name'],
+                                    full_name = gene.get('full_name', None),
+                                    other_names = gene.get('other_names', None),
+                                    canonical_transcript = gene.get('canonical_transcript', None),
+                                    chrom = gene['chrom'],
+                                    start = gene['start'],
+                                    end = gene['stop'],
+                                    strand = gene['strand']
+                                )
+                db_gene.save()
+            except IntegrityError as e:
+                print("\n")
+                logging.warning("Ignoring ")
+                print("{}:{}".format(type(e),e))
+                import sys
+                sys.exit(0)
             self.gene_db_ids[gene['gene_id']] = db_gene.id
 
             progress = i / len(self.genes)
@@ -109,12 +117,13 @@ class ReferenceSetImporter( DataImporter ):
         else:
             logging.info("Using dbsnp_version '{}'".format(version_id))
 
+        omim_filename = self.settings.omim_file.split("/")[-1]
         logging.info("inserting reference header")
         self.db_reference = db.ReferenceSet(name = None,
                             ensembl_version = self.settings.ensembl_version,
                             gencode_version = self.settings.gencode_version,
                             dbnsfp_version  = self.settings.dbnsfp_version,
-                            omim_version    = self.settings.omim_file,
+                            omim_version    = omim_filename,
                             dbsnp_version   = dbsnp_version.id)
         self.db_reference.save()
         logging.info("Reference {} created".format(self.db_reference.id))
@@ -158,7 +167,13 @@ class ReferenceSetImporter( DataImporter ):
         logging.info("----- Opening dbNSFP file -----")
         url = ReferenceSetImporter.DBNSFP.format(a=self.settings)
         filename = url.split("/")[-1]
-        dbnsfp_file = "dbNSFP2.9_gene"
+        match = re.match("^\d+.\d+", self.settings.dbnsfp_version)
+        if match:
+            dbnsfp_gene_version = match.group(0)
+        else:
+            raise ValueError("Cannot parse dbNSFP version")
+        dbnsfp_file = "dbNSFP{}_gene".format(dbnsfp_gene_version)
+        logging.info("Using dbNSFP gene file: {}".format(dbnsfp_file))
         dbnsfp_path = os.path.join( self.download_dir, dbnsfp_file )
         dbnsfp_gzip = "{}.gz".format(dbnsfp_path)
         try:
@@ -307,8 +322,6 @@ class ReferenceSetImporter( DataImporter ):
         for i, transcript in enumerate(self.transcripts):
             if transcript['transcript_id'] in cache:
                 self.transcripts[i].update(cache[transcript['transcript_id']])
-                if counter == 0:
-                    print(self.transcripts[i])
                 counter += 1
             else:
                 self.transcripts[i].update(empty)

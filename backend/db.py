@@ -147,7 +147,7 @@ class Collection(BaseModel):
         db_table = 'collections'
         schema = 'data'
 
-    name       = CharField(null = True)
+    name       = CharField(db_column="study_name", null = True)
     ethnicity  = CharField(null = True)
 
 
@@ -179,7 +179,8 @@ class Dataset(BaseModel):
         db_table = 'datasets'
         schema = 'data'
 
-    study              = ForeignKeyField(Study, related_name='datasets')
+    study              = ForeignKeyField(Study, db_column="study", related_name='datasets')
+    reference_set      = ForeignKeyField(ReferenceSet, db_column="reference_set", related_name='datasets')
     short_name         = CharField()
     full_name          = CharField()
     browser_uri        = CharField(null=True)
@@ -203,8 +204,8 @@ class SampleSet(BaseModel):
         db_table = 'sample_sets'
         schema = 'data'
 
-    dataset     = ForeignKeyField(Dataset, related_name='sample_sets')
-    collection  = ForeignKeyField(Collection, related_name='sample_sets')
+    dataset     = ForeignKeyField(Dataset, db_column="dataset", related_name='sample_sets')
+    collection  = ForeignKeyField(Collection, db_column="collection", related_name='sample_sets')
     sample_size = IntegerField()
     phenotype   = CharField(null=True)
 
@@ -233,7 +234,7 @@ class DatasetFile(BaseModel):
     dataset_version = ForeignKeyField(DatasetVersion, db_column="dataset_version", related_name='files')
     name            = CharField(db_column="basename")
     uri             = CharField()
-    bytes           = IntegerField()
+    file_size       = IntegerField()
 
 
 class DatasetLogo(BaseModel):
@@ -273,6 +274,7 @@ class Variant(BaseModel):
     allele_num = IntegerField()
     quality_metrics = BinaryJSONField()
     vep_annotations = BinaryJSONField()
+
 
 class Coverage(BaseModel):
     """

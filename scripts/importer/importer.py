@@ -5,6 +5,7 @@ Swefreq data importer.
 
 from data_importer.dbsnp_importer import DbSNPImporter
 from data_importer.reference_set_importer import ReferenceSetImporter
+from data_importer.old_db_importer import OldDbImporter
 
 if __name__ == '__main__':
 
@@ -25,9 +26,6 @@ if __name__ == '__main__':
                         help = "Default directory to download and look for files.")
 
     # Reference versions
-    parser.add_argument("--add_reference", action="store_true",
-                        help = "Insert new reference set.")
-
     parser.add_argument("--gencode_version", default=19, type=int,
                         help = "Gencode version to download and use.")
     parser.add_argument("--ensembl_version", default="homo_sapiens_core_75_37",
@@ -47,8 +45,14 @@ if __name__ == '__main__':
 
 
     # Actions
+    parser.add_argument("--add_reference", action="store_true",
+                        help = "Insert new reference set.")
     parser.add_argument("--add_dbsnp", action="store_true",
                         help = "Adds a new dbSNP version to the database.")
+    parser.add_argument("--move_studies", action="store_true",
+                        help = ("Moves studies and datasets from an old database"
+                                " to a new one."))
+
 
     # Logging and verbosity
     parser.add_argument("--disable_progress", action="store_true",
@@ -84,4 +88,9 @@ if __name__ == '__main__':
         importer.prepare_data()
         if not args.disable_progress:
             importer.count_entries()
+        importer.start_import()
+
+    if args.move_studies:
+        importer = OldDbImporter(args)
+        importer.prepare_data()
         importer.start_import()
