@@ -177,7 +177,7 @@ class UserAccessLog(MySQLModel):
 
 
 class UserConsentLog(MySQLModel):
-    user_consent_log = PrimaryKeyField(db_column='user_access_log_pk')
+    user_consent_log = PrimaryKeyField(db_column='user_consent_log_pk')
     user             = ForeignKeyField(User, db_column='user_pk', to_field='user', related_name='consent_logs')
     dataset_version  = ForeignKeyField(DatasetVersion, db_column='dataset_version_pk', to_field='dataset_version', related_name='consent_logs')
     ts               = DateTimeField()

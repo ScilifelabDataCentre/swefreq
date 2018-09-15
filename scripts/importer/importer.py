@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """
 Swefreq data importer.
+
+Requires apt-packages:
+    - python3-pip
+    - sudo apt-get install libmysqlclient-dev
+
+as well as pip3 packages:
+    - mysqlclient
+    - peewee-2.10.2
 """
 
 from data_importer.dbsnp_importer import DbSNPImporter

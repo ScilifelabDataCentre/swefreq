@@ -3,6 +3,7 @@
 import settings
 from peewee import (BigIntegerField,
                     BlobField,
+                    BooleanField,
                     CharField,
                     DateTimeField,
                     IntegerField,
@@ -317,3 +318,74 @@ class Metrics(BaseModel):
     metric = CharField()
     mids = ArrayField(IntegerField)
     hist = ArrayField(IntegerField)
+
+class Users(BaseModel):
+    class Meta:
+        db_table = "users"
+        schema = 'users'
+
+    name          = CharField(db_column="username", null=True)
+    email         = CharField(unique=True)
+    identity      = CharField(unique=True)
+    identity_type = EnumField(null=False, choices=['google', 'elixir'])
+    affiliation   = CharField(null=True)
+    country       = CharField(null=True)
+
+class SFTPUsers(BaseModel):
+    class Meta:
+        db_table = "sftp_users"
+        schema = 'users'
+
+    user          = ForeignKeyField(Users, related_name='sftp_user')
+    user_uid      = IntegerField(unique=True)
+    user_name     = CharField(null=False)
+    password_hash = CharField(null=False)
+    account_expires = DateTimeField(null=False)
+
+class UserAccessLog(BaseModel):
+    class Meta:
+        db_table = "user_access_log"
+        schema = 'users'
+
+    user            = ForeignKeyField(Users, related_name='access_logs')
+    dataset         = ForeignKeyField(Dataset, db_column='dataset', related_name='access_logs')
+    action          = EnumField(null=True, choices=['access_granted','access_revoked','access_requested','private_link'])
+    ts              = DateTimeField()
+
+class UserConsentLog(BaseModel):
+    class Meta:
+        db_table = "user_consent_log"
+        schema = 'users'
+
+    user             = ForeignKeyField(Users, related_name='consent_logs')
+    dataset_version  = ForeignKeyField(DatasetVersion, db_column='dataset_version', related_name='consent_logs')
+    ts               = DateTimeField()
+
+class UserDownloadLog(BaseModel):
+    class Meta:
+        db_table = "user_download_log"
+        schema = 'users'
+
+    user              = ForeignKeyField(Users, related_name='download_logs')
+    dataset_file      = ForeignKeyField(DatasetFile, db_column='dataset_file', related_name='download_logs')
+    ts                = DateTimeField()
+
+class DatasetAccess(BaseModel):
+    class Meta:
+        db_table = "dataset_access"
+        schema = 'users'
+
+    dataset          = ForeignKeyField(Dataset, db_column='dataset', related_name='access')
+    user             = ForeignKeyField(Users, related_name='access')
+    wants_newsletter = BooleanField(null=True)
+    is_admin         = BooleanField(null=True)
+
+class Linkhash(BaseModel):
+    class Meta:
+        db_table = "linkhash"
+        schema = 'users'
+
+    dataset_version = ForeignKeyField(DatasetVersion, db_column='dataset_version', related_name='link_hashes')
+    user            = ForeignKeyField(Users, related_name='link_hashes')
+    hash            = CharField()
+    expires_on      = DateTimeField()
