@@ -19,6 +19,14 @@ services:
       - type: volume
         source: mysql-data-volume
         target: /var/lib/mysql/
+  postgres:
+    container_name: postgres
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
   rebuilder:
     build:
       context: ./
