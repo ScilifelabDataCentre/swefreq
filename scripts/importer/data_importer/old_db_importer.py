@@ -37,7 +37,7 @@ class OldDbImporter( DataImporter ):
                 try:
                     retval = int(input("Please select a reference: "))
                 except ValueError:
-                    print("Please select a number between 0 and {}".format(reflen))
+                    print("Please select a number in {}".format([r.id for r in self.reference_sets]))
             return retval
 
     def _move_collections(self):

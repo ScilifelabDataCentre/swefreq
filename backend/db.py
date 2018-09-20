@@ -297,7 +297,6 @@ class Coverage(BaseModel):
     pos = IntegerField()
     mean = FloatField()
     median = FloatField()
-    chrom = CharField(max_length=10)
     cov1 = FloatField()
     cov5 = FloatField()
     cov10 = FloatField()

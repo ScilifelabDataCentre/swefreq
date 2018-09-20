@@ -14,6 +14,7 @@ as well as pip3 packages:
 from data_importer.dbsnp_importer import DbSNPImporter
 from data_importer.reference_set_importer import ReferenceSetImporter
 from data_importer.old_db_importer import OldDbImporter
+from data_importer.raw_data_importer import RawDataImporter
 
 if __name__ == '__main__':
 
@@ -51,10 +52,17 @@ if __name__ == '__main__':
                                                             "omim_info.txt.gz"),
                         help = "OMIM annotation file.")
 
+    # Raw data (coverage + variants) files
+    parser.add_argument("--coverage_file", default=os.path.join(os.path.dirname(__file__),
+                                                            "data", "Panel.0001.txt.gz"))
+    parser.add_argument("--variant_file", default=os.path.join(os.path.dirname(__file__),
+                                                            "data", "variations.vcf.gz"))
 
     # Actions
     parser.add_argument("--add_reference", action="store_true",
                         help = "Insert new reference set.")
+    parser.add_argument("--add_raw_data", action="store_true",
+                        help = "Adds a Coverage and Variants to the database.")
     parser.add_argument("--add_dbsnp", action="store_true",
                         help = "Adds a new dbSNP version to the database.")
     parser.add_argument("--move_studies", action="store_true",
@@ -101,4 +109,11 @@ if __name__ == '__main__':
     if args.move_studies:
         importer = OldDbImporter(args)
         importer.prepare_data()
+        importer.start_import()
+
+    if args.add_raw_data:
+        importer = RawDataImporter(args)
+        importer.prepare_data()
+        if not args.disable_progress:
+            importer.count_entries()
         importer.start_import()
