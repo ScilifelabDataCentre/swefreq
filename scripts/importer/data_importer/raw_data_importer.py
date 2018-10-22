@@ -106,7 +106,7 @@ class RawDataImporter( DataImporter ):
         counter = 0
         with db.database.atomic():
             for line in self._open(self.settings.coverage_file):
-                line = line.decode('utf8').strip()
+                line = bytes(line).decode('utf8').strip()
                 if line.startswith("#"):
                     continue
 
@@ -152,7 +152,7 @@ class RawDataImporter( DataImporter ):
         gq_mids = None
         with db.database.atomic():
             for line in self._open(self.settings.variant_file):
-                line = line.decode('utf8').strip()
+                line = bytes(line).decode('utf8').strip()
                 if line.startswith("#"):
                     # Check for some information that we need
                     if line.startswith('##INFO=<ID=CSQ'):
@@ -233,7 +233,7 @@ class RawDataImporter( DataImporter ):
         self.counter['coverage'] = 0
         logging.info("Counting coverage lines")
         for line in self._open(self.settings.coverage_file):
-            line = line.decode('utf8').strip()
+            line = bytes(line).decode('utf8').strip()
             if line.startswith("#"):
                 continue
             self.counter['coverage'] += 1
@@ -243,7 +243,7 @@ class RawDataImporter( DataImporter ):
         self.counter['variants'] = 0
         logging.info("Counting variant lines")
         for line in self._open(self.settings.variant_file):
-            line = line.decode('utf8').strip()
+            line = bytes(line).decode('utf8').strip()
             if line.startswith("#"):
                 continue
             self.counter['variants'] += 1
@@ -254,5 +254,5 @@ class RawDataImporter( DataImporter ):
         self._select_dataset_version()
 
     def start_import(self):
-        #self._insert_coverage()
+        self._insert_coverage()
         self._insert_variants()
