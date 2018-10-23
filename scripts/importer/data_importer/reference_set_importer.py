@@ -8,7 +8,7 @@ import shutil
 import logging
 import zipfile
 import db
-from peewee import IntegrityError
+from peewee import IntegrityError, fn
 from .data_importer import DataImporter
 
 class ReferenceSetImporter( DataImporter ):
@@ -56,7 +56,8 @@ class ReferenceSetImporter( DataImporter ):
                         'feature_type':feature['feature_type']}]
 
                 if len(batch) % self.batch_size == 0:
-                    db.Feature.insert_many(batch).execute()
+                    if not self.settings.dry_run:
+                        db.Feature.insert_many(batch).execute()
                     batch = []
 
                 progress = i / len(self.features)
@@ -64,7 +65,8 @@ class ReferenceSetImporter( DataImporter ):
                     last_progress += 0.01
                     self._tick()
             if len(batch):
-                db.Feature.insert_many(batch).execute()
+                if not self.settings.dry_run:
+                    db.Feature.insert_many(batch).execute()
                 batch = []
         self._tick(True)
 
@@ -90,8 +92,12 @@ class ReferenceSetImporter( DataImporter ):
                                 end = gene['stop'],
                                 strand = gene['strand']
                             )
-            db_gene.save()
-            self.gene_db_ids[gene['gene_id']] = db_gene.id
+
+            if self.settings.dry_run:
+                self.gene_db_ids[gene['gene_id']] = 0
+            else:
+                db_gene.save()
+                self.gene_db_ids[gene['gene_id']] = db_gene.id
 
             progress = i / len(self.genes)
             while progress - last_progress > 0.01:
@@ -102,13 +108,21 @@ class ReferenceSetImporter( DataImporter ):
         logging.info("Genes inserted in {}".format( self._time_since(start) ))
 
     def _insert_reference(self):
-        logging.info("Getting dbSNP version id")
         version_id = "{a.dbsnp_version}_{a.dbsnp_reference}".format(a=self.settings)
-        dbsnp_version, created = db.DbSNP_version.get_or_create(version_id = version_id)
-        if created:
-            logging.info("Created dbsnp_version '{}'".format(version_id))
+
+        if self.settings.dry_run:
+            try:
+                dbsnp_version = db.DbSNP_version.get(version_id = version_id)
+                logging.info("Using dbsnp_version '{}'".format(version_id))
+            except db.DbSNP_version.DoesNotExist:
+                dbsnp_version = db.DbSNP_version.select(fn.Max(db.DbSNP_version.version_id)).get()
+                logging.info("Created dbsnp_version '{}'".format(version_id))
         else:
-            logging.info("Using dbsnp_version '{}'".format(version_id))
+            dbsnp_version, created = db.DbSNP_version.get_or_create(version_id = version_id)
+            if created:
+                logging.info("Created dbsnp_version '{}'".format(version_id))
+            else:
+                logging.info("Using dbsnp_version '{}'".format(version_id))
 
         omim_filename = self.settings.omim_file.split("/")[-1]
         logging.info("inserting reference header")
@@ -118,7 +132,16 @@ class ReferenceSetImporter( DataImporter ):
                             dbnsfp_version  = self.settings.dbnsfp_version,
                             omim_version    = omim_filename,
                             dbsnp_version   = dbsnp_version.id)
-        self.db_reference.save()
+
+
+        if self.settings.dry_run:
+            max_id = db.ReferenceSet.select(fn.Max(db.ReferenceSet.id)).get()
+            if max_id.id is None:
+                self.db_reference.id = 0
+            else:
+                self.db_reference.id = max_id.id + 1
+        else:
+            self.db_reference.save()
         logging.info("Reference {} created".format(self.db_reference.id))
 
     def _insert_transcripts(self):
@@ -138,8 +161,13 @@ class ReferenceSetImporter( DataImporter ):
                                             stop = transcript['stop'],
                                             strand = transcript['strand']
                                         )
-            db_transcript.save()
-            self.transcript_db_ids[transcript['transcript_id']] = db_transcript.id
+
+
+            if self.settings.dry_run:
+                self.transcript_db_ids[transcript['transcript_id']] = 0
+            else:
+                db_transcript.save()
+                self.transcript_db_ids[transcript['transcript_id']] = db_transcript.id
 
             progress = i / len(self.transcripts)
             while progress - last_progress > 0.01:
@@ -223,7 +251,7 @@ class ReferenceSetImporter( DataImporter ):
 
         dbnsfp_cache = {}
         for line in self.dbnsfp:
-            raw = line.decode('utf8').strip().split("\t")
+            raw = bytes(line).decode('utf8').strip().split("\t")
             if not header:
                 header = raw
                 if header:
@@ -289,7 +317,7 @@ class ReferenceSetImporter( DataImporter ):
         cache = {}
         header = None
         for line in self.omim:
-            raw = line.decode('utf8').strip().split("\t")
+            raw = bytes(line).decode('utf8').strip().split("\t")
             if not header:
                 header = [r.strip() for r in raw]
                 if header:
@@ -328,7 +356,7 @@ class ReferenceSetImporter( DataImporter ):
         self.numbers['transcripts'] = 0
         self.numbers['features'] = 0
         for row in self.gencode:
-            raw = row.decode('ascii').strip()
+            raw = bytes(row).decode('ascii').strip()
             if raw[0] == "#":
                 continue
             values = raw.split("\t")
@@ -346,10 +374,12 @@ class ReferenceSetImporter( DataImporter ):
                 self.numbers['features'] += 1
 
         self.gencode.rewind()
+
+        pad = max([len("{:,}".format(self.numbers[t])) for t in ["genes", "transcripts", "features"]])
         logging.info("Parsed file in {:3.1f}s".format(time.time()-start))
-        logging.info("Genes      : {}".format(self.numbers['genes']))
-        logging.info("Transcripts: {}".format(self.numbers['transcripts']))
-        logging.info("Features   : {}".format(self.numbers['features']))
+        logging.info("Genes      : {0:>{pad},}".format(self.numbers['genes'], pad=pad))
+        logging.info("Transcripts: {0:>{pad},}".format(self.numbers['transcripts'], pad=pad))
+        logging.info("Features   : {0:>{pad},}".format(self.numbers['features'], pad=pad))
 
     def prepare_data(self):
         self._open_gencode()
@@ -364,7 +394,7 @@ class ReferenceSetImporter( DataImporter ):
         if self.numbers['genes'] != None:
             self._print_progress_bar()
         for line in self.gencode:
-            line = line.decode('ascii').strip()
+            line = bytes(line).decode('ascii').strip()
             if line.startswith("#"):
                 continue
             try:
