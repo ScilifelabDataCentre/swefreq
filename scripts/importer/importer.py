@@ -46,6 +46,12 @@ if __name__ == '__main__':
     parser.add_argument("--dbsnp_reference", default="GRCh37p13",
                         help = "Which reference the dbSNP should be aligned to.")
 
+    # Dataset connections
+    parser.add_argument("--dataset", default="",
+                        help="Which dataset to connect the data to.")
+    parser.add_argument("--version", default="last",
+                        help="Which dataset version to connect the data to.")
+
     # omim file, since we can't download or version them
     parser.add_argument("--omim_file", default=os.path.join(os.path.dirname(__file__),
                                                             "downloaded_files",
@@ -68,6 +74,8 @@ if __name__ == '__main__':
     parser.add_argument("--move_studies", action="store_true",
                         help = ("Moves studies and datasets from an old database"
                                 " to a new one."))
+    parser.add_argument("--dry_run", action="store_true",
+                        help = "Do not insert anything into the database")
 
 
     # Logging and verbosity

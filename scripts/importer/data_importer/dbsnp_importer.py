@@ -4,6 +4,7 @@ import os
 import time
 import logging
 import db
+from peewee import fn
 from .data_importer import DataImporter
 
 class DbSNPImporter( DataImporter ):
@@ -39,7 +40,7 @@ class DbSNPImporter( DataImporter ):
 
             self.total += 1
         self.in_file.rewind()
-        logging.info("Found {} lines in {}".format(self.total, self._time_since(start)))
+        logging.info("Found {:,} lines in {}".format(self.total, self._time_since(start)))
 
     def prepare_data(self):
         url = DbSNPImporter.URL.format(a=self.settings)
@@ -52,11 +53,19 @@ class DbSNPImporter( DataImporter ):
 
     def prepare_version(self):
         version_id = "{a.dbsnp_version}_{a.dbsnp_reference}".format(a=self.settings)
-        dbsnp_version, created = db.DbSNP_version.get_or_create(version_id = version_id)
-        if created:
-            logging.info("Created dbsnp_version '{}'".format(version_id))
+        if self.settings.dry_run:
+            try:
+                dbsnp_version = db.DbSNP_version.get(version_id = version_id)
+                logging.info("dbsnp_version '{}' already in database".format(version_id))
+            except db.DbSNP_version.DoesNotExist:
+                dbsnp_version = db.DbSNP_version.select(fn.Max(db.DbSNP_version.version_id)).get()
+                logging.info("Created dbsnp_version '{}'".format(version_id))
         else:
-            logging.info("dbsnp_version '{}' already in database".format(version_id))
+            dbsnp_version, created = db.DbSNP_version.get_or_create(version_id = version_id)
+            if created:
+                logging.info("Created dbsnp_version '{}'".format(version_id))
+            else:
+                logging.info("dbsnp_version '{}' already in database".format(version_id))
         return dbsnp_version
 
     def start_import(self):
@@ -103,11 +112,13 @@ class DbSNPImporter( DataImporter ):
                         last_progress += 0.01
 
                 if len(batch) >= self.batch_size:
-                    db.DbSNP.insert_many(batch).execute()
+                    if not self.settings.dry_run:
+                        db.DbSNP.insert_many(batch).execute()
                     batch = []
             db.database.commit()
             if batch:
-                db.DbSNP.insert_many(batch)
+                if not self.settings.dry_run:
+                    db.DbSNP.insert_many(batch)
             if self.total != None:
                 self._tick(True)
-        logging.info("Inserted {} valid lines in {}".format(counter, self._time_since(start)))
+        logging.info("Inserted {:,} valid lines in {}".format(counter, self._time_since(start)))
