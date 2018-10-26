@@ -126,7 +126,7 @@ class ReferenceSetImporter( DataImporter ):
 
         omim_filename = self.settings.omim_file.split("/")[-1]
         logging.info("inserting reference header")
-        self.db_reference = db.ReferenceSet(name = None,
+        self.db_reference = db.ReferenceSet(name = self.settings.ref_name,
                             ensembl_version = self.settings.ensembl_version,
                             gencode_version = self.settings.gencode_version,
                             dbnsfp_version  = self.settings.dbnsfp_version,

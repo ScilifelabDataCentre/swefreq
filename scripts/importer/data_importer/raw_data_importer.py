@@ -63,17 +63,20 @@ class RawDataImporter( DataImporter ):
     def _select_dataset_version(self):
         datasets = []
 
-        print("Select a Dataset to use with this data")
-        for dataset in db.Dataset.select():
-            print("  {}  : {}".format(dataset.id, dataset.short_name))
-            datasets += [dataset]
+        d_id = db.Dataset.get(short_name = self.settings.dataset)
+        if not d_id:
+            print("Select a Dataset to use with this data")
+            for dataset in db.Dataset.select():
+                print("  {}  : {}".format(dataset.id, dataset.short_name))
+                datasets += [dataset]
 
-        d_id = -1
-        while d_id not in [d.id for d in datasets]:
-            try:
-                d_id = int(input("Please select a dataset: "))
-            except ValueError:
+            d_id = -1
+            while d_id not in [d.id for d in datasets]:
                 print("Please select a number in {}".format([d.id for d in datasets]))
+                try:
+                    d_id = int(input("Please select a dataset: "))
+                except ValueError:
+                    print("Please select a number in {}".format([d.id for d in datasets]))
 
         versions = []
         print("Select a Version of this dataset to use")
@@ -83,6 +86,7 @@ class RawDataImporter( DataImporter ):
 
         v_id = -1
         while v_id not in [v.id for v in versions]:
+            print("Please select a number in {}".format([v.id for v in versions]))
             try:
                 v_id = int(input("Please select a version: "))
             except ValueError:
@@ -121,8 +125,8 @@ class RawDataImporter( DataImporter ):
 
                 batch += [data]
                 if len(batch) >= self.settings.batch_size:
-
-                    db.Coverage.insert_many(batch).execute()
+                    if not self.settings.dry_run:
+                        db.Coverage.insert_many(batch).execute()
                     batch = []
                     # Update progress
                     if self.counter['coverage'] != None:
@@ -133,7 +137,7 @@ class RawDataImporter( DataImporter ):
                                 self._print_progress_bar()
                             self._tick()
                             last_progress += 0.01
-            if batch:
+            if batch and not self.settings.dry_run:
                 db.Coverage.insert_many(batch)
         if self.counter['coverage'] != None:
             self._tick(True)
@@ -211,7 +215,8 @@ class RawDataImporter( DataImporter ):
                 counter += 1
 
                 if len(batch) >= self.settings.batch_size:
-                    db.Variant.insert_many(batch).execute()
+                    if not self.settings.dry_run:
+                       db.Variant.insert_many(batch).execute()
                     batch = []
                     # Update progress
                     if self.counter['variants'] != None:
@@ -222,7 +227,7 @@ class RawDataImporter( DataImporter ):
                                 self._print_progress_bar()
                             self._tick()
                             last_progress += 0.01
-            if batch:
+            if batch and not self.settings.dry_run:
                 db.Variant.insert_many(batch)
         if self.counter['variants'] != None:
             self._tick(True)

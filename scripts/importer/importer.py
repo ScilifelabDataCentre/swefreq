@@ -46,11 +46,14 @@ if __name__ == '__main__':
     parser.add_argument("--dbsnp_reference", default="GRCh37p13",
                         help = "Which reference the dbSNP should be aligned to.")
 
-    # Dataset connections
+    # Dataset connections and naming
     parser.add_argument("--dataset", default="",
-                        help="Which dataset to connect the data to.")
+                        help="Which dataset to connect imported data to.")
     parser.add_argument("--version", default="last",
-                        help="Which dataset version to connect the data to.")
+                        help="Which dataset version to connect imported data to.")
+    parser.add_argument("--ref_name", default="",
+                        help=("Reference name to use when creating a reference set "
+                              "AND selection of reference set for imported data"))
 
     # omim file, since we can't download or version them
     parser.add_argument("--omim_file", default=os.path.join(os.path.dirname(__file__),
