@@ -52,8 +52,7 @@ if __name__ == '__main__':
     parser.add_argument("--version", default="last",
                         help="Which dataset version to connect imported data to.")
     parser.add_argument("--ref_name", default="",
-                        help=("Reference name to use when creating a reference set "
-                              "AND selection of reference set for imported data"))
+                        help="Reference name to use when creating a reference set.")
 
     # omim file, since we can't download or version them
     parser.add_argument("--omim_file", default=os.path.join(os.path.dirname(__file__),
@@ -79,7 +78,6 @@ if __name__ == '__main__':
                                 " to a new one."))
     parser.add_argument("--dry_run", action="store_true",
                         help = "Do not insert anything into the database")
-
 
     # Logging and verbosity
     parser.add_argument("--disable_progress", action="store_true",
