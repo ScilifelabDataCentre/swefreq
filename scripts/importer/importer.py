@@ -49,8 +49,12 @@ if __name__ == '__main__':
     # Dataset connections and naming
     parser.add_argument("--dataset", default="",
                         help="Which dataset to connect imported data to.")
-    parser.add_argument("--version", default="last",
-                        help="Which dataset version to connect imported data to.")
+    parser.add_argument("--version", default="latest",
+                        help=("Which dataset version to connect imported data to. "
+                              "This can be a text-string name, a date in on of the "
+                              "formats yyyymmdd or yyyy-mm-dd, or 'latest' for the "
+                              "last published dataset version, or 'next' for the "
+                              "next coming dataset version."))
     parser.add_argument("--ref_name", default="",
                         help="Reference name to use when creating a reference set.")
 
@@ -61,10 +65,10 @@ if __name__ == '__main__':
                         help = "OMIM annotation file.")
 
     # Raw data (coverage + variants) files
-    parser.add_argument("--coverage_file", default=os.path.join(os.path.dirname(__file__),
-                                                            "data", "Panel.0001.txt.gz"))
-    parser.add_argument("--variant_file", default=os.path.join(os.path.dirname(__file__),
-                                                            "data", "variations.vcf.gz"))
+    parser.add_argument("--coverage_file", nargs="*",
+                        help = "Coverage file(s) to import.")
+    parser.add_argument("--variant_file", nargs="*",
+                        help = "Variant file(s) to import.")
 
     # Actions
     parser.add_argument("--add_reference", action="store_true",

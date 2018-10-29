@@ -84,7 +84,7 @@ class DataImporter( object ):
 
     def _open(self, filename):
         try:
-            logging.info("Opening file {}".format(filename))
+            logging.debug("Opening file {}".format(filename))
             return gzip.open(filename,'rb') if filename.endswith(".gz") else open(filename)
         except IOError as e:
             logging.error("IOERROR: {}".format(e))
