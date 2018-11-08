@@ -225,6 +225,7 @@ class DatasetVersion(BaseModel):
     ref_doi           = CharField(null=True)
     data_contact_name = CharField(null=True)
     data_contact_link = CharField(null=True)
+    num_variants      = IntegerField(null=True)
 
 
 class DatasetFile(BaseModel):
@@ -318,6 +319,7 @@ class Metrics(BaseModel):
     mids = ArrayField(IntegerField)
     hist = ArrayField(IntegerField)
 
+
 class Users(BaseModel):
     class Meta:
         db_table = "users"
@@ -330,6 +332,7 @@ class Users(BaseModel):
     affiliation   = CharField(null=True)
     country       = CharField(null=True)
 
+
 class SFTPUsers(BaseModel):
     class Meta:
         db_table = "sftp_users"
@@ -341,6 +344,7 @@ class SFTPUsers(BaseModel):
     password_hash = CharField(null=False)
     account_expires = DateTimeField(null=False)
 
+
 class UserAccessLog(BaseModel):
     class Meta:
         db_table = "user_access_log"
@@ -351,6 +355,7 @@ class UserAccessLog(BaseModel):
     action          = EnumField(null=True, choices=['access_granted','access_revoked','access_requested','private_link'])
     ts              = DateTimeField()
 
+
 class UserConsentLog(BaseModel):
     class Meta:
         db_table = "user_consent_log"
@@ -360,6 +365,7 @@ class UserConsentLog(BaseModel):
     dataset_version  = ForeignKeyField(DatasetVersion, db_column='dataset_version', related_name='consent_logs')
     ts               = DateTimeField()
 
+
 class UserDownloadLog(BaseModel):
     class Meta:
         db_table = "user_download_log"
@@ -368,6 +374,7 @@ class UserDownloadLog(BaseModel):
     user              = ForeignKeyField(Users, related_name='download_logs')
     dataset_file      = ForeignKeyField(DatasetFile, db_column='dataset_file', related_name='download_logs')
     ts                = DateTimeField()
+
 
 class DatasetAccess(BaseModel):
     class Meta:
@@ -379,6 +386,7 @@ class DatasetAccess(BaseModel):
     wants_newsletter = BooleanField(null=True)
     is_admin         = BooleanField(null=True)
 
+
 class Linkhash(BaseModel):
     class Meta:
         db_table = "linkhash"
@@ -388,3 +396,36 @@ class Linkhash(BaseModel):
     user            = ForeignKeyField(Users, related_name='link_hashes')
     hash            = CharField()
     expires_on      = DateTimeField()
+
+#####
+# Views
+##
+
+class DatasetVersionCurrent(DatasetVersion):
+    class Meta:
+        db_table = 'dataset_version_current'
+        schema = 'data'
+
+    dataset           = ForeignKeyField(Dataset, db_column="dataset", related_name='current_version')
+
+
+class DatasetAccessCurrent(DatasetAccess):
+    class Meta:
+        db_table = 'dataset_access_current'
+        schema = 'users'
+
+    dataset          = ForeignKeyField(Dataset, db_column='dataset', related_name='access_current')
+    user             = ForeignKeyField(Users, related_name='access_current')
+    has_access       = IntegerField()
+    access_requested = DateTimeField()
+
+
+class DatasetAccessPending(DatasetAccess):
+    class Meta:
+        db_table = 'dataset_access_pending'
+        schema = 'users'
+
+    dataset          = ForeignKeyField(Dataset, db_column='dataset', related_name='access_pending')
+    user             = ForeignKeyField(Users, related_name='access_pending')
+    has_access       = IntegerField()
+    access_requested = DateTimeField()

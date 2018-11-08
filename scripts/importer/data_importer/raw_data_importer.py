@@ -304,6 +304,8 @@ class RawDataImporter( DataImporter ):
                                 last_progress += 0.01
             if batch and not self.settings.dry_run:
                 db.Variant.insert_many(batch)
+        self.dataset_version.num_variants = counter
+        self.dataset_version.save()
         if self.counter['variants'] != None:
             self._tick(True)
         logging.info("Inserted {} variant records in {}".format(counter, self._time_since(start)))
