@@ -176,7 +176,9 @@ class OldDbImporter( DataImporter ):
                                     available_from    = dataset_version.available_from,
                                     ref_doi           = dataset_version.ref_doi,
                                     data_contact_name = dataset_version.data_contact_name,
-                                    data_contact_link = dataset_version.data_contact_link)
+                                    data_contact_link = dataset_version.data_contact_link,
+                                    coverage_levels   = [1,5,10,15,20,25,30,50,100]
+                                    )
                             .execute())
 
             self.id_map['dataset_version'][dataset_version.dataset_version] = new_id

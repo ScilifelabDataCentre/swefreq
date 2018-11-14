@@ -226,6 +226,7 @@ class DatasetVersion(BaseModel):
     data_contact_name = CharField(null=True)
     data_contact_link = CharField(null=True)
     num_variants      = IntegerField(null=True)
+    coverage_levels   = ArrayField(IntegerField, null=True)
 
 
 class DatasetFile(BaseModel):
@@ -298,15 +299,7 @@ class Coverage(BaseModel):
     pos = IntegerField()
     mean = FloatField()
     median = FloatField()
-    cov1 = FloatField()
-    cov5 = FloatField()
-    cov10 = FloatField()
-    cov15 = FloatField()
-    cov20 = FloatField()
-    cov25 = FloatField()
-    cov30 = FloatField()
-    cov50 = FloatField()
-    cov100 = FloatField()
+    coverage = ArrayField(FloatField, null=True)
 
 
 class Metrics(BaseModel):
