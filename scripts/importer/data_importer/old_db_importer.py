@@ -246,17 +246,17 @@ class OldDbImporter( DataImporter ):
         logging.info("Moving Users")
         for user in old_db.User.select():
             try:
-                new_id = (db.Users
+                new_id = (db.User
                             .get(name          = user.name,
                                  email         = user.email,
                                  identity      = user.identity,
                                  identity_type = user.identity_type,
                                  affiliation   = user.affiliation,
                                  country       = user.country).id)
-            except db.Users.DoesNotExist:
+            except db.User.DoesNotExist:
                 if self.settings.dry_run:
                     continue
-                new_id = (db.Users
+                new_id = (db.User
                             .insert(name          = user.name,
                                     email         = user.email,
                                     identity      = user.identity,
@@ -277,12 +277,12 @@ class OldDbImporter( DataImporter ):
                 user_ref_id = -1
             try:
                 # user_uid is unique, so we rely on that
-                db.SFTPUsers.get(user     = user_ref_id,
+                db.SFTPUser.get(user     = user_ref_id,
                                  user_uid = user.user_uid)
-            except db.SFTPUsers.DoesNotExist:
+            except db.SFTPUser.DoesNotExist:
                 if self.settings.dry_run:
                     continue
-                db.SFTPUsers.insert(user            = user_ref_id,
+                db.SFTPUser.insert(user            = user_ref_id,
                                     user_uid        = user.user_uid,
                                     user_name       = user.user_name,
                                     password_hash   = user.password_hash,

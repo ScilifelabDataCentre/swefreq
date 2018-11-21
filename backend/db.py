@@ -15,6 +15,7 @@ from peewee import (BigIntegerField,
                     PrimaryKeyField,
                     SQL,
                     TextField,
+                    fn,
                 )
 from playhouse.postgres_ext import ArrayField, BinaryJSONField
 
@@ -313,7 +314,7 @@ class Metrics(BaseModel):
     hist = ArrayField(IntegerField)
 
 
-class Users(BaseModel):
+class User(BaseModel):
     class Meta:
         db_table = "users"
         schema = 'users'
@@ -325,13 +326,32 @@ class Users(BaseModel):
     affiliation   = CharField(null=True)
     country       = CharField(null=True)
 
+    def is_admin(self, dataset):
+        return DatasetAccess.select().where(
+                DatasetAccess.dataset == dataset,
+                DatasetAccess.user == self,
+                DatasetAccess.is_admin
+            ).count()
 
-class SFTPUsers(BaseModel):
+    def has_access(self, dataset):
+        return DatasetAccessCurrent.select().where(
+                DatasetAccessCurrent.dataset == dataset,
+                DatasetAccessCurrent.user    == self,
+            ).count()
+
+    def has_requested_access(self, dataset):
+        return DatasetAccessPending.select().where(
+                DatasetAccessPending.dataset == dataset,
+                DatasetAccessPending.user    == self
+            ).count()
+
+
+class SFTPUser(BaseModel):
     class Meta:
         db_table = "sftp_users"
         schema = 'users'
 
-    user          = ForeignKeyField(Users, related_name='sftp_user')
+    user          = ForeignKeyField(User, related_name='sftp_user')
     user_uid      = IntegerField(unique=True)
     user_name     = CharField(null=False)
     password_hash = CharField(null=False)
@@ -343,7 +363,7 @@ class UserAccessLog(BaseModel):
         db_table = "user_access_log"
         schema = 'users'
 
-    user            = ForeignKeyField(Users, related_name='access_logs')
+    user            = ForeignKeyField(User, related_name='access_logs')
     dataset         = ForeignKeyField(Dataset, db_column='dataset', related_name='access_logs')
     action          = EnumField(null=True, choices=['access_granted','access_revoked','access_requested','private_link'])
     ts              = DateTimeField()
@@ -354,7 +374,7 @@ class UserConsentLog(BaseModel):
         db_table = "user_consent_log"
         schema = 'users'
 
-    user             = ForeignKeyField(Users, related_name='consent_logs')
+    user             = ForeignKeyField(User, related_name='consent_logs')
     dataset_version  = ForeignKeyField(DatasetVersion, db_column='dataset_version', related_name='consent_logs')
     ts               = DateTimeField()
 
@@ -364,7 +384,7 @@ class UserDownloadLog(BaseModel):
         db_table = "user_download_log"
         schema = 'users'
 
-    user              = ForeignKeyField(Users, related_name='download_logs')
+    user              = ForeignKeyField(User, related_name='download_logs')
     dataset_file      = ForeignKeyField(DatasetFile, db_column='dataset_file', related_name='download_logs')
     ts                = DateTimeField()
 
@@ -375,7 +395,7 @@ class DatasetAccess(BaseModel):
         schema = 'users'
 
     dataset          = ForeignKeyField(Dataset, db_column='dataset', related_name='access')
-    user             = ForeignKeyField(Users, related_name='access')
+    user             = ForeignKeyField(User, related_name='dataset_access')
     wants_newsletter = BooleanField(null=True)
     is_admin         = BooleanField(null=True)
 
@@ -386,7 +406,7 @@ class Linkhash(BaseModel):
         schema = 'users'
 
     dataset_version = ForeignKeyField(DatasetVersion, db_column='dataset_version', related_name='link_hashes')
-    user            = ForeignKeyField(Users, related_name='link_hashes')
+    user            = ForeignKeyField(User, related_name='link_hashes')
     hash            = CharField()
     expires_on      = DateTimeField()
 
@@ -408,7 +428,7 @@ class DatasetAccessCurrent(DatasetAccess):
         schema = 'users'
 
     dataset          = ForeignKeyField(Dataset, db_column='dataset', related_name='access_current')
-    user             = ForeignKeyField(Users, related_name='access_current')
+    user             = ForeignKeyField(User, related_name='access_current')
     has_access       = IntegerField()
     access_requested = DateTimeField()
 
@@ -419,6 +439,56 @@ class DatasetAccessPending(DatasetAccess):
         schema = 'users'
 
     dataset          = ForeignKeyField(Dataset, db_column='dataset', related_name='access_pending')
-    user             = ForeignKeyField(Users, related_name='access_pending')
+    user             = ForeignKeyField(User, related_name='access_pending')
     has_access       = IntegerField()
     access_requested = DateTimeField()
+
+#####
+# Help functions
+##
+
+def get_next_free_uid():
+    """
+    Returns the next free uid >= 10000, and higher than the current uid's
+    from the sftp_user table in the database.
+    """
+    default = 10000
+    next_uid = default
+    try:
+        current_max_uid = SFTPUser.select(fn.MAX(SFTPUser.user_uid)).get().user_uid
+        if current_max_uid:
+            next_uid = current_max_uid+1
+    except SFTPUser.DoesNotExist:
+        pass
+
+    return next_uid
+
+def get_admin_datasets(user):
+    return DatasetAccess.select().where( DatasetAccess.user == user, DatasetAccess.is_admin)
+
+def get_dataset(dataset):
+    dataset = Dataset.select().where( Dataset.short_name == dataset).get()
+    return dataset
+
+def get_dataset_version(dataset, version=None):
+    if version:
+        dataset_version = (DatasetVersion
+                            .select(DatasetVersion, Dataset)
+                            .join(Dataset)
+                            .where(DatasetVersion.version == version,
+                                   Dataset.short_name == dataset)).get()
+    else:
+        dataset_version = (DatasetVersionCurrent
+                            .select(DatasetVersionCurrent, Dataset)
+                            .join(Dataset)
+                            .where(Dataset.short_name == dataset)).get()
+    return dataset_version
+
+def build_dict_from_row(row):
+    d = {}
+
+    for field, value in row.__dict__['_data'].items():
+        if field == "id":
+            continue
+        d[field] = value
+    return d
