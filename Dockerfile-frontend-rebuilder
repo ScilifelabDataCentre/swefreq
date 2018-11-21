@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 RUN apt-get update && \
     apt-get install -y \
@@ -7,18 +7,20 @@ RUN apt-get update && \
         python3 \
         python3-pip \
         python3-pyinotify \
-        inotify-tools \
-        libmysqlclient-dev && \
+        inotify-tools && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 5
 
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
-    apt-get install -y nodejs
+RUN apt-get install -y \
+        nodejs \
+        npm
 
-ADD . /code
+COPY Makefile /code/Makefile
+COPY backend/requirements.txt /code/requirements.txt
+COPY scripts/compile_template.py /code/scripts/compile_template.py
+COPY scripts/watch_frontend.py /code/scripts/watch_frontend.py
 WORKDIR /code
 
-RUN pip3 install --upgrade pip && \
-    pip3 install -r backend/requirements.txt && \
+RUN pip3 install -r requirements.txt && \
     pip3 install inotify
 
 CMD ["python", "scripts/watch_frontend.py"]

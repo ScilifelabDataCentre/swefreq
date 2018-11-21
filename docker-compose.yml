@@ -11,18 +11,17 @@ services:
     restart: on-failure
     volumes:
       - type: bind
-        source: .
-        target: /code
+        source: ./backend
+        target: /code/backend
+      - type: bind
+        source: ./frontend
+        target: /code/frontend
+      - type: bind
+        source: ./static
+        target: /code/static
   db:
-    image: "mysql:5.7"
-    volumes:
-      - type: volume
-        source: mysql-data-volume
-        target: /var/lib/mysql/
-  postgres:
-    container_name: postgres
     restart: always
-    image: postgres:latest
+    image: postgres:10
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     ports:
@@ -33,10 +32,8 @@ services:
       dockerfile: Dockerfile-frontend-rebuilder
     volumes:
       - type: bind
-        source: .
-        target: /code
-
-
-volumes:
-  mysql-data-volume:
-    external: true
+        source: ./frontend
+        target: /code/frontend
+      - type: bind
+        source: ./static
+        target: /code/static

@@ -560,7 +560,7 @@ class ServeLogo(handlers.UnsafeHandler):
             return
 
         self.set_header("Content-Type", logo_entry.mimetype)
-        self.write(logo_entry.data)
+        self.write(logo_entry.data.tobytes())
         self.finish()
 
 
@@ -574,6 +574,7 @@ class SFTPAccess(handlers.SafeHandler):
         """
         if db.get_admin_datasets(self.current_user).count() <= 0:
             self.finish({'user':None, 'expires':None, 'password':None})
+            return
 
         password = None
         username = None

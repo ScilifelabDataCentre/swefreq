@@ -18,3 +18,7 @@ static
 # importer and config stuff
 mysql-data*
 scripts/importer/downloaded_files
+# docker stuff
+postgres-data
+# local personal things
+personal
