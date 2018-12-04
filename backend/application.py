@@ -243,7 +243,7 @@ class DatasetFiles(handlers.AuthorizedHandler):
         for f in dataset_version.files:
             d = db.build_dict_from_row(f)
             d['dirname'] = path.dirname(d['uri'])
-            d['human_size'] = format_bytes(d['bytes'])
+            d['human_size'] = format_bytes(d['file_size'])
             ret.append(d)
 
         self.finish({'files': ret})
