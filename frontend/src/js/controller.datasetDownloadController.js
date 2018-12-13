@@ -17,6 +17,7 @@
         activate();
 
         function activate() {
+            localThis.hasFiles = $routeParams.dataset != "ACpop"; // Fulhack
             Countries.getCountries().then(function(data) {
                 localThis.availableCountries = data;
             });
