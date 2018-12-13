@@ -2,6 +2,16 @@
 [% extends "ng-templates/dataset-base.jj2" %]
 [% block controller %]datasetDownloadController[% endblock %]
 [% block contents %]
+<div class="row" ng-if='!ctrl.hasFiles'>
+    <div class="col-sm-12">
+        <div class="alert" role="alert">
+            <strong>Nota Bene:</strong> if you want access to the underlying individual data you need to
+            {{ ctrl.dataContactIsEmail() ? "contact" : "visit" }}
+            <a href="{{ ctrl.dataContactIsEmail() ? 'mailto:' : ''}}{{ ctrl.dataset.version.dataContactLink }}">{{ ctrl.dataset.version.dataContactName }}</a></span>.
+        </div>
+    </div>
+</div>
+<div ng-if='ctrl.hasFiles'>
 <div class="row">
     <div class="col-sm-12">
         <div class="alert" role="alert">
@@ -134,6 +144,7 @@
             </tbody>
         </table>
     </div>
+</div>
 </div>
 
 [% endblock %]
