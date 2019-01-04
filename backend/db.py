@@ -105,7 +105,7 @@ class Gene(BaseModel):
     canonical_transcript = CharField(null=True, max_length=15)
     chrom = CharField(max_length=10)
     start = IntegerField(db_column="start_pos")
-    stop = IntegerField(db_column="stop_pos")
+    stop = IntegerField(db_column="end_pos")
     strand = EnumField(choices=['+','-'])
 
 
