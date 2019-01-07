@@ -17,13 +17,14 @@ from peewee import (BigIntegerField,
                     TextField,
                     fn,
                 )
-from playhouse.postgres_ext import ArrayField, BinaryJSONField
+from playhouse.postgres_ext import ArrayField, BinaryJSONField, PostgresqlExtDatabase
 
-database = PostgresqlDatabase(  settings.psql_name,
-                                user     = settings.psql_user,
-                                password = settings.psql_pass,
-                                host     = settings.psql_host,
-                                port     = settings.psql_port)
+database = PostgresqlExtDatabase(settings.psql_name,
+                                 user            = settings.psql_user,
+                                 password        = settings.psql_pass,
+                                 host            = settings.psql_host,
+                                 port            = settings.psql_port,
+                                 register_hstore = False)
 
 class BaseModel(Model):
     class Meta:
