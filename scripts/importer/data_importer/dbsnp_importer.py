@@ -88,6 +88,7 @@ class DbSNPImporter( DataImporter ):
 
                 try:
                     rsid, chrom, position = line.split("\t")[:3]
+                    position += 1 # 0-indexed
                 except ValueError:
                     # we don't care for incomplete entries
                     continue
