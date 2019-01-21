@@ -407,8 +407,8 @@ class ReferenceSetImporter( DataImporter ):
                 info = {k: v.strip('"') for k, v in info.items()}
 
                 data = {'chrom':values[0][3:],
-                        'start':int(values[3]) + 1,  # bed files are 0-indexed
-                        'stop':int(values[4]) + 1,
+                        'start':int(values[3]),
+                        'stop':int(values[4]),
                         'strand':values[6],
                         'gene_id':info['gene_id'].split('.')[0]}
 
