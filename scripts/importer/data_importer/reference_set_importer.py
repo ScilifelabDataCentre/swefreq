@@ -89,7 +89,7 @@ class ReferenceSetImporter( DataImporter ):
                                 canonical_transcript = gene.get('canonical_transcript', None),
                                 chrom = gene['chrom'],
                                 start = gene['start'],
-                                end = gene['stop'],
+                                stop = gene['stop'],
                                 strand = gene['strand']
                             )
 
