@@ -289,7 +289,7 @@ class RawDataImporter( DataImporter ):
                         if 'AF' in info and data['allele_num'] > 0:
                             data['allele_freq'] = data['allele_count']/float(info['AN_Adj'])
 
-                        data['vep_annotations'] = json.dumps(vep_annotations)
+                        data['vep_annotations'] = vep_annotations
                         data['genes']           = list({annotation['Gene'] for annotation in vep_annotations})
                         data['transcripts']     = list({annotation['Feature'] for annotation in vep_annotations})
 
