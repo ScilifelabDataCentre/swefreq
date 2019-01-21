@@ -262,9 +262,10 @@ class ReferenceSetImporter( DataImporter ):
                 values[header[i]] = value
 
             dbnsfp_cache[ values['Ensembl_gene'] ] = {
-                'other_names': values['Gene_other_names'],
+                'other_names': values['Gene_other_names'].split(';'),
                 'full_name': values['Gene_full_name']
             }
+
         for i, gene in enumerate(self.genes):
             if gene['gene_id'] in dbnsfp_cache:
                 for key, item in dbnsfp_cache[gene['gene_id']].items():
