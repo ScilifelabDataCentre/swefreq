@@ -299,7 +299,7 @@ class RawDataImporter( DataImporter ):
                         # I don't think this is needed.
                         #data['hom_count']        = 
                         data['variant_id']       = '{}-{}-{}-{}'.format(data['chrom'], data['pos'], data['ref'], data['alt'])
-                        data['quality_metrics']  = json.dumps(dict([(x, info[x]) for x in METRICS if x in info]))
+                        data['quality_metrics']  = dict([(x, info[x]) for x in METRICS if x in info])
                         batch += [data]
 
                     counter += 1
