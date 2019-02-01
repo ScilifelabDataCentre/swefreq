@@ -102,13 +102,19 @@ class Gene(BaseModel):
     gene_id = CharField(unique=True, max_length=15)
     name = CharField(db_column="gene_name", null=True)
     full_name = CharField(null=True)
-    other_names = ArrayField(CharField, null=True)
     canonical_transcript = CharField(null=True, max_length=15)
     chrom = CharField(max_length=10)
     start = IntegerField(db_column="start_pos")
     stop = IntegerField(db_column="end_pos")
     strand = EnumField(choices=['+','-'])
 
+class GeneOtherNames(BaseModel):
+    class Meta:
+        db_table = 'gene_other_names'
+        schema = 'data'
+
+    gene = ForeignKeyField(Gene, db_column="gene", related_name="other_names")
+    name = CharField(null=True)
 
 class Transcript(BaseModel):
     class Meta:
@@ -268,8 +274,6 @@ class Variant(BaseModel):
     ref = CharField()
     alt = CharField()
     site_quality = FloatField()
-    genes = ArrayField(CharField)
-    transcripts = ArrayField(CharField)
     orig_alt_alleles = ArrayField(CharField)
     hom_count = IntegerField()
     allele_freq = FloatField()
@@ -279,6 +283,24 @@ class Variant(BaseModel):
     allele_num = IntegerField()
     quality_metrics = BinaryJSONField()
     vep_annotations = BinaryJSONField()
+
+
+class VariantGenes(BaseModel):
+    class Meta:
+        db_table = 'variant_genes'
+        schema = 'data'
+
+    variant = ForeignKeyField(Variant, db_column="variant", related_name="genes")
+    gene = ForeignKeyField(Gene, db_column="gene", related_name="variants")
+
+
+class VariantTranscripts(BaseModel):
+    class Meta:
+        db_table = 'variant_transcripts'
+        schema = 'data'
+
+    gene = ForeignKeyField(Variant, db_column="variant", related_name="transcripts")
+    transcript = ForeignKeyField(Transcript, db_column="transcript", related_name="variants")
 
 
 class Coverage(BaseModel):
