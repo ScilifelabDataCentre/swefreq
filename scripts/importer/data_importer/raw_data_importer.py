@@ -296,8 +296,7 @@ class RawDataImporter( DataImporter ):
                         data['orig_alt_alleles'] = [
                             '{}-{}-{}-{}'.format(data['chrom'], *get_minimal_representation(base['pos'], base['ref'], x)) for x in alt_alleles
                         ]
-                        # I don't think this is needed.
-                        #data['hom_count']        = 
+                        data['hom_count']        = int(info['AC_Hom'])
                         data['variant_id']       = '{}-{}-{}-{}'.format(data['chrom'], data['pos'], data['ref'], data['alt'])
                         data['quality_metrics']  = dict([(x, info[x]) for x in METRICS if x in info])
                         batch += [data]
