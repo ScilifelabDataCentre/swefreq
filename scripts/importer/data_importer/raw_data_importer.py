@@ -289,11 +289,12 @@ class RawDataImporter( DataImporter ):
                         data = dict(base)
                         data['alt'] = alt
                         data['rsid'] = int(data['rsid'].strip('rs')) if data['rsid'].startswith('rs') else None
-                        data['allele_num']   = int(info['AN_Adj'])
-                        data['allele_count'] = int(info['AC_Adj'].split(',')[i])
-                        data['allele_freq']  = None
-                        if 'AF' in info and data['allele_num'] > 0:
-                            data['allele_freq'] = data['allele_count']/float(info['AN_Adj'])
+                        if not self.settings.beacon_only:
+                            data['allele_num']   = int(info['AN_Adj'])
+                            data['allele_count'] = int(info['AC_Adj'].split(',')[i])
+                            data['allele_freq']  = None
+                            if 'AF' in info and data['allele_num'] > 0:
+                                data['allele_freq'] = data['allele_count']/float(info['AN_Adj'])
 
                         if not self.settings.beacon_only:
                             data['vep_annotations'] = vep_annotations
