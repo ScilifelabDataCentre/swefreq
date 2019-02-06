@@ -260,7 +260,7 @@ class RawDataImporter( DataImporter ):
                             gq_mids = map(float, line.split('Mids: ')[-1].strip('">').split('|'))
                         continue
 
-                    if not settings.beacon_only:
+                    if not self.settings.beacon_only:
                         if vep_field_names is None:
                             logging.error("VEP_field_names is empty. Make sure VCF header is present.")
                             sys.exit(1)
@@ -278,12 +278,12 @@ class RawDataImporter( DataImporter ):
                         continue
 
                     consequence_array = info['CSQ'].split(',') if 'CSQ' in info else []
-                    if not settings.beacon_only:
+                    if not self.settings.beacon_only:
                         annotations = [dict(zip(vep_field_names, x.split('|'))) for x in consequence_array if len(vep_field_names) == len(x.split('|'))]
 
                     alt_alleles = base['alt'].split(",")
                     for i, alt in enumerate(alt_alleles):
-                        if not settings.beacon_only:
+                        if not self.settings.beacon_only:
                             vep_annotations = [ann for ann in annotations if int(ann['ALLELE_NUM']) == i + 1]
 
                         data = dict(base)
@@ -295,9 +295,9 @@ class RawDataImporter( DataImporter ):
                         if 'AF' in info and data['allele_num'] > 0:
                             data['allele_freq'] = data['allele_count']/float(info['AN_Adj'])
 
-                        if not settings.beacon_only:
+                        if not self.settings.beacon_only:
                             data['vep_annotations'] = vep_annotations
-                        
+
                             data['genes']           = list({annotation['Gene'] for annotation in vep_annotations})
                             data['transcripts']     = list({annotation['Feature'] for annotation in vep_annotations})
 

@@ -93,8 +93,8 @@ if __name__ == '__main__':
 
     # Beacon-only variants
     parser.add_argument("--beacon-only", action="store_true",
-                        help="Variants are intended only for Beacon, loosening the requirements"
-    
+                        help="Variants are intended only for Beacon, loosening the requirements")
+
     args = parser.parse_args()
 
     logging.basicConfig(format="%(asctime)s %(levelname)s: %(message)s", level = (5-args.verbose+args.quiet)*10, datefmt="%H:%M:%S")
