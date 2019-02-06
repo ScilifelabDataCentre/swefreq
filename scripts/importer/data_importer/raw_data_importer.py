@@ -8,6 +8,7 @@ import logging
 
 from datetime import datetime
 
+import modules.browser.lookups
 import db
 from .data_importer import DataImporter
 
@@ -53,6 +54,7 @@ def get_minimal_representation(pos, ref, alt):
             ref = ref[1:]
             pos += 1
         return pos, ref, alt
+
 
 class RawDataImporter( DataImporter ):
 
@@ -247,6 +249,7 @@ class RawDataImporter( DataImporter ):
             for filename in self.settings.variant_file:
                 for line in self._open(filename):
                     line = bytes(line).decode('utf8').strip()
+
                     if line.startswith("#"):
                         # Check for some information that we need
                         if line.startswith('##INFO=<ID=CSQ'):
@@ -257,9 +260,10 @@ class RawDataImporter( DataImporter ):
                             gq_mids = map(float, line.split('Mids: ')[-1].strip('">').split('|'))
                         continue
 
-                    if vep_field_names is None:
-                        logging.error("VEP_field_names is empty. Make sure VCF header is present.")
-                        sys.exit(1)
+                    if not settings.beacon_only:
+                        if vep_field_names is None:
+                            logging.error("VEP_field_names is empty. Make sure VCF header is present.")
+                            sys.exit(1)
 
                     base = {}
                     for i, item in enumerate(line.strip().split("\t")):
@@ -274,11 +278,13 @@ class RawDataImporter( DataImporter ):
                         continue
 
                     consequence_array = info['CSQ'].split(',') if 'CSQ' in info else []
-                    annotations = [dict(zip(vep_field_names, x.split('|'))) for x in consequence_array if len(vep_field_names) == len(x.split('|'))]
+                    if not settings.beacon_only:
+                        annotations = [dict(zip(vep_field_names, x.split('|'))) for x in consequence_array if len(vep_field_names) == len(x.split('|'))]
 
                     alt_alleles = base['alt'].split(",")
                     for i, alt in enumerate(alt_alleles):
-                        vep_annotations = [ann for ann in annotations if int(ann['ALLELE_NUM']) == i + 1]
+                        if not settings.beacon_only:
+                            vep_annotations = [ann for ann in annotations if int(ann['ALLELE_NUM']) == i + 1]
 
                         data = dict(base)
                         data['alt'] = alt
@@ -289,14 +295,19 @@ class RawDataImporter( DataImporter ):
                         if 'AF' in info and data['allele_num'] > 0:
                             data['allele_freq'] = data['allele_count']/float(info['AN_Adj'])
 
-                        data['vep_annotations'] = vep_annotations
-                        data['genes']           = list({annotation['Gene'] for annotation in vep_annotations})
-                        data['transcripts']     = list({annotation['Feature'] for annotation in vep_annotations})
+                        if not settings.beacon_only:
+                            data['vep_annotations'] = vep_annotations
+                        
+                            data['genes']           = list({annotation['Gene'] for annotation in vep_annotations})
+                            data['transcripts']     = list({annotation['Feature'] for annotation in vep_annotations})
 
                         data['orig_alt_alleles'] = [
                             '{}-{}-{}-{}'.format(data['chrom'], *get_minimal_representation(base['pos'], base['ref'], x)) for x in alt_alleles
                         ]
-                        data['hom_count']        = int(info['AC_Hom'])
+                        try:
+                            data['hom_count'] = int(info['AC_Hom'])
+                        except KeyError:
+                            pass # null is better than 0, as 0 has a meaning
                         data['variant_id']       = '{}-{}-{}-{}'.format(data['chrom'], data['pos'], data['ref'], data['alt'])
                         data['quality_metrics']  = dict([(x, info[x]) for x in METRICS if x in info])
                         batch += [data]
