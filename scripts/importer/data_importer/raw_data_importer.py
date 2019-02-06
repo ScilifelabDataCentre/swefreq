@@ -271,7 +271,8 @@ class RawDataImporter( DataImporter ):
                             base['dataset_version'] = self.dataset_version
                         if i < 7:
                             base[header[i][0]] = header[i][1](item)
-                        else:
+                        elif i == 7 or not self.settings.beacon_only:
+                            # only parse column 7 (maybe also for non-beacon-import?)
                             info = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', item)])
 
                     if base["chrom"].startswith('GL') or base["chrom"].startswith('MT'):
@@ -289,12 +290,18 @@ class RawDataImporter( DataImporter ):
                         data = dict(base)
                         data['alt'] = alt
                         data['rsid'] = int(data['rsid'].strip('rs')) if data['rsid'].startswith('rs') else None
-                        if not self.settings.beacon_only:
-                            data['allele_num']   = int(info['AN_Adj'])
-                            data['allele_count'] = int(info['AC_Adj'].split(',')[i])
-                            data['allele_freq']  = None
-                            if 'AF' in info and data['allele_num'] > 0:
-                                data['allele_freq'] = data['allele_count']/float(info['AN_Adj'])
+                        an, ac = 'AN_Adj', 'AC_Adj'
+                        if self.settings.beacon_only and 'AN_Adj' not in info:
+                            an = 'AN'
+                        if self.settings.beacon_only and 'AC_Adj' not in info:
+                            ac = 'AC'
+
+                        data['allele_num']   = int(info[an])
+                        data['allele_freq']  = None
+                        data['allele_count'] = int(info[ac].split(',')[i])
+                        if 'AF' in info and data['allele_num'] > 0:
+                            data['allele_freq'] = data['allele_count']/float(info[an])
+
 
                         if not self.settings.beacon_only:
                             data['vep_annotations'] = vep_annotations
@@ -367,4 +374,5 @@ class RawDataImporter( DataImporter ):
 
     def start_import(self):
         self._insert_variants()
-        self._insert_coverage()
+        if not self.settings.beacon_only:
+            self._insert_coverage()
