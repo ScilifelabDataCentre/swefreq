@@ -275,6 +275,7 @@ class RawDataImporter( DataImporter ):
                             # only parse column 7 (maybe also for non-beacon-import?)
                             info = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', item)])
 
+
                     if base["chrom"].startswith('GL') or base["chrom"].startswith('MT'):
                         continue
 
@@ -289,7 +290,14 @@ class RawDataImporter( DataImporter ):
 
                         data = dict(base)
                         data['alt'] = alt
-                        data['rsid'] = int(data['rsid'].strip('rs')) if data['rsid'].startswith('rs') else None
+                        try:
+                            data['rsid'] = int(data['rsid'].strip('rs')) if data['rsid'].startswith('rs') else None
+                        except:
+                            if self.settings.beacon_only:
+                                # ignore lines having double ids: "rs539868657;rs561027534"
+                                continue
+                            else:
+                                raise
                         an, ac = 'AN_Adj', 'AC_Adj'
                         if self.settings.beacon_only and 'AN_Adj' not in info:
                             an = 'AN'
@@ -336,7 +344,7 @@ class RawDataImporter( DataImporter ):
                                 self._tick()
                                 last_progress += 0.01
             if batch and not self.settings.dry_run:
-                db.Variant.insert_many(batch)
+                db.Variant.insert_many(batch).execute()
         self.dataset_version.num_variants = counter
         self.dataset_version.save()
         if self.counter['variants'] != None:
