@@ -8,6 +8,7 @@ import logging
 
 from datetime import datetime
 
+import modules.browser.lookups
 import db
 from .data_importer import DataImporter
 
@@ -53,6 +54,7 @@ def get_minimal_representation(pos, ref, alt):
             ref = ref[1:]
             pos += 1
         return pos, ref, alt
+
 
 class RawDataImporter( DataImporter ):
 
@@ -247,6 +249,7 @@ class RawDataImporter( DataImporter ):
             for filename in self.settings.variant_file:
                 for line in self._open(filename):
                     line = bytes(line).decode('utf8').strip()
+
                     if line.startswith("#"):
                         # Check for some information that we need
                         if line.startswith('##INFO=<ID=CSQ'):
@@ -257,9 +260,10 @@ class RawDataImporter( DataImporter ):
                             gq_mids = map(float, line.split('Mids: ')[-1].strip('">').split('|'))
                         continue
 
-                    if vep_field_names is None:
-                        logging.error("VEP_field_names is empty. Make sure VCF header is present.")
-                        sys.exit(1)
+                    if not self.settings.beacon_only:
+                        if vep_field_names is None:
+                            logging.error("VEP_field_names is empty. Make sure VCF header is present.")
+                            sys.exit(1)
 
                     base = {}
                     for i, item in enumerate(line.strip().split("\t")):
@@ -267,37 +271,59 @@ class RawDataImporter( DataImporter ):
                             base['dataset_version'] = self.dataset_version
                         if i < 7:
                             base[header[i][0]] = header[i][1](item)
-                        else:
+                        elif i == 7 or not self.settings.beacon_only:
+                            # only parse column 7 (maybe also for non-beacon-import?)
                             info = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', item)])
+
 
                     if base["chrom"].startswith('GL') or base["chrom"].startswith('MT'):
                         continue
 
                     consequence_array = info['CSQ'].split(',') if 'CSQ' in info else []
-                    annotations = [dict(zip(vep_field_names, x.split('|'))) for x in consequence_array if len(vep_field_names) == len(x.split('|'))]
+                    if not self.settings.beacon_only:
+                        annotations = [dict(zip(vep_field_names, x.split('|'))) for x in consequence_array if len(vep_field_names) == len(x.split('|'))]
 
                     alt_alleles = base['alt'].split(",")
                     for i, alt in enumerate(alt_alleles):
-                        vep_annotations = [ann for ann in annotations if int(ann['ALLELE_NUM']) == i + 1]
+                        if not self.settings.beacon_only:
+                            vep_annotations = [ann for ann in annotations if int(ann['ALLELE_NUM']) == i + 1]
 
                         data = dict(base)
                         data['alt'] = alt
-                        data['rsid'] = int(data['rsid'].strip('rs')) if data['rsid'].startswith('rs') else None
-                        data['allele_num']   = int(info['AN_Adj'])
-                        data['allele_count'] = int(info['AC_Adj'].split(',')[i])
-                        data['allele_freq']  = None
-                        if 'AF' in info and data['allele_num'] > 0:
-                            data['allele_freq'] = data['allele_count']/float(info['AN_Adj'])
+                        try:
+                            data['rsid'] = int(data['rsid'].strip('rs')) if data['rsid'].startswith('rs') else None
+                        except:
+                            if self.settings.beacon_only:
+                                # ignore lines having double ids: "rs539868657;rs561027534"
+                                continue
+                            else:
+                                raise
+                        an, ac = 'AN_Adj', 'AC_Adj'
+                        if self.settings.beacon_only and 'AN_Adj' not in info:
+                            an = 'AN'
+                        if self.settings.beacon_only and 'AC_Adj' not in info:
+                            ac = 'AC'
 
-                        data['vep_annotations'] = vep_annotations
-                        data['genes']           = list({annotation['Gene'] for annotation in vep_annotations})
-                        data['transcripts']     = list({annotation['Feature'] for annotation in vep_annotations})
+                        data['allele_num']   = int(info[an])
+                        data['allele_freq']  = None
+                        data['allele_count'] = int(info[ac].split(',')[i])
+                        if 'AF' in info and data['allele_num'] > 0:
+                            data['allele_freq'] = data['allele_count']/float(info[an])
+
+
+                        if not self.settings.beacon_only:
+                            data['vep_annotations'] = vep_annotations
+
+                            data['genes']           = list({annotation['Gene'] for annotation in vep_annotations})
+                            data['transcripts']     = list({annotation['Feature'] for annotation in vep_annotations})
 
                         data['orig_alt_alleles'] = [
                             '{}-{}-{}-{}'.format(data['chrom'], *get_minimal_representation(base['pos'], base['ref'], x)) for x in alt_alleles
                         ]
-                        # I don't think this is needed.
-                        #data['hom_count']        = 
+                        try:
+                            data['hom_count'] = int(info['AC_Hom'])
+                        except KeyError:
+                            pass # null is better than 0, as 0 has a meaning
                         data['variant_id']       = '{}-{}-{}-{}'.format(data['chrom'], data['pos'], data['ref'], data['alt'])
                         data['quality_metrics']  = dict([(x, info[x]) for x in METRICS if x in info])
                         batch += [data]
@@ -318,7 +344,7 @@ class RawDataImporter( DataImporter ):
                                 self._tick()
                                 last_progress += 0.01
             if batch and not self.settings.dry_run:
-                db.Variant.insert_many(batch)
+                db.Variant.insert_many(batch).execute()
         self.dataset_version.num_variants = counter
         self.dataset_version.save()
         if self.counter['variants'] != None:
@@ -356,4 +382,5 @@ class RawDataImporter( DataImporter ):
 
     def start_import(self):
         self._insert_variants()
-        self._insert_coverage()
+        if not self.settings.beacon_only:
+            self._insert_coverage()
