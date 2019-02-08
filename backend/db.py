@@ -299,7 +299,7 @@ class VariantTranscripts(BaseModel):
         db_table = 'variant_transcripts'
         schema = 'data'
 
-    gene = ForeignKeyField(Variant, db_column="variant", related_name="transcripts")
+    variant = ForeignKeyField(Variant, db_column="variant", related_name="transcripts")
     transcript = ForeignKeyField(Transcript, db_column="transcript", related_name="variants")
 
 
