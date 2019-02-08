@@ -80,12 +80,10 @@ class ReferenceSetImporter( DataImporter ):
         last_progress = 0
         for i, gene in enumerate(self.genes):
             # As far as I know I can't batch insert these and still get the id's back
-
             db_gene = db.Gene(  reference_set = self.db_reference,
                                 gene_id = gene['gene_id'],
                                 name = gene['name'],
                                 full_name = gene.get('full_name', None),
-                                other_names = gene.get('other_names', None),
                                 canonical_transcript = gene.get('canonical_transcript', None),
                                 chrom = gene['chrom'],
                                 start = gene['start'],
@@ -99,6 +97,12 @@ class ReferenceSetImporter( DataImporter ):
                 db_gene.save()
                 self.gene_db_ids[gene['gene_id']] = db_gene.id
 
+            try:
+                other_names = gene['other_names']
+                if other_names:
+                    self.add_other_names(db_gene.id, other_names)
+            except KeyError:
+                pass
             progress = i / len(self.genes)
             while progress - last_progress > 0.01:
                 last_progress += 0.01
@@ -450,3 +454,10 @@ class ReferenceSetImporter( DataImporter ):
         self._insert_genes()
         self._insert_transcripts()
         self._insert_features()
+
+    def add_other_names(self, gene_dbid:int, other_names:list):
+        if not gene_dbid or not other_names:
+            return
+        batch = [{'gene':gene_dbid, 'name':other_name} for other_name in other_names if other_name != '.' and other_name]
+        if not self.settings.dry_run and batch:
+            db.GeneOtherNames.insert_many(batch).execute()
