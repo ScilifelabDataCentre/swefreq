@@ -88,6 +88,7 @@ class DbSNPImporter( DataImporter ):
 
                 try:
                     rsid, chrom, position = line.split("\t")[:3]
+                    position = int(position)
                     position += 1 # 0-indexed
                 except ValueError:
                     # we don't care for incomplete entries
@@ -119,7 +120,7 @@ class DbSNPImporter( DataImporter ):
             db.database.commit()
             if batch:
                 if not self.settings.dry_run:
-                    db.DbSNP.insert_many(batch)
+                    db.DbSNP.insert_many(batch).execute()
             if self.total != None:
                 self._tick(True)
         logging.info("Inserted {:,} valid lines in {}".format(counter, self._time_since(start)))
