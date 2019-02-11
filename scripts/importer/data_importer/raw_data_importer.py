@@ -204,8 +204,8 @@ class RawDataImporter( DataImporter ):
                         # re-format coverage for batch
                         for i, item in enumerate(batch):
                             batch[i]['coverage'] = [item['cov1'], item['cov5'], item['cov10'],
-                                                    item['cov15'],item['cov20'],item['cov25'],
-                                                    item['cov30'],item['cov50'],item['cov100']]
+                                                    item['cov15'], item['cov20'], item['cov25'],
+                                                    item['cov30'], item['cov50'], item['cov100']]
                             del batch[i]['cov1']
                             del batch[i]['cov5']
                             del batch[i]['cov10']
@@ -235,11 +235,17 @@ class RawDataImporter( DataImporter ):
         logging.info("Inserted {} coverage records in {}".format(counter, self._time_since(start)))
 
     def _insert_variants(self):
+        """
+        Insert variants from a VCF file
+        """
         logging.info("Inserting variants")
         header = [("chrom",str), ("pos", int), ("rsid", str), ("ref", str),
                   ("alt", str), ("site_quality", float), ("filter_string", str)]
         start = time.time()
         batch = []
+        genes = []
+        transcripts = []
+
         last_progress = 0.0
         counter = 0
         vep_field_names = None
@@ -247,6 +253,9 @@ class RawDataImporter( DataImporter ):
         gq_mids = None
         with db.database.atomic():
             for filename in self.settings.variant_file:
+                # gene/transctipt dbids; need to add support for version
+                self.refgenes = {gene.gene_id:gene.id for gene in db.Gene.select(db.Gene.id, db.Gene.gene_id)}
+                self.reftranscripts = {tran.transcript_id:tran.id for tran in db.Transcript.select(db.Transcript.id, db.Transcript.transcript_id)}
                 for line in self._open(filename):
                     line = bytes(line).decode('utf8').strip()
 
@@ -309,13 +318,12 @@ class RawDataImporter( DataImporter ):
                         data['allele_count'] = int(info[ac].split(',')[i])
                         if 'AF' in info and data['allele_num'] > 0:
                             data['allele_freq'] = data['allele_count']/float(info[an])
-
-
+                        
                         if not self.settings.beacon_only:
                             data['vep_annotations'] = vep_annotations
 
-                            data['genes']           = list({annotation['Gene'] for annotation in vep_annotations})
-                            data['transcripts']     = list({annotation['Feature'] for annotation in vep_annotations})
+                            genes.append(list({annotation['Gene'] for annotation in vep_annotations}))
+                            transcripts.append(list({annotation['Feature'] for annotation in vep_annotations}))
 
                         data['orig_alt_alleles'] = [
                             '{}-{}-{}-{}'.format(data['chrom'], *get_minimal_representation(base['pos'], base['ref'], x)) for x in alt_alleles
@@ -324,6 +332,8 @@ class RawDataImporter( DataImporter ):
                             data['hom_count'] = int(info['AC_Hom'])
                         except KeyError:
                             pass # null is better than 0, as 0 has a meaning
+                        except ValueError:
+                            data['hom_count'] = int(info['AC_Hom'].split(',')[0]) # parsing Swegen sometimes give e.g. 14,0
                         data['variant_id']       = '{}-{}-{}-{}'.format(data['chrom'], data['pos'], data['ref'], data['alt'])
                         data['quality_metrics']  = dict([(x, info[x]) for x in METRICS if x in info])
                         batch += [data]
@@ -332,19 +342,56 @@ class RawDataImporter( DataImporter ):
 
                     if len(batch) >= self.settings.batch_size:
                         if not self.settings.dry_run:
+                            if not self.settings.beacon_only:
+                                try:
+                                    curr_id = db.Variant.select(db.Variant.id).order_by(db.Variant.id.desc()).limit(1).get().id
+                                except db.Variant.DoesNotExist:
+                                    # assumes next id will be 1 if table is empty
+                                    curr_id = 0
+
                             db.Variant.insert_many(batch).execute()
+
+                            if not self.settings.beacon_only:
+                                last_id = db.Variant.select(db.Variant.id).order_by(db.Variant.id.desc()).limit(1).get().id
+                                if  last_id-curr_id == len(batch):
+                                    indexes = list(range(curr_id+1, last_id+1))
+                                else:
+                                    pass # slow version of finding indexes
+                                self.add_variant_genes(indexes, genes)
+                                self.add_variant_transcripts(indexes, transcripts)
+
+                        genes = []
+                        transcripts = []
                         batch = []
                         # Update progress
                         if self.counter['variants'] != None:
                             progress = counter / self.counter['variants']
                             while progress > last_progress + 0.01:
                                 if not last_progress:
-                                    logging.info("Estimated time to completion: {}".format(self._time_to(start, progress)))
                                     self._print_progress_bar()
                                 self._tick()
                                 last_progress += 0.01
+
             if batch and not self.settings.dry_run:
-                db.Variant.insert_many(batch).execute()
+                if not self.settings.dry_run:
+                    if not self.settings.beacon_only:
+                        try:
+                            curr_id = db.Variant.select(db.Variant.id).order_by(db.Variant.id.desc()).limit(1).get().id
+                        except db.Variant.DoesNotExist:
+                            # assumes next id will be 1 if table is empty
+                            curr_id = 0
+
+                    db.Variant.insert_many(batch).execute()
+                    
+                    if not self.settings.beacon_only:
+                        last_id = db.Variant.select(db.Variant.id).order_by(db.Variant.id.desc()).limit(1).id
+                        if  last_id-curr_id == len(batch):
+                            indexes = list(range(curr_id+1, last_id+1))
+                        else:
+                            pass # slow version of finding indexes
+                        self.add_variant_genes(indexes, genes)
+                        self.add_variant_transcripts(indexes, transcripts)
+
         self.dataset_version.num_variants = counter
         self.dataset_version.save()
         if self.counter['variants'] != None:
@@ -384,3 +431,20 @@ class RawDataImporter( DataImporter ):
         self._insert_variants()
         if not self.settings.beacon_only:
             self._insert_coverage()
+
+    def add_variant_genes(self, variant_indexes:list, genes_to_add:list):
+        batch = []
+        for i in range(len(variant_indexes)):
+            connected_genes = [{'variant':variant_indexes[i], 'gene':self.refgenes[gene]} for gene in genes_to_add[i] if gene]
+            batch += connected_genes
+        if not self.settings.dry_run:
+            db.VariantGenes.insert_many(batch).execute()
+ 
+    def add_variant_transcripts(self, variant_indexes:list, transcripts_to_add:list):
+        batch = []
+        for i in range(len(variant_indexes)):
+            connected_transcripts = [{'variant':variant_indexes[i], 'transcript':self.reftranscripts[transcript]}
+                                     for transcript in transcripts_to_add[i] if transcript and transcript[:5] == 'ENST']
+            batch += connected_transcripts
+        if not self.settings.dry_run:
+            db.VariantGenes.insert_many(batch).execute()
