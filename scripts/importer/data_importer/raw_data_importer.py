@@ -438,7 +438,7 @@ class RawDataImporter(DataImporter):
     def add_variant_genes(self, variant_indexes:list, genes_to_add:list, refgenes:dict):
         batch = []
         for i in range(len(variant_indexes)):
-            connected_genes = [{'variant':variant_indexes[i], 'gene':self.refgenes[gene]} for gene in genes_to_add[i] if gene]
+            connected_genes = [{'variant':variant_indexes[i], 'gene':refgenes[gene]} for gene in genes_to_add[i] if gene]
             batch += connected_genes
         if not self.settings.dry_run:
             db.VariantGenes.insert_many(batch).execute()
