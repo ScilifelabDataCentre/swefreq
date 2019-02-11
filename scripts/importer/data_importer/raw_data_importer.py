@@ -447,4 +447,4 @@ class RawDataImporter( DataImporter ):
                                      for transcript in transcripts_to_add[i] if transcript and transcript[:4] == 'ENST']
             batch += connected_transcripts
         if not self.settings.dry_run:
-            db.VariantGenes.insert_many(batch).execute()
+            db.VariantTranscripts.insert_many(batch).execute()
