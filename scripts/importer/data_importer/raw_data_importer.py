@@ -355,7 +355,9 @@ class RawDataImporter(DataImporter):
                                 if  last_id-curr_id == len(batch):
                                     indexes = list(range(curr_id+1, last_id+1))
                                 else:
-                                    pass # slow version of finding indexes
+                                    indexes = []
+                                    for entry in batch:
+                                        indexes.append(db.Variant.select(db.Variant.id).where(db.Variant.variant_id == entry['variant_id']).get().id)
                                 self.add_variant_genes(indexes, genes)
                                 self.add_variant_transcripts(indexes, transcripts)
 
@@ -387,7 +389,9 @@ class RawDataImporter(DataImporter):
                         if  last_id-curr_id == len(batch):
                             indexes = list(range(curr_id+1, last_id+1))
                         else:
-                            pass # slow version of finding indexes
+                            indexes = []
+                            for entry in batch:
+                                indexes.append(db.Variant.select(db.Variant.id).where(db.Variant.variant_id == entry['variant_id']).get().id)
                         self.add_variant_genes(indexes, genes)
                         self.add_variant_transcripts(indexes, transcripts)
 
