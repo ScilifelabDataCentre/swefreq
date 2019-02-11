@@ -45,19 +45,18 @@ def get_minimal_representation(pos, ref, alt):
         return pos, ref, alt
     else:
         # strip off identical suffixes
-        while(alt[-1] == ref[-1] and min(len(alt),len(ref)) > 1):
+        while(alt[-1] == ref[-1] and min(len(alt), len(ref)) > 1):
             alt = alt[:-1]
             ref = ref[:-1]
         # strip off identical prefixes and increment position
-        while(alt[0] == ref[0] and min(len(alt),len(ref)) > 1):
+        while(alt[0] == ref[0] and min(len(alt), len(ref)) > 1):
             alt = alt[1:]
             ref = ref[1:]
             pos += 1
         return pos, ref, alt
 
 
-class RawDataImporter( DataImporter ):
-
+class RawDataImporter(DataImporter):
     def __init__(self, settings):
         super().__init__(settings)
         self.dataset_version = None
@@ -68,7 +67,7 @@ class RawDataImporter( DataImporter ):
         datasets = []
 
         try:
-            ds = db.Dataset.get(short_name = self.settings.dataset)
+            ds = db.Dataset.get(short_name=self.settings.dataset)
         except db.Dataset.DoesNotExist:
             print("Select a Dataset to use with this data")
             for dataset in db.Dataset.select():
@@ -239,7 +238,7 @@ class RawDataImporter( DataImporter ):
         Insert variants from a VCF file
         """
         logging.info("Inserting variants")
-        header = [("chrom",str), ("pos", int), ("rsid", str), ("ref", str),
+        header = [("chrom", str), ("pos", int), ("rsid", str), ("ref", str),
                   ("alt", str), ("site_quality", float), ("filter_string", str)]
         start = time.time()
         batch = []
@@ -313,8 +312,8 @@ class RawDataImporter( DataImporter ):
                         if self.settings.beacon_only and 'AC_Adj' not in info:
                             ac = 'AC'
 
-                        data['allele_num']   = int(info[an])
-                        data['allele_freq']  = None
+                        data['allele_num'] = int(info[an])
+                        data['allele_freq'] = None
                         data['allele_count'] = int(info[ac].split(',')[i])
                         if 'AF' in info and data['allele_num'] > 0:
                             data['allele_freq'] = data['allele_count']/float(info[an])
@@ -334,8 +333,8 @@ class RawDataImporter( DataImporter ):
                             pass # null is better than 0, as 0 has a meaning
                         except ValueError:
                             data['hom_count'] = int(info['AC_Hom'].split(',')[0]) # parsing Swegen sometimes give e.g. 14,0
-                        data['variant_id']       = '{}-{}-{}-{}'.format(data['chrom'], data['pos'], data['ref'], data['alt'])
-                        data['quality_metrics']  = dict([(x, info[x]) for x in METRICS if x in info])
+                        data['variant_id'] = '{}-{}-{}-{}'.format(data['chrom'], data['pos'], data['ref'], data['alt'])
+                        data['quality_metrics'] = dict([(x, info[x]) for x in METRICS if x in info])
                         batch += [data]
 
                     counter += 1
