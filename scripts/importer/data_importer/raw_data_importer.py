@@ -358,8 +358,8 @@ class RawDataImporter(DataImporter):
                                     indexes = []
                                     for entry in batch:
                                         indexes.append(db.Variant.select(db.Variant.id).where(db.Variant.variant_id == entry['variant_id']).get().id)
-                                self.add_variant_genes(indexes, genes)
-                                self.add_variant_transcripts(indexes, transcripts)
+                                self.add_variant_genes(indexes, genes, refgenes)
+                                self.add_variant_transcripts(indexes, transcripts, reftranscripts)
 
                         genes = []
                         transcripts = []
