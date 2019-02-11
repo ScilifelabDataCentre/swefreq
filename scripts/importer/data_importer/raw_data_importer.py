@@ -318,7 +318,7 @@ class RawDataImporter( DataImporter ):
                         data['allele_count'] = int(info[ac].split(',')[i])
                         if 'AF' in info and data['allele_num'] > 0:
                             data['allele_freq'] = data['allele_count']/float(info[an])
-                        
+
                         if not self.settings.beacon_only:
                             data['vep_annotations'] = vep_annotations
 
@@ -384,7 +384,7 @@ class RawDataImporter( DataImporter ):
                     db.Variant.insert_many(batch).execute()
                     
                     if not self.settings.beacon_only:
-                        last_id = db.Variant.select(db.Variant.id).order_by(db.Variant.id.desc()).limit(1).id
+                        last_id = db.Variant.select(db.Variant.id).order_by(db.Variant.id.desc()).limit(1).get().id
                         if  last_id-curr_id == len(batch):
                             indexes = list(range(curr_id+1, last_id+1))
                         else:
