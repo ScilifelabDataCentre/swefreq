@@ -444,7 +444,7 @@ class RawDataImporter( DataImporter ):
         batch = []
         for i in range(len(variant_indexes)):
             connected_transcripts = [{'variant':variant_indexes[i], 'transcript':self.reftranscripts[transcript]}
-                                     for transcript in transcripts_to_add[i] if transcript and transcript[:5] == 'ENST']
+                                     for transcript in transcripts_to_add[i] if transcript and transcript[:4] == 'ENST']
             batch += connected_transcripts
         if not self.settings.dry_run:
             db.VariantGenes.insert_many(batch).execute()
