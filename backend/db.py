@@ -276,6 +276,7 @@ class Variant(BaseModel):
     site_quality = FloatField()
     orig_alt_alleles = ArrayField(CharField)
     hom_count = IntegerField()
+    sample_count = IntegerField()
     allele_freq = FloatField()
     filter_string = CharField()
     variant_id = CharField()
