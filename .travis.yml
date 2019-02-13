@@ -10,3 +10,8 @@ install:
     - pip install coverage coveralls
 script:
     - test/travis_script.sh
+addons:
+  postgresql: "10"
+  apt:
+    packages:
+    - postgresql-client-10

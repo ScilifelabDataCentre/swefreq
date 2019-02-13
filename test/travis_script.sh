@@ -3,9 +3,8 @@ set -xe
 
 ## SETUP SETTINGS
 cp settings_sample.json settings.json
-sed -i 's/password//' settings.json
-sed -i 's/"mysqlSchema" : "swefreq"/"mysqlSchema" : "swefreq_test"/' settings.json
-sed -i 's/"mysqlPort" : 3306/"mysqlPort" : 3366/' settings.json
+sed -i.tmp 's/"postgresHost" : "postgres host"/"postgresHost" : "127.0.0.1"/' settings.json
+sed -i.tmp 's/"postgresPort" : 5432/"postgresPort" : 5433/' settings.json
 
 echo "SETTINGS"
 cat settings.json
@@ -14,21 +13,22 @@ echo "/SETTINGS"
 echo ">>> Test 1. The SQL Patch"
 
 LATEST_RELEASE=$(git tag | grep '^v' | sort -V | tail -n 1)
-git show ${LATEST_RELEASE}:sql/swefreq.sql > master-schema.sql
+git show ${LATEST_RELEASE}:sql/*_schema.sql > master-schema.sql
 
-mysql -u swefreq -h 127.0.0.1 -P 3366 swefreq_test < master-schema.sql
-mysql -u swefreq -h 127.0.0.1 -P 3366 swefreq_test < sql/patch-master-db.sql
+psql -U postgres -h 127.0.0.1 -p 5433 -f master-schema.sql
+psql -U postgres -h 127.0.0.1 -p 5433 -f sql/patch-master-db.sql
+
 # Empty the database
-mysql -u swefreq -h 127.0.0.1 -P 3366 swefreq_test <<__END__
-DROP DATABASE swefreq_test;
-CREATE DATABASE swefreq_test;
+psql -U postgres -h 127.0.0.1 -p 5433 <<__END__
+DROP SCHEMA data;
+DROP SCHEMA users;
 __END__
 
 
 echo ">>> Test 2. Load the swefreq schema"
-mysql -u swefreq -h 127.0.0.1 -P 3366 swefreq_test < sql/swefreq.sql
-mysql -u swefreq -h 127.0.0.1 -P 3366 swefreq_test < test/data/load_dummy_data.sql
-
+psql -U postgres -h 127.0.0.1 -p 5433 -f sql/data_schema.sql
+psql -U postgres -h 127.0.0.1 -p 5433 -f sql/user_schema.sql
+psql -U postgres -h 127.0.0.1 -p 5433 -f test/data/load_dummy_data.sql
 
 echo ">>> Test 3. Check that the backend starts"
 
@@ -44,7 +44,7 @@ sleep 2 # Lets wait a little bit so the server has started
 exit_handler() {
     rv=$?
     # Ignore errors in the exit handler
-    set +e 
+    set +e
     # We want to make sure the background process has stopped, otherwise the
     # travis test will stall for a long time.
     kill -9 $BACKEND_PID

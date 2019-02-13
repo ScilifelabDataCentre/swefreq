@@ -101,7 +101,7 @@ class TestRequestAccess(RequestTests):
         try:
             u = db.User.select(db.User).where(db.User.email==self.USER).get()
             try:
-                u.access.get().delete_instance()
+                u.dataset_access.get().delete_instance()
             except peewee.PeeweeException:
                 pass
             try:

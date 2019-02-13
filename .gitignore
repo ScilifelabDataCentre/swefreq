@@ -22,3 +22,6 @@ scripts/importer/downloaded_files
 postgres-data
 # local personal things
 personal
+# travis test remnants
+master-schema.sql
+settings.json.tmp
