@@ -6,6 +6,8 @@
 --                                                                            --
 --------------------------------------------------------------------------------
 
+CREATE SCHEMA IF NOT EXISTS users;
+
 --------------------------------------------------------------------------------
 -- User fields
 --
@@ -73,3 +75,69 @@ CREATE TABLE IF NOT EXISTS users.user_download_log (
     dataset_file    integer         NOT NULL REFERENCES data.dataset_files,
     ts              timestamp       NOT NULL DEFAULT current_timestamp
 );
+
+--------------------------------------------------------------------------------
+-- User views
+--
+
+CREATE OR REPLACE VIEW users.user_access_log_summary AS
+    SELECT MAX(id) AS id,
+           user_id,
+           dataset,
+           "action",
+           MAX(ts) AS ts
+    FROM users.user_access_log
+    GROUP BY user_id, dataset, "action"
+;
+
+CREATE OR REPLACE VIEW users.dataset_access_current AS
+    SELECT DISTINCT
+        access.*,
+        TRUE AS has_access,
+        request.ts AS access_requested
+    FROM users.dataset_access AS access
+    JOIN ( SELECT user_id, dataset, MAX(ts) AS ts
+           FROM users.user_access_log WHERE action = 'access_requested'
+           GROUP BY user_id, dataset ) AS request
+        ON access.user_id = request.user_id AND
+           access.dataset = request.dataset
+    WHERE (access.user_id, access.dataset) IN (
+        SELECT granted.user_id, granted.dataset
+        FROM users.user_access_log_summary AS granted
+        LEFT JOIN users.user_access_log_summary AS revoked
+                ON granted.user_id = revoked.user_id AND
+                   granted.dataset = revoked.dataset AND
+                   revoked.action  = 'access_revoked'
+        WHERE granted.action = 'access_granted' AND
+            (revoked.user_id IS NULL OR granted.ts > revoked.ts)
+        GROUP BY granted.user_id, granted.dataset, granted.action
+    );
+
+CREATE OR REPLACE VIEW users.dataset_access_pending AS
+    SELECT DISTINCT
+        access.*,
+        FALSE AS has_access,
+        request.ts AS access_requested
+    FROM users.dataset_access AS access
+    JOIN ( SELECT user_id, dataset, MAX(ts) AS ts
+           FROM users.user_access_log WHERE action = 'access_requested'
+           GROUP BY user_id, dataset ) AS request
+        ON access.user_id = request.user_id AND
+           access.dataset = request.dataset
+    WHERE (access.user_id, access.dataset) IN (
+        -- get user_id for all users that have pending access requests
+        SELECT requested.user_id, requested.dataset
+        FROM users.user_access_log_summary AS requested
+        LEFT JOIN users.user_access_log_summary AS granted
+                ON requested.user_id = granted.user_id AND
+                   requested.dataset = granted.dataset AND
+                   granted.action  = 'access_granted'
+        LEFT JOIN users.user_access_log_summary AS revoked
+                ON requested.user_id = revoked.user_id AND
+                   requested.dataset = revoked.dataset AND
+                   revoked.action  = 'access_revoked'
+        WHERE requested.action = 'access_requested' AND
+                (granted.user_id IS NULL OR requested.ts > granted.ts) AND
+                (revoked.user_id IS NULL OR requested.ts > revoked.ts)
+        GROUP BY requested.user_id, requested.dataset, requested.action
+    );
