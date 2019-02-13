@@ -274,6 +274,7 @@ class RawDataImporter(DataImporter):
                             sys.exit(1)
 
                     base = {}
+                    samples = 0
                     for i, item in enumerate(line.strip().split("\t")):
                         if i == 0:
                             base['dataset_version'] = self.dataset_version
@@ -282,6 +283,9 @@ class RawDataImporter(DataImporter):
                         elif i == 7 or not self.settings.beacon_only:
                             # only parse column 7 (maybe also for non-beacon-import?)
                             info = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', item)])
+                        elif i > 8:
+                            # TODO is it always column 8, or does it vary?
+                            samples += 1
 
 
                     if base["chrom"].startswith('GL') or base["chrom"].startswith('MT'):
@@ -314,6 +318,11 @@ class RawDataImporter(DataImporter):
 
                         data['allele_num'] = int(info[an])
                         data['allele_freq'] = None
+                        if 'NS' in info:
+                            data['sample_count']   = int(info['NS'])
+                        else:
+                            data['sample_count']   = samples
+
                         data['allele_count'] = int(info[ac].split(',')[i])
                         if 'AF' in info and data['allele_num'] > 0:
                             data['allele_freq'] = data['allele_count']/float(info[an])
