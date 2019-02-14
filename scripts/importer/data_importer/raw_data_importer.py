@@ -266,6 +266,8 @@ class RawDataImporter(DataImporter):
                             dp_mids = map(float, line.split('Mids: ')[-1].strip('">').split('|'))
                         if line.startswith('##INFO=<ID=GQ_HIST'):
                             gq_mids = map(float, line.split('Mids: ')[-1].strip('">').split('|'))
+                        if line.startswith('#CHROM'):
+                            samples = len(line.split('\t')[9:])
                         continue
 
                     if not self.settings.beacon_only:
@@ -283,10 +285,6 @@ class RawDataImporter(DataImporter):
                         elif i == 7 or not self.settings.beacon_only:
                             # only parse column 7 (maybe also for non-beacon-import?)
                             info = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', item)])
-                        elif i > 8:
-                            # TODO is it always column 8, or does it vary?
-                            samples += 1
-
 
                     if base["chrom"].startswith('GL') or base["chrom"].startswith('MT'):
                         continue
