@@ -57,6 +57,8 @@ if __name__ == '__main__':
                               "next coming dataset version."))
     parser.add_argument("--ref_name", default="",
                         help="Reference name to use when creating a reference set.")
+    parser.add_argument("--set_sampleset_size", action="store_true",
+                        help = "Set/update dataset size to the value given in the VCF")
 
     # omim file, since we can't download or version them
     parser.add_argument("--omim_file", default=os.path.join(os.path.dirname(__file__),

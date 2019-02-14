@@ -60,6 +60,7 @@ class RawDataImporter(DataImporter):
     def __init__(self, settings):
         super().__init__(settings)
         self.dataset_version = None
+        self.sampleset = None
         self.counter = {'coverage':None,
                         'variants':None}
 
@@ -84,6 +85,16 @@ class RawDataImporter(DataImporter):
                     print("Please select a number in {}".format([d.id for d in datasets]))
             ds = [d for d in datasets if d.id == selection][0]
         logging.info("Using dataset {}".format(ds.short_name))
+        self.dataset = ds
+
+        if self.settings.set_sampleset_size:
+            try:
+                samplesets = db.SampleSet.select()
+                self.sampleset = [s for s in samplesets if s.dataset.id == self.dataset.id][0]
+            except IndexError:
+                logging.warning("No sample set found for data set {}".format(self.dataset.id))
+                logging.warning("Sample size will not be set")
+                self.settings.set_sampleset_size = False
 
         versions = []
         for version in db.DatasetVersion.select().where(db.DatasetVersion.dataset == ds):
@@ -168,6 +179,7 @@ class RawDataImporter(DataImporter):
         logging.info("Using dataset version {}".format(self.dataset_version))
         self.dataset_version = [v for v in versions if v.id == selection][0]
 
+
     def _insert_coverage(self):
         """
         Header columns are chromosome, position, mean coverage, median coverage,
@@ -247,6 +259,7 @@ class RawDataImporter(DataImporter):
 
         last_progress = 0.0
         counter = 0
+        samples = 0
         vep_field_names = None
         dp_mids = None
         gq_mids = None
@@ -276,7 +289,6 @@ class RawDataImporter(DataImporter):
                             sys.exit(1)
 
                     base = {}
-                    samples = 0
                     for i, item in enumerate(line.strip().split("\t")):
                         if i == 0:
                             base['dataset_version'] = self.dataset_version
@@ -316,10 +328,9 @@ class RawDataImporter(DataImporter):
 
                         data['allele_num'] = int(info[an])
                         data['allele_freq'] = None
-                        if 'NS' in info:
-                            data['sample_count']   = int(info['NS'])
-                        else:
-                            data['sample_count']   = samples
+                        if 'NS' in info and not samples:
+                            # save this unless we  already now the sample size
+                            samples = int(info['NS'])
 
                         data['allele_count'] = int(info[ac].split(',')[i])
                         if 'AF' in info and data['allele_num'] > 0:
@@ -379,6 +390,10 @@ class RawDataImporter(DataImporter):
                                     self._print_progress_bar()
                                 self._tick()
                                 last_progress += 0.01
+
+        if self.settings.set_sampleset_size and samples:
+            self.sampleset.sample_size = samples
+            self.sampleset.save()
 
             if batch and not self.settings.dry_run:
                 if not self.settings.dry_run:
