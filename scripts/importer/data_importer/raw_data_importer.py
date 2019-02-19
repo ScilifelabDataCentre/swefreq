@@ -329,7 +329,7 @@ class RawDataImporter(DataImporter):
                         data['allele_num'] = int(info[an])
                         data['allele_freq'] = None
                         if 'NS' in info and not samples:
-                            # save this unless we  already now the sample size
+                            # save this unless we already know the sample size
                             samples = int(info['NS'])
 
                         data['allele_count'] = int(info[ac].split(',')[i])
