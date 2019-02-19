@@ -5,11 +5,17 @@
     "googleSecret" : "a secret from google",
     "redirectUri" : "https://google oauth redirect uri",
 
-    "postgresHost": "postgres host",
-    "postgresPort": 5432,
-    "postgresUser": "postgres",
-    "postgresPass": "",
-    "postgresName": "",
+    "mysqlHost" : "127.0.0.1",
+    "mysqlPasswd" : "password",
+    "mysqlSchema" : "swefreq",
+    "mysqlUser" : "swefreq",
+    "mysqlPort" : 3306,
+
+    "postgresHost" : "postgres host",
+    "postgresPort" : 5432,
+    "postgresUser" : "postgres",
+    "postgresPass" : "",
+    "postgresName" : "",
 
     "mongoHost" : "mongodb host",
     "mongoPassword" : "password",
