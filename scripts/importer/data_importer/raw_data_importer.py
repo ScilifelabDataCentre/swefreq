@@ -64,6 +64,20 @@ class RawDataImporter(DataImporter):
         self.counter = {'coverage':None,
                         'variants':None}
 
+
+    def _set_dataset_info(self):
+        """ Save dataset information given as parameters """
+        if self.settings.beacon_description:
+            self.dataset.description = self.settings.beacon_description
+            self.dataset.save()
+        if self.settings.assembly_id:
+            self.dataset_version.var_call_ref = self.settings.assembly_id
+            self.dataset_version.save()
+        if self.settings.sampleset_size:
+            self.sampleset.sample_size = self.settings.sampleset_size
+            self.sampleset.save()
+
+
     def _select_dataset_version(self):
         datasets = []
 
@@ -87,14 +101,15 @@ class RawDataImporter(DataImporter):
         logging.info("Using dataset {}".format(ds.short_name))
         self.dataset = ds
 
-        if self.settings.set_sampleset_size:
+        if self.settings.set_vcf_sampleset_size or self.settings.sampleset_size:
             try:
                 samplesets = db.SampleSet.select()
                 self.sampleset = [s for s in samplesets if s.dataset.id == self.dataset.id][0]
             except IndexError:
                 logging.warning("No sample set found for data set {}".format(self.dataset.id))
                 logging.warning("Sample size will not be set")
-                self.settings.set_sampleset_size = False
+                self.settings.set_vcf_sampleset_size = False
+                self.settings.sampleset_size = 0
 
         versions = []
         for version in db.DatasetVersion.select().where(db.DatasetVersion.dataset == ds):
@@ -391,7 +406,7 @@ class RawDataImporter(DataImporter):
                                 self._tick()
                                 last_progress += 0.01
 
-        if self.settings.set_sampleset_size and samples:
+        if self.settings.set_vcf_sampleset_size and samples:
             self.sampleset.sample_size = samples
             self.sampleset.save()
 
@@ -453,6 +468,7 @@ class RawDataImporter(DataImporter):
         self._select_dataset_version()
 
     def start_import(self):
+        self._set_dataset_info()
         self._insert_variants()
         if not self.settings.beacon_only:
             self._insert_coverage()
