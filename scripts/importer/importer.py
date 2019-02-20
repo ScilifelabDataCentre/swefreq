@@ -59,14 +59,14 @@ if __name__ == '__main__':
                         help="Reference name to use when creating a reference set.")
 
     parser.add_argument("--set_vcf_sampleset_size", action="store_true",
-                        help = "Set/update sampleset size to the value given in the VCF")
-
+                        help = "Set/update sampleset size to the value given in the VCF."
+                               "This is either the NS value, or the number of stated samples")
     parser.add_argument("--sampleset_size", type=int, default=0,
-                        help = "Sampleset size")
+                        help = "Set sampleset size for this dataset")
     parser.add_argument("--beacon_description", default="",
-                        help="Beacon description of the dataset.")
+                        help="Set beacon description of the dataset.")
     parser.add_argument("--assembly_id", default="",
-                        help="Reference assembly id (GRC notation, e.g. GRCh37)")
+                        help="Set reference assembly id (GRC notation, e.g. GRCh37)")
 
     # omim file, since we can't download or version them
     parser.add_argument("--omim_file", default=os.path.join(os.path.dirname(__file__),
