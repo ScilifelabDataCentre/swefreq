@@ -60,10 +60,10 @@ class RawDataImporter(DataImporter):
     def __init__(self, settings):
         super().__init__(settings)
         self.dataset_version = None
+        self.dataset = None
         self.sampleset = None
         self.counter = {'coverage':None,
                         'variants':None}
-
 
     def _set_dataset_info(self):
         """ Save dataset information given as parameters """
@@ -76,7 +76,6 @@ class RawDataImporter(DataImporter):
         if self.settings.sampleset_size:
             self.sampleset.sample_size = self.settings.sampleset_size
             self.sampleset.save()
-
 
     def _select_dataset_version(self):
         datasets = []
@@ -193,7 +192,6 @@ class RawDataImporter(DataImporter):
 
         logging.info("Using dataset version {}".format(self.dataset_version))
         self.dataset_version = [v for v in versions if v.id == selection][0]
-
 
     def _insert_coverage(self):
         """
@@ -406,9 +404,6 @@ class RawDataImporter(DataImporter):
                                 self._tick()
                                 last_progress += 0.01
 
-        if self.settings.set_vcf_sampleset_size and samples:
-            self.sampleset.sample_size = samples
-            self.sampleset.save()
 
             if batch and not self.settings.dry_run:
                 if not self.settings.dry_run:
@@ -431,6 +426,10 @@ class RawDataImporter(DataImporter):
                                 indexes.append(db.Variant.select(db.Variant.id).where(db.Variant.variant_id == entry['variant_id']).get().id)
                         self.add_variant_genes(indexes, genes, refgenes)
                         self.add_variant_transcripts(indexes, transcripts, reftranscripts)
+
+        if self.settings.set_vcf_sampleset_size and samples:
+            self.sampleset.sample_size = samples
+            self.sampleset.save()
 
         self.dataset_version.num_variants = counter
         self.dataset_version.save()
