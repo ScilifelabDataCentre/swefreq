@@ -58,6 +58,8 @@ if __name__ == '__main__':
     parser.add_argument("--ref_name", default="",
                         help="Reference name to use when creating a reference set.")
 
+    parser.add_argument("--dataset_size", type=int, default=0,
+                        help = "Set dataset size for this dataset")
     parser.add_argument("--set_vcf_sampleset_size", action="store_true",
                         help = "Set/update sampleset size to the value given in the VCF."
                                "This is either the NS value, or the number of stated samples")

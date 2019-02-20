@@ -76,6 +76,9 @@ class RawDataImporter(DataImporter):
         if self.settings.sampleset_size:
             self.sampleset.sample_size = self.settings.sampleset_size
             self.sampleset.save()
+        if self.settings.dataset_size:
+            self.dataset.dataset_size = self.settings.dataset_size
+            self.dataset.save()
 
     def _select_dataset_version(self):
         datasets = []
