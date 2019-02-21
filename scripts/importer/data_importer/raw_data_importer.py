@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import re
 import sys
 import json
@@ -322,20 +321,23 @@ class RawDataImporter(DataImporter):
                         annotations = [dict(zip(vep_field_names, x.split('|'))) for x in consequence_array if len(vep_field_names) == len(x.split('|'))]
 
                     alt_alleles = base['alt'].split(",")
+                    if base['rsid'].startswith('rs'):
+                        rsids = [int(rsid.strip('rs')) for rsid in base['rsid'].split(';')]
+                    else:
+                        rsids = [None]
+
                     for i, alt in enumerate(alt_alleles):
                         if not self.settings.beacon_only:
                             vep_annotations = [ann for ann in annotations if int(ann['ALLELE_NUM']) == i + 1]
 
                         data = dict(base)
                         data['alt'] = alt
-                        try:
-                            data['rsid'] = int(data['rsid'].strip('rs')) if data['rsid'].startswith('rs') else None
-                        except:
-                            if self.settings.beacon_only:
-                                # ignore lines having double ids: "rs539868657;rs561027534"
-                                continue
-                            else:
-                                raise
+
+                        if len(rsids) <= i:
+                            data['rsid'] = rsids[-1]  # same id as the last alternate
+                        else:
+                            data['rsid'] = rsids[i]
+
                         an, ac = 'AN_Adj', 'AC_Adj'
                         if self.settings.beacon_only and 'AN_Adj' not in info:
                             an = 'AN'
