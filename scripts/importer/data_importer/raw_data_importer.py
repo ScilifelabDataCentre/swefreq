@@ -60,8 +60,25 @@ class RawDataImporter(DataImporter):
     def __init__(self, settings):
         super().__init__(settings)
         self.dataset_version = None
+        self.dataset = None
+        self.sampleset = None
         self.counter = {'coverage':None,
                         'variants':None}
+
+    def _set_dataset_info(self):
+        """ Save dataset information given as parameters """
+        if self.settings.beacon_description:
+            self.dataset.description = self.settings.beacon_description
+            self.dataset.save()
+        if self.settings.assembly_id:
+            self.dataset_version.var_call_ref = self.settings.assembly_id
+            self.dataset_version.save()
+        if self.settings.sampleset_size:
+            self.sampleset.sample_size = self.settings.sampleset_size
+            self.sampleset.save()
+        if self.settings.dataset_size:
+            self.dataset.dataset_size = self.settings.dataset_size
+            self.dataset.save()
 
     def _select_dataset_version(self):
         datasets = []
@@ -84,6 +101,17 @@ class RawDataImporter(DataImporter):
                     print("Please select a number in {}".format([d.id for d in datasets]))
             ds = [d for d in datasets if d.id == selection][0]
         logging.info("Using dataset {}".format(ds.short_name))
+        self.dataset = ds
+
+        if self.settings.set_vcf_sampleset_size or self.settings.sampleset_size:
+            try:
+                samplesets = db.SampleSet.select()
+                self.sampleset = [s for s in samplesets if s.dataset.id == self.dataset.id][0]
+            except IndexError:
+                logging.warning("No sample set found for data set {}".format(self.dataset.id))
+                logging.warning("Sample size will not be set")
+                self.settings.set_vcf_sampleset_size = False
+                self.settings.sampleset_size = 0
 
         versions = []
         for version in db.DatasetVersion.select().where(db.DatasetVersion.dataset == ds):
@@ -247,6 +275,7 @@ class RawDataImporter(DataImporter):
 
         last_progress = 0.0
         counter = 0
+        samples = 0
         vep_field_names = None
         dp_mids = None
         gq_mids = None
@@ -266,6 +295,8 @@ class RawDataImporter(DataImporter):
                             dp_mids = map(float, line.split('Mids: ')[-1].strip('">').split('|'))
                         if line.startswith('##INFO=<ID=GQ_HIST'):
                             gq_mids = map(float, line.split('Mids: ')[-1].strip('">').split('|'))
+                        if line.startswith('#CHROM'):
+                            samples = len(line.split('\t')[9:])
                         continue
 
                     if not self.settings.beacon_only:
@@ -282,7 +313,6 @@ class RawDataImporter(DataImporter):
                         elif i == 7 or not self.settings.beacon_only:
                             # only parse column 7 (maybe also for non-beacon-import?)
                             info = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', item)])
-
 
                     if base["chrom"].startswith('GL') or base["chrom"].startswith('MT'):
                         continue
@@ -314,6 +344,10 @@ class RawDataImporter(DataImporter):
 
                         data['allele_num'] = int(info[an])
                         data['allele_freq'] = None
+                        if 'NS' in info and not samples:
+                            # save this unless we already know the sample size
+                            samples = int(info['NS'])
+
                         data['allele_count'] = int(info[ac].split(',')[i])
                         if 'AF' in info and data['allele_num'] > 0:
                             data['allele_freq'] = data['allele_count']/float(info[an])
@@ -373,6 +407,7 @@ class RawDataImporter(DataImporter):
                                 self._tick()
                                 last_progress += 0.01
 
+
             if batch and not self.settings.dry_run:
                 if not self.settings.dry_run:
                     if not self.settings.beacon_only:
@@ -394,6 +429,10 @@ class RawDataImporter(DataImporter):
                                 indexes.append(db.Variant.select(db.Variant.id).where(db.Variant.variant_id == entry['variant_id']).get().id)
                         self.add_variant_genes(indexes, genes, refgenes)
                         self.add_variant_transcripts(indexes, transcripts, reftranscripts)
+
+        if self.settings.set_vcf_sampleset_size and samples:
+            self.sampleset.sample_size = samples
+            self.sampleset.save()
 
         self.dataset_version.num_variants = counter
         self.dataset_version.save()
@@ -431,6 +470,7 @@ class RawDataImporter(DataImporter):
         self._select_dataset_version()
 
     def start_import(self):
+        self._set_dataset_info()
         self._insert_variants()
         if not self.settings.beacon_only:
             self._insert_coverage()

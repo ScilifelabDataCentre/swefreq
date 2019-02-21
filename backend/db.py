@@ -194,6 +194,7 @@ class Dataset(BaseModel):
     full_name          = CharField()
     browser_uri        = CharField(null=True)
     beacon_uri         = CharField(null=True)
+    description        = TextField(db_column="beacon_description", null=True)
     avg_seq_depth      = FloatField(null=True)
     seq_type           = CharField(null=True)
     seq_tech           = CharField(null=True)
