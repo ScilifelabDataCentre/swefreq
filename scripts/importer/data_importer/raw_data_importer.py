@@ -339,9 +339,9 @@ class RawDataImporter(DataImporter):
                             data['rsid'] = rsids[i]
 
                         an, ac = 'AN_Adj', 'AC_Adj'
-                        if self.settings.beacon_only and 'AN_Adj' not in info:
+                        if 'AN_Adj' not in info:
                             an = 'AN'
-                        if self.settings.beacon_only and 'AC_Adj' not in info:
+                        if 'AC_Adj' not in info:
                             ac = 'AC'
 
                         data['allele_num'] = int(info[an])
@@ -357,7 +357,7 @@ class RawDataImporter(DataImporter):
                         if not self.settings.beacon_only:
                             data['vep_annotations'] = vep_annotations
 
-                            genes.append(list({annotation['Gene'] for annotation in vep_annotations}))
+                            genes.append(list({annotation['Gene'] for annotation in vep_annotations if annotation['Gene'][:4] == 'ENSG'}))
                             transcripts.append(list({annotation['Feature'] for annotation in vep_annotations}))
 
                         data['orig_alt_alleles'] = [
