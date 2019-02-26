@@ -357,8 +357,8 @@ class RawDataImporter(DataImporter):
                         if not self.settings.beacon_only:
                             data['vep_annotations'] = vep_annotations
 
-                            genes.append(list({annotation['Gene'] for annotation in vep_annotations if annotation['Gene'][:4] == 'ENSG'}))
-                            transcripts.append(list({annotation['Feature'] for annotation in vep_annotations}))
+                            genes.append(list(set({annotation['Gene'] for annotation in vep_annotations if annotation['Gene'][:4] == 'ENSG'})))
+                            transcripts.append(list(set({annotation['Feature'] for annotation in vep_annotations if annotation['Feature'][:4] == 'ENST'})))
 
                         data['orig_alt_alleles'] = [
                             '{}-{}-{}-{}'.format(data['chrom'], *get_minimal_representation(base['pos'], base['ref'], x)) for x in alt_alleles
@@ -489,7 +489,7 @@ class RawDataImporter(DataImporter):
         batch = []
         for i in range(len(variant_indexes)):
             connected_transcripts = [{'variant':variant_indexes[i], 'transcript':reftranscripts[transcript]}
-                                     for transcript in transcripts_to_add[i] if transcript and transcript[:4] == 'ENST']
+                                     for transcript in transcripts_to_add[i]]
             batch += connected_transcripts
         if not self.settings.dry_run:
             db.VariantTranscripts.insert_many(batch).execute()
