@@ -34,7 +34,6 @@ echo ">>> Test 3. Check that the backend starts"
 
 (cd backend && ../test/01_daemon_starts.sh)
 
-
 echo ">>> Test 4. the backend API"
 coverage run backend/route.py --port=4000 --develop 1>http_log.txt 2>&1 &
 BACKEND_PID=$!
@@ -47,17 +46,18 @@ exit_handler() {
     set +e
     # We want to make sure the background process has stopped, otherwise the
     # travis test will stall for a long time.
-    kill -9 $BACKEND_PID
+    kill -9 ${BACKEND_PID}
 
     echo "THE HTTP LOG WAS:"
     cat http_log.txt
-    exit $rv
+    exit ${rv}
 }
 
 trap exit_handler EXIT
 
-
+RETURN_VALUE=0
 python backend/test.py -v
+RETURN_VALUE=$(($RETURN_VALUE + ${?}))
 
 # Quit the app
 curl localhost:4000/developer/quit
@@ -67,3 +67,5 @@ if [ -f .coverage ]; then
     coveralls
     coverage report
 fi
+
+exit ${RETURN_VALUE}
