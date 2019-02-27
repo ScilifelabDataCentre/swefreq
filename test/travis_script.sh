@@ -57,7 +57,7 @@ trap exit_handler EXIT
 
 RETURN_VALUE=0
 python backend/test.py -v
-RETURN_VALUE=$((${RETURN_VALUE} + ${?}))
+RETURN_VALUE=$(($RETURN_VALUE + ${?}))
 
 # Quit the app
 curl localhost:4000/developer/quit
