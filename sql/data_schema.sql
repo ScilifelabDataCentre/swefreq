@@ -241,4 +241,7 @@ CREATE INDEX features_transcript ON data.features (transcript);
 CREATE INDEX genes_gene_id ON data.genes (gene_id);
 CREATE INDEX transcripts_transcript_id ON data.transcripts (transcript_id);
 CREATE INDEX variants_chrom_pos ON data.variants (chrom, pos);
+CREATE INDEX variants_chrom_pos_ref_alt ON data.variants (chrom, pos, ref, alt);
 CREATE INDEX variants_rsid ON data.variants (rsid);
+CREATE INDEX variant_genes_gene ON data.variant_genes (gene);
+CREATE INDEX variant_transcripts_transcript ON data.variant_transcripts (transcript);
