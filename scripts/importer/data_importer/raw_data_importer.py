@@ -281,9 +281,14 @@ class RawDataImporter(DataImporter):
         gq_mids = None
         with db.database.atomic():
             for filename in self.settings.variant_file:
-                # gene/transctipt dbids; need to add support for version
-                refgenes = {gene.gene_id: gene.id for gene in db.Gene.select(db.Gene.id, db.Gene.gene_id)}
-                reftranscripts = {tran.transcript_id: tran.id for tran in db.Transcript.select(db.Transcript.id, db.Transcript.transcript_id)}
+                ref_dbid = db.get_reference_dbid_dataset(self.settings.dataset)
+                refgenes = {gene.gene_id:gene.id for gene in (db.Gene.select(db.Gene.id, db.Gene.gene_id)
+                                                              .where(db.Gene.reference_set == ref_dbid))}
+                reftranscripts = {tran.transcript_id:tran.id for tran in (db.Transcript
+                                                                          .select(db.Transcript.id,
+                                                                                  db.Transcript.transcript_id)
+                                                                          .join(db.Gene)
+                                                                          .where(db.Gene.reference_set == ref_dbid))}
                 for line in self._open(filename):
                     line = bytes(line).decode('utf8').strip()
 
