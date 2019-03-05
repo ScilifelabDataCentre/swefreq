@@ -246,3 +246,5 @@ CREATE INDEX variant_genes_gene ON data.variant_genes (gene);
 CREATE INDEX variant_genes_variant ON data.variant_genes (variant);
 CREATE INDEX variant_transcripts_transcript ON data.variant_transcripts (transcript);
 CREATE INDEX variant_transcripts_variant ON data.variant_transcripts (variant);
+CREATE INDEX beacon_data_chrpos ON beacon.beacon_data_table (chromosome,start);
+CREATE INDEX beacon_data_chrref ON beacon.beacon_data_table (chromosome,reference);
