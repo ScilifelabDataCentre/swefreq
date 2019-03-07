@@ -281,8 +281,8 @@ class RawDataImporter(DataImporter):
         with db.database.atomic():
             for filename in self.settings.variant_file:
                 # gene/transctipt dbids; need to add support for version
-                refgenes = {gene.gene_id:gene.id for gene in db.Gene.select(db.Gene.id, db.Gene.gene_id)}
-                reftranscripts = {tran.transcript_id:tran.id for tran in db.Transcript.select(db.Transcript.id, db.Transcript.transcript_id)}
+                refgenes = {gene.gene_id: gene.id for gene in db.Gene.select(db.Gene.id, db.Gene.gene_id)}
+                reftranscripts = {tran.transcript_id: tran.id for tran in db.Transcript.select(db.Transcript.id, db.Transcript.transcript_id)}
                 for line in self._open(filename):
                     line = bytes(line).decode('utf8').strip()
 
