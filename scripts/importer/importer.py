@@ -141,6 +141,7 @@ if __name__ == '__main__':
         importer.start_import()
 
     if args.add_raw_data:
+        logging.info("Adding raw data %s", "(dry run)" if args.dry_run else '')
         importer = RawDataImporter(args)
         importer.prepare_data()
         if not args.disable_progress:

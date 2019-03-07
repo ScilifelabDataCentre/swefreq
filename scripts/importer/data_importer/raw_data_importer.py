@@ -258,13 +258,14 @@ class RawDataImporter(DataImporter):
                 db.Coverage.insert_many(batch)
         if self.counter['coverage'] != None:
             self._tick(True)
-        logging.info("Inserted {} coverage records in {}".format(counter, self._time_since(start)))
+        if not self.settings.dry_run:
+            logging.info("Inserted {} coverage records in {}".format(counter, self._time_since(start)))
 
     def _insert_variants(self):
         """
         Insert variants from a VCF file
         """
-        logging.info("Inserting variants")
+        logging.info("Inserting variants%s", " (dry run)" if self.settings.dry_run else "")
         header = [("chrom", str), ("pos", int), ("rsid", str), ("ref", str),
                   ("alt", str), ("site_quality", float), ("filter_string", str)]
         start = time.time()
@@ -440,7 +441,8 @@ class RawDataImporter(DataImporter):
         self.dataset_version.save()
         if self.counter['variants'] != None:
             self._tick(True)
-        logging.info("Inserted {} variant records in {}".format(counter, self._time_since(start)))
+        if not self.settings.dry_run:
+            logging.info("Inserted {} variant records in {}".format(counter, self._time_since(start)))
 
     def count_entries(self):
         start = time.time()
