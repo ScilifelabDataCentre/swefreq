@@ -516,3 +516,19 @@ def build_dict_from_row(row):
             continue
         d[field] = value
     return d
+
+
+def get_reference_set_for_dataset(dataset):
+    """
+    Get the reference set associated with a dataset
+    Args:
+        dataset (str): short name of the dataset
+    Returns:
+        ReferenceSet: the associated reference set; returns None if not available
+    """
+    try:
+        return (Dataset.select()
+                .where(Dataset.short_name==dataset)
+                .get()).reference_set
+    except Dataset.DoesNotExist:
+        return None
