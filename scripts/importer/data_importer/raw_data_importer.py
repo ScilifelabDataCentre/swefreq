@@ -281,14 +281,14 @@ class RawDataImporter(DataImporter):
         gq_mids = None
         with db.database.atomic():
             for filename in self.settings.variant_file:
-                ref_dbid = db.get_reference_dbid_dataset(self.settings.dataset)
+                ref_set = get_reference_set_for_dataset(self.settings.dataset)
                 ref_genes = {gene.gene_id: gene.id for gene in (db.Gene.select(db.Gene.id, db.Gene.gene_id)
-                                                                .where(db.Gene.reference_set == ref_dbid))}
+                                                                .where(db.Gene.reference_set == ref_set))}
                 ref_transcripts = {tran.transcript_id: tran.id for tran in (db.Transcript
                                                                             .select(db.Transcript.id,
                                                                                     db.Transcript.transcript_id)
                                                                             .join(db.Gene)
-                                                                            .where(db.Gene.reference_set == ref_dbid))}
+                                                                            .where(db.Gene.reference_set == ref_set))}
                 for line in self._open(filename):
                     line = bytes(line).decode('utf8').strip()
 
