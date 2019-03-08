@@ -282,13 +282,13 @@ class RawDataImporter(DataImporter):
         with db.database.atomic():
             for filename in self.settings.variant_file:
                 ref_dbid = db.get_reference_dbid_dataset(self.settings.dataset)
-                refgenes = {gene.gene_id:gene.id for gene in (db.Gene.select(db.Gene.id, db.Gene.gene_id)
-                                                              .where(db.Gene.reference_set == ref_dbid))}
-                reftranscripts = {tran.transcript_id:tran.id for tran in (db.Transcript
-                                                                          .select(db.Transcript.id,
-                                                                                  db.Transcript.transcript_id)
-                                                                          .join(db.Gene)
-                                                                          .where(db.Gene.reference_set == ref_dbid))}
+                ref_genes = {gene.gene_id: gene.id for gene in (db.Gene.select(db.Gene.id, db.Gene.gene_id)
+                                                                .where(db.Gene.reference_set == ref_dbid))}
+                ref_transcripts = {tran.transcript_id: tran.id for tran in (db.Transcript
+                                                                            .select(db.Transcript.id,
+                                                                                    db.Transcript.transcript_id)
+                                                                            .join(db.Gene)
+                                                                            .where(db.Gene.reference_set == ref_dbid))}
                 for line in self._open(filename):
                     line = bytes(line).decode('utf8').strip()
 
@@ -400,8 +400,8 @@ class RawDataImporter(DataImporter):
                                     indexes = []
                                     for entry in batch:
                                         indexes.append(db.Variant.select(db.Variant.id).where(db.Variant.variant_id == entry['variant_id']).get().id)
-                                self.add_variant_genes(indexes, genes, refgenes)
-                                self.add_variant_transcripts(indexes, transcripts, reftranscripts)
+                                self.add_variant_genes(indexes, genes, ref_genes)
+                                self.add_variant_transcripts(indexes, transcripts, ref_transcripts)
 
                         genes = []
                         transcripts = []
@@ -435,8 +435,8 @@ class RawDataImporter(DataImporter):
                             indexes = []
                             for entry in batch:
                                 indexes.append(db.Variant.select(db.Variant.id).where(db.Variant.variant_id == entry['variant_id']).get().id)
-                        self.add_variant_genes(indexes, genes, refgenes)
-                        self.add_variant_transcripts(indexes, transcripts, reftranscripts)
+                        self.add_variant_genes(indexes, genes, ref_genes)
+                        self.add_variant_transcripts(indexes, transcripts, ref_transcripts)
 
         if self.settings.set_vcf_sampleset_size and samples:
             self.sampleset.sample_size = samples
@@ -484,18 +484,18 @@ class RawDataImporter(DataImporter):
         if not self.settings.beacon_only:
             self._insert_coverage()
 
-    def add_variant_genes(self, variant_indexes:list, genes_to_add:list, refgenes:dict):
+    def add_variant_genes(self, variant_indexes:list, genes_to_add:list, ref_genes:dict):
         batch = []
         for i in range(len(variant_indexes)):
-            connected_genes = [{'variant':variant_indexes[i], 'gene':refgenes[gene]} for gene in genes_to_add[i] if gene]
+            connected_genes = [{'variant':variant_indexes[i], 'gene':ref_genes[gene]} for gene in genes_to_add[i] if gene]
             batch += connected_genes
         if not self.settings.dry_run:
             db.VariantGenes.insert_many(batch).execute()
 
-    def add_variant_transcripts(self, variant_indexes:list, transcripts_to_add:list, reftranscripts:dict):
+    def add_variant_transcripts(self, variant_indexes:list, transcripts_to_add:list, ref_transcripts:dict):
         batch = []
         for i in range(len(variant_indexes)):
-            connected_transcripts = [{'variant':variant_indexes[i], 'transcript':reftranscripts[transcript]}
+            connected_transcripts = [{'variant':variant_indexes[i], 'transcript':ref_transcripts[transcript]}
                                      for transcript in transcripts_to_add[i]]
             batch += connected_transcripts
         if not self.settings.dry_run:
