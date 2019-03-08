@@ -233,9 +233,18 @@ CREATE OR REPLACE VIEW data.dataset_version_current AS
 -- Indexes
 --
 
-CREATE INDEX variant_pos ON data.variants (pos);
-CREATE INDEX dbsnp_chrom_pos ON data.dbsnp (chrom, pos);
 CREATE INDEX coverage_pos_chrom ON data.coverage (chrom, pos);
-CREATE INDEX variants_rsid ON data.variants (rsid);
-CREATE INDEX variants_chrom_pos ON data.variants (chrom, pos);
+CREATE INDEX dbsnp_chrom_pos ON data.dbsnp (chrom, pos);
+CREATE INDEX dbsnp_rsid ON data.dbsnp (rsid);
+CREATE INDEX features_gene ON data.features (gene);
+CREATE INDEX features_transcript ON data.features (transcript);
+CREATE INDEX genes_gene_id ON data.genes (gene_id);
 CREATE INDEX transcripts_transcript_id ON data.transcripts (transcript_id);
+CREATE INDEX variants_chrom_pos ON data.variants (chrom, pos);
+CREATE INDEX variants_rsid ON data.variants (rsid);
+CREATE INDEX variant_genes_gene ON data.variant_genes (gene);
+CREATE INDEX variant_genes_variant ON data.variant_genes (variant);
+CREATE INDEX variant_transcripts_transcript ON data.variant_transcripts (transcript);
+CREATE INDEX variant_transcripts_variant ON data.variant_transcripts (variant);
+CREATE INDEX beacon_data_chrpos ON beacon.beacon_data_table (chromosome,start);
+CREATE INDEX beacon_data_chrref ON beacon.beacon_data_table (chromosome,reference);
