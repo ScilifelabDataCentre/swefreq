@@ -1,0 +1,24 @@
+FROM python:latest as base
+
+RUN apt-get update && apt-get install -y postgresql
+
+ADD backend/requirements.txt /requirements.txt
+RUN pip3 install -r requirements.txt
+RUN mkdir /code
+WORKDIR /code
+
+FROM base as development
+
+COPY settings_sample.json /settings.json
+RUN sed -i 's/"postgresHost"\s*:.*,/"postgresHost" : "db",/' /settings.json
+
+CMD ["python3", "backend/route.py", "--develop", "--settings_file", "/settings.json"]
+
+FROM base as production
+
+ADD . /code
+COPY settings_sample.json /settings.json
+RUN sed -i 's/"postgresHost"\s*:.*,/"postgresHost" : "db",/' /settings.json
+WORKDIR /code
+
+CMD ["python3", "backend/route.py", "--settings_file", "/settings.json"]
