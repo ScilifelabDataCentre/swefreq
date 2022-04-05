@@ -28,7 +28,8 @@ services:
   rebuilder:
     build:
       context: ./
-      dockerfile: Dockerfile-frontend-rebuilder
+      dockerfile: Dockerfiles/Dockerfile.frontend
+      target: rebuilder
     volumes:
       - type: bind
         source: .
