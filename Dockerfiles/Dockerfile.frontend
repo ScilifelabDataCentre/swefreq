@@ -15,10 +15,9 @@ RUN apt-get install -y \
         nodejs \
         npm	
 ADD . /code
-WORKDIR /code
 WORKDIR /code/frontend
 RUN npm install
-
+WORKDIR /code
 
 FROM base AS rebuilder
 
