@@ -4,19 +4,22 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile-database
+    environment:
+      - POSTGRES_PASSWORD=postgres
     restart: on-failure
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - 127.0.0.1:5432:5432
   web:
     build:
       context: ./
-      dockerfile: Dockerfile-backend
+      dockerfile: Dockerfiles/Dockerfile.backend
+      target: development
     depends_on:
       - db
     ports:
-      - 4000:4000
+      - 127.0.0.1:4000:4000
     restart: on-failure
     volumes:
       - type: bind
@@ -25,7 +28,8 @@ services:
   rebuilder:
     build:
       context: ./
-      dockerfile: Dockerfile-frontend-rebuilder
+      dockerfile: Dockerfiles/Dockerfile.frontend
+      target: rebuilder
     volumes:
       - type: bind
         source: .

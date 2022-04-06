@@ -1,0 +1,38 @@
+FROM ubuntu:latest AS base
+
+RUN apt-get update && \
+    apt-get install -y \
+        curl \
+        rsync \
+        python3 \
+        python3-pip \
+        python3-pyinotify \
+        inotify-tools
+ADD backend/requirements.txt /requirements.txt
+RUN pip install jinja2 argparse
+
+
+FROM base AS rebuilder
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y \
+        nodejs \
+        npm
+RUN pip3 install inotify
+ADD . /code
+WORKDIR /code
+CMD ["python3", "scripts/watch_frontend.py"]
+
+
+FROM base AS build
+
+ADD . /code
+WORKDIR /code
+RUN make static
+
+
+FROM nginx:latest AS production
+
+COPY --from=build /code/static /usr/share/nginx/html/
+COPY ./Dockerfiles/nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80
