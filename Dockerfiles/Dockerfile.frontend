@@ -7,7 +7,8 @@ RUN apt-get update && \
         python3 \
         python3-pip \
         python3-pyinotify \
-        inotify-tools
+        inotify-tools \
+	build-essential
 ADD backend/requirements.txt /requirements.txt
 RUN pip install jinja2 argparse
 
