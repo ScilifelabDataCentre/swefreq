@@ -1,4 +1,4 @@
-name: Publish Docker image
+name: Publish Docker Image
 on:
   push:
     branches:
@@ -8,8 +8,8 @@ on:
     types: [published]
 jobs:
   push_to_registry:
-    if: github.repository == 'ScilifelabDataCentre/SweFreq'
-    name: Push Docker image to Docker Hub
+    if: github.repository == 'ScilifelabDataCentre/swefreq'
+    name: Publish Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -19,21 +19,41 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - id: docker-tag
-        uses: yuya-takeyama/docker-tag-from-github-ref-action@v1
-      - name: Push backend to Docker Hub
+      - name: Log in to Github Container Repository
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker Meta - Backend
+        id: meta-backend
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            scilifelabdatacentre/swefreq-backend
+            ghcr.io/scilifelabdatacentre/swefreq-backend
+      - name: Docker Meta - Frontend
+        id: meta-frontend
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            scilifelabdatacentre/swefreq-frontend
+            ghcr.io/scilifelabdatacentre/swefreq-frontend
+      - name: Build and Publish Backend
         uses: docker/build-push-action@v2
         with:
           file: Dockerfiles/Dockerfile.backend
           context: .
-          target: production
           push: true
-          tags: scilifelabdatacentre/swefreq-backend:${{ steps.docker-tag.outputs.tag }}
-      - name: Push frontend to Docker Hub
+          target: production
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+      - name: Build and Publish Frontend
         uses: docker/build-push-action@v2
         with:
           file: Dockerfiles/Dockerfile.frontend
           context: .
           target: production
           push: true
-          tags: scilifelabdatacentre/swefreq-frontend:${{ steps.docker-tag.outputs.tag }}
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
