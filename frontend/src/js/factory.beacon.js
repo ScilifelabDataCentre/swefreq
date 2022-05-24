@@ -7,7 +7,7 @@
         };
 
         function getBeaconReferences(name, version) {
-            return $http.get("/api/beacon-elixir/").then(function(data) {
+            return $http.get("https://swefreq.nbis.se/api/beacon-elixir/").then(function(data) {
                 let d = data.data.datasets;
 
 		if (version) {
@@ -49,7 +49,7 @@
         }
 
         function queryBeacon(query) {
-            return $http.get("/api/beacon-elixir/query", {
+            return $http.get("https://swefreq.nbis.se/api/beacon-elixir/query", {
                     "params": {
                         "referenceName":   query.chromosome,
                         "start":           query.position - 1, // Beacon is 0-based
