@@ -1,6 +1,5 @@
-FROM postgres:10
+FROM postgres:14
 
 ENV POSTGRES_DB swefreq
 COPY sql/data_schema.sql /docker-entrypoint-initdb.d/01_data_schema.sql
 COPY sql/user_schema.sql /docker-entrypoint-initdb.d/02_user_schema.sql
-COPY sql/beacon_schema.sql /docker-entrypoint-initdb.d/03_beacon_schema.sql
